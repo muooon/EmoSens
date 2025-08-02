@@ -56,7 +56,7 @@ while also addressing challenges in new areas such as multimodal learning with c
 そしてこの機能は排他的ではないので shadow-system と同時に利用可能です  
 We have developed a new feature, shadow-efect, which serves as a substitute for the existing shadow system.  
 This new feature provides a similar effect to the shadow system used in emonavi and other applications.  
-For example, think of shadow-efect as learning a new point in preparation, while the shadow-system is for reinforcing that point through review.
+For example, think of shadow-efect as learning a new point in preparation, while the shadow-system is for reinforcing that point through review.  
 This functionality is Although it's a dedicated mechanism, it's not exclusive, so it can be used at the same time as the shadow-system.  
 
 ---
