@@ -1,6 +1,6 @@
 # EmoSENS / Emo-Family  
 ### あなたの望む最適化 EmoSENS が叶えます  
-#### The optimization you seek — EmoNAVI makes it possible  
+#### The optimization you seek — EmoSENS makes it possible  
 ---
 
 #### 自動収束･自己制御･自律型 オプティマイザです  
@@ -24,29 +24,21 @@ It can also be used in conjunction with the shadow feature.
 ### EmoSENS の主な特徴 / Main Features of EmoSENS  
 
 ---
-EmoNAVI 等にある shadow 機能を ON/OFF 切替可能、それでも多くの特徴を引き継ぎました  
-過学習や発散を抑制、学習率やスケジューラも自律調整、学習の 再開、追加、積層、等で"同期不要" 誰でも簡単です  
-普段は shadow をつかわないので、VRAM を軽量に保持可能となりました  
-極端に難しい学習時には shadow を ON にして学習を開始することも可能です  
+
+EmoNAVI 等にある shadow 機能 ON/OFF 切替可能、多くの特徴を引き継ぎました  
+過学習や発散を抑制、学習率、スケジューラ、学習の 再開、追加、積層、等 "自動調整･同期不要" 誰でも簡単です  
+普段は shadow をつかわず、VRAM を軽量に保持可能となりました  
+極端に難しい学習時には shadow を ON にして学習開始も可能です  
 VRAM に余裕のある時は shadow を使うとより良い学習を行えます  
 
 Engaging with EmoNAVI's core functionalities, we've introduced a new optimizer with a switchable ON/OFF shadow function. This new version retains many of our key features: it curbs overfitting and divergence, autonomously adjusts the learning rate and scheduler, and eliminates the need for synchronization when resuming, adding to, or stacking models. This makes it incredibly easy for anyone to use.  
 Typically, the shadow function is kept off, which allows for minimal VRAM usage. However, for extremely difficult training tasks, you have the option to enable the shadow function. For those with ample VRAM, using the shadow function can lead to even better training performance.  
-
 
 EmoNAVI/SENS 系統は既存のオプティマイザにはない｢感情駆動型｣です、  
 調整の複雑なマルチモーダル学習などの新しい分野の課題への対応も期待します  
 EmoNAVI/SENS system is “emotion-driven,” which is not the case with existing optimizers,  
 We expect it to overcome the challenges we currently face,  
 while also addressing challenges in new areas such as multimodal learning with complex coordination  
-
----
-
-(解説) 詳しい解説はこちら / (Explanation) For detailed explanation, click here.  
-[huggingface](https://huggingface.co/muooon/EmoNAVI) 
-[Gemini-analysis(ENG)](https://huggingface.co/muooon/EmoNAVI/blob/main/Hug-Gemini-analysis(ENG).md) 
-[Gemini-analysis(JPN)](https://huggingface.co/muooon/EmoNAVI/blob/main/Hug-Gemini-analysis(JPN).md) 
-[Gemini-analysis(JPN-02)](https://huggingface.co/muooon/EmoNAVI/blob/main/emonavi-Gemini-analysis(2)(JPN).txt) 
 
 ---
 #### 更新履歴 / History
@@ -56,9 +48,24 @@ while also addressing challenges in new areas such as multimodal learning with c
 |★| EmoSENS、AIRY、and CATS are now able to switch the shadow function on and off.  
 
 ---
+
+新たな機能、shadow-effect (shadow 代替システム) をつくりました  
+これにより emonavi 等の shadow に近い効果を維持します  
+例えますと shadow-effect：予習で重点を学ぶ、shadow-system：復習で重点を学ぶ、こういう感じです  
+動的フィルター、動的学習率、をつかうことでこの機能を実現しています  
+そしてこの機能は排他的ではないので shadow-system と同時に利用可能です  
+We have developed a new feature, shadow-efect, which serves as a substitute for the existing shadow system.  
+This new feature provides a similar effect to the shadow system used in emonavi and other applications.  
+For example, think of shadow-efect as learning a new point in preparation, while the shadow-system is for reinforcing that point through review.
+This functionality is Although it's a dedicated mechanism, it's not exclusive, so it can be used at the same time as the shadow-system.  
+
 ---
 
-
+(解説) 詳しい解説はこちら / (Explanation) For detailed explanation, click here.  
+[huggingface](https://huggingface.co/muooon/EmoNAVI) 
+[Gemini-analysis(ENG)](https://huggingface.co/muooon/EmoNAVI/blob/main/Hug-Gemini-analysis(ENG).md) 
+[Gemini-analysis(JPN)](https://huggingface.co/muooon/EmoNAVI/blob/main/Hug-Gemini-analysis(JPN).md) 
+[Gemini-analysis(JPN-02)](https://huggingface.co/muooon/EmoNAVI/blob/main/emonavi-Gemini-analysis(2)(JPN).txt) 
 
 ---
 
