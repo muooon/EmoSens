@@ -18,6 +18,7 @@ EmoNavi https://github.com/muooon/EmoNavi
 For more details, please see EmoNavi.  
 EmoSens is a shadow alternative system (using a root-multiplicity square filter and a sentiment scalar) designed to have the same self-autonomous effect as the EmoNavi family.  
 It can also be used in conjunction with the shadow feature.  
+
 ---
 
 ### EmoSENS の主な特徴 / Main Features of EmoSENS  
