@@ -2,20 +2,22 @@
 ### あなたの望む最適化 EmoSENS が叶えます  
 #### The optimization you seek — EmoNAVI makes it possible  
 ---
-###### これは、単なる最適化アルゴリズムではありません──  
-###### **感情で学習をナビゲートする｢感情型オプティマイザ｣** です  
-###### 変革と感情学習の成果は"ニューロンスパイクの再発明"でした  
----
-###### This is not just another optimizer —  
-###### **It’s an “Emotional Optimizer” that navigates learning through feeling.**  
-###### A result of transformative emotional learning: the reinvention of the neural spike.  
 
----
 #### 自動収束･自己制御･自律型 オプティマイザです  
 ##### EmoNAVI を引き継ぐ EmoSENS、AIRY、CATS、の登場です   
 #### Auto-convergence, self-control, autonomous optimizer  
 ###### EmoSENS, AIRY, and CATS, the successors to EmoNAVI, are here.  
 
+---
+
+詳しくは EmoNavi をご覧ください  
+こちらの EmoSens は shadow 代替システム(多乗平方根フィルターと感情スカラー)で  
+EmoNavi ファミリーと同じような自己自律の効果を持つようにしています  
+これは shadow 機能と併用も可能です  
+EmoNavi https://github.com/muooon/EmoNavi  
+For more details, please see EmoNavi.  
+EmoSens is a shadow alternative system (using a root-multiplicity square filter and a sentiment scalar) designed to have the same self-autonomous effect as the EmoNavi family.  
+It can also be used in conjunction with the shadow feature.  
 ---
 
 ### EmoSENS の主な特徴 / Main Features of EmoSENS  
