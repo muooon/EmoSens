@@ -11,9 +11,8 @@
 ---
 
 詳しくは EmoNavi をご覧ください  
-こちらの EmoSens は shadow 代替システム(多乗平方根フィルターと感情スカラー)で  
-EmoNavi ファミリーと同じような自己自律の効果を持つようにしています  
-これは shadow 機能と併用も可能です  
+こちらの EmoSens は shadow-effect で 自律の効果を持ちます  
+これは shadow 機能(shadow-system)と併用可能です  
 EmoNavi https://github.com/muooon/EmoNavi  
 For more details, please see EmoNavi.  
 EmoSens is a shadow alternative system (using a root-multiplicity square filter and a sentiment scalar) designed to have the same self-autonomous effect as the EmoNavi family.  
@@ -31,14 +30,16 @@ EmoNAVI 等にある shadow 機能 ON/OFF 切替可能、多くの特徴を引�
 極端に難しい学習時には shadow を ON にして学習開始も可能です  
 VRAM に余裕のある時は shadow を使うとより良い学習を行えます  
 
-Engaging with EmoNAVI's core functionalities, we've introduced a new optimizer with a switchable ON/OFF shadow function. This new version retains many of our key features: it curbs overfitting and divergence, autonomously adjusts the learning rate and scheduler, and eliminates the need for synchronization when resuming, adding to, or stacking models. This makes it incredibly easy for anyone to use.  
+Engaging with EmoNAVI's core functionalities, we've introduced a new optimizer with a switchable ON/OFF shadow function.  
+This new version retains many of our key features: it curbs overfitting and divergence, autonomously adjusts the learning rate and scheduler, and eliminates the need for synchronization when resuming, adding to, or stacking models.  
+This makes it incredibly easy for anyone to use.  
 Typically, the shadow function is kept off, which allows for minimal VRAM usage. However, for extremely difficult training tasks, you have the option to enable the shadow function. For those with ample VRAM, using the shadow function can lead to even better training performance.  
 
 EmoNAVI/SENS 系統は既存のオプティマイザにはない｢感情駆動型｣です、  
 調整の複雑なマルチモーダル学習などの新しい分野の課題への対応も期待します  
-EmoNAVI/SENS system is “emotion-driven,” which is not the case with existing optimizers,  
-We expect it to overcome the challenges we currently face,  
-while also addressing challenges in new areas such as multimodal learning with complex coordination  
+
+The EmoNAVI/SENS system is "emotion-driven," a feature not found in existing optimizers.  
+We expect it to address challenges in new areas, such as multimodal learning with complex coordination.  
 
 ---
 #### 更新履歴 / History
@@ -50,14 +51,36 @@ while also addressing challenges in new areas such as multimodal learning with c
 ---
 
 新たな機能、shadow-effect (shadow 代替システム) をつくりました  
+代替システムは "多乗平方根フィルターと感情スカラー" で構成されます  
 これにより emonavi 等の shadow に近い効果を維持します  
 例えますと shadow-effect：予習で重点を学ぶ、shadow-system：復習で重点を学ぶ、こういう感じです  
 動的フィルター、動的学習率、をつかうことでこの機能を実現しています  
 そしてこの機能は排他的ではないので shadow-system と同時に利用可能です  
-We have developed a new feature, shadow-efect, which serves as a substitute for the existing shadow system.  
-This new feature provides a similar effect to the shadow system used in emonavi and other applications.  
-For example, think of shadow-efect as learning a new point in preparation, while the shadow-system is for reinforcing that point through review.  
-This functionality is Although it's a dedicated mechanism, it's not exclusive, so it can be used at the same time as the shadow-system.  
+
+We have developed a new feature, shadow-efect, which serves as a substitute for the existing shadow system. This new feature provides a similar effect to the shadow system used in emonavi and other applications.  
+For example, think of shadow-efect as learning a new point in preparation, while the shadow-system is for reinforcing that point through review. Although it's a dedicated mechanism, it's not exclusive, so it can be used at the same time as the shadow-system.  
+
+感情機構の第１世代(emonavi系)は、感情機構による"柔軟さ"を示すことができました  
+その実装はラッパーのようにいろいろな仕組みを内包できることを証明したと思います  
+この第２世代(emosens)は、感情機構の重要部 shadow-system を解明します  
+この世代では shadow-system の本質を shadow-effect で模倣したことで  
+機械学習における 序盤、中盤、終盤、で、何を学ばせるか、どのように学ぶべきか、順番があると推定できます  
+つまりその順番を守ることが、安定した学習状態を維持し、知識の定着を促すことを示していると考えます  
+
+もうひとつは shadow-system は軽量化できる、ということを示唆していると考えます  
+現時点では shadow-sytem の第２世代 shadow-effect として "多乗平方根フィルタ" を用いますが  
+これをさらに簡易化することもできるでしょう、Cautious、softsign、等や他の組み合わせで、  
+フィルタや付随する機構を動的に管理すれば 序盤、中盤、終盤、の学習状態を適正化できるはずです  
+これからのオプティマイザはそうした自律的な仕組みを持つことで機械学習の進化を実現すると思います  
+
+The first generation of the emotion mechanism (emonavi series) was able to demonstrate the "flexibility" that an emotion mechanism provides. Its implementation, like a wrapper, proved that various systems could be integrated.  
+This second generation (emosens) clarifies the crucial part of the emotion mechanism, the shadow-system.   
+In this generation, by imitating the essence of the shadow-system with the shadow-effect, we can deduce that there is a sequence to what a machine should learn at the beginning, middle, and end of the learning process, and how it should learn it.  
+In other words, we believe that following this sequence is key to maintaining a stable learning state and promoting knowledge retention.  
+
+Another point is that the shadow-system can be made lightweight. Currently, the second-generation shadow-effect of the shadow-system uses a "multiple-order square root filter," but it should be possible to simplify this further.   
+By dynamically managing filters and their associated mechanisms using things like Cautious, softsign, or other combinations, we should be able to optimize the learning state at the beginning, middle, and end of the process.  
+I believe that future optimizers will achieve a significant evolution in machine learning by incorporating such autonomous mechanisms.  
 
 ---
 
