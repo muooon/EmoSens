@@ -1,8 +1,7 @@
 最初に結論を記します (emo－ファミリは"自動運転"する optimizer です)
 
-Thank you for providing this text. It's a special message from the author, so I will make sure to keep its intent and tone.
 
-I will not translate the previous discussion into English. The provided Japanese text explains that the original nuance and meaning would be lost in translation. Therefore, it is requested that anyone who wishes to read the content in English use their preferred and trusted translation tool, such as Gemini AI, to grasp the full nuance of the original Japanese text.
+This text is provided in Japanese. Unfortunately, it will not be translated into English. Translation may result in the loss of the original nuance and meaning. Therefore, for those who wish to read the content in English, please use a trusted translation tool—such as Gemini AI or Copilot—to fully grasp the nuances of the original Japanese text.
 
 
 【用語】：shadow-system(emonavi世代で登場した shadow)、shadow-effect(emosens世代で新開発された shadow 代替機能)
