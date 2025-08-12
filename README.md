@@ -1,4 +1,4 @@
-# EmoSENS / Emo-Family  
+# EmoSENS / Emo-Family (2ndGen)  
 ### あなたの望む最適化 EmoSENS が叶えます  
 #### The optimization you seek — EmoSENS makes it possible  
 ---
@@ -63,13 +63,13 @@ For example, think of shadow-efect as learning a new point in preparation, while
 感情機構の第１世代(emonavi系)は、感情機構による"柔軟さ"を示すことができました  
 その実装はラッパーのようにいろいろな仕組みを内包できることを証明したと思います  
 この第２世代(emosens)は、感情機構の重要部 shadow-system を解明します  
-この世代では shadow-system の本質を shadow-effect で模倣したことで  
-機械学習における 序盤、中盤、終盤、で、何を学ばせるか、どのように学ぶべきか、順番があると推定できます  
-つまりその順番を守ることが、安定した学習状態を維持し、知識の定着を促すことを示していると考えます  
+この世代では shadow-system の本質を shadow-effect で再解釈･再構成します  
+学習における 序盤、中盤、終盤、で、何を学ばせるか、どのように学ぶべきか、順番があると推定します  
+これにより、安定した学習状態を維持し、知識の定着を促進します  
 
-もうひとつは shadow-system は軽量化できる、ということを示唆していると考えます  
+これらは shadow-system は軽量化できる、ということを示唆していると考えます  
 現時点では shadow-sytem の第２世代 shadow-effect として "多乗平方根フィルタ" を用いますが  
-これをさらに簡易化することもできるでしょう、Cautious、softsign、等や他の組み合わせで、  
+さらに簡易化することもできるでしょう、Cautious、softsign、等や他の組み合わせで、  
 フィルタや付随する機構を動的に管理すれば 序盤、中盤、終盤、の学習状態を適正化できるはずです  
 これからのオプティマイザはそうした自律的な仕組みを持つことで機械学習の進化を実現すると思います  
 
