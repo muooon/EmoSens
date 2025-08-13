@@ -18,19 +18,19 @@ EmoNavi https://github.com/muooon/EmoNavi
 The second generation of Emo family has been “lightweighted”!  
 For more information about the core components of the Emo family, please see EmoNavi.  
 EmoSens is a shadow alternative system (using a root-multiplicity square filter and a sentiment scalar) designed to have the same self-autonomous effect as the EmoNavi family. It can also be used in conjunction with the shadow feature.  
-
+ 
 ---
 
 ### EmoSENS の主な特徴 / Main Features of EmoSENS  
 
 ---
 
-EmoNAVI 等から多くの特徴を引き継ぎました shadow ON/OFF 切替可(shadow-system)  
+EmoNAVI 等から多くの特徴を引き継ぎました shadow ON/OFF 切替可(Defualt：OFF)  
 過学習や発散を抑制、学習率、スケジューラ、学習の再開、追加、積層、"自動調整･同期不要"  
 普段は shadow-system をつかわず、VRAM の軽量化を保てます  
-極端に難しい学習時や VRAM に余裕ある時 shadow-system "ON" で学習開始できます  
+極端に難しい学習時や VRAM に余裕ある時 shadow-system "ON" を任意で設定可能  
 
-It inherits many features from EmoNAVI, etc. Shadow ON/OFF switchable (shadow system)  
+It inherits many features from EmoNAVI, etc. Shadow ON/OFF switchable (Defualt：OFF)  
 Suppresses overfitting and divergence, learning rate, scheduler, learning resumption, addition, stacking, etc. “Automatic adjustment and synchronization not required”  
 Normally, you can maintain VRAM optimization without using the shadow system.  
 When learning is extremely difficult or when there is sufficient VRAM, learning can be started with shadow-system ON.  
@@ -38,12 +38,15 @@ When learning is extremely difficult or when there is sufficient VRAM, learning 
 EmoNAVI/SENS 系統は既存のオプティマイザにはない｢感情駆動型｣です、  
 調整の複雑なマルチモーダル学習などの新しい分野の課題への対応も期待します  
 
-The EmoNAVI/SENS system is "emotion-driven," a feature not found in existing optimizers.  
+The EmoNAVI/SENS system is "emotion-driven", A feature not found in existing optimizers.  
 We expect it to address challenges in new areas, such as multimodal learning with complex coordination.  
 
 ---
-#### 更新履歴 / History
+#### 更新履歴 / History  
 ---
+
+|★| すぐに試したい方は"optimizer.zip"を解凍し使い方を確認してください  
+|★| If you want to try it out right away, please open the "optimizer.zip" and check the usage instructions.  
 
 |★| EmoSENS、AIRY、CATS、は shadow機能の on/off 切替えをできるようにしました  
 |★| EmoSENS、AIRY、and CATS are now able to switch the shadow function on and off.  
@@ -78,7 +81,7 @@ This second generation (emosens) clarifies the crucial part of the emotion mecha
 In this generation, by imitating the essence of the shadow-system with the shadow-effect, we can deduce that there is a sequence to what a machine should learn at the beginning, middle, and end of the learning process, and how it should learn it.  
 In other words, we believe that following this sequence is key to maintaining a stable learning state and promoting knowledge retention.  
 
-Another point is that the shadow-system can be made lightweight. Currently, the second-generation shadow-effect of the shadow-system uses a "multiple-order square root filter," but it should be possible to simplify this further.   
+Another point is that the shadow-system can be made lightweight. Currently, the second-generation shadow-effect of the shadow-system uses a "multiple-order square root filter," but it should be possible to simplify this further.  
 By dynamically managing filters and their associated mechanisms using things like Cautious, softsign, or other combinations, we should be able to optimize the learning state at the beginning, middle, and end of the process.  
 I believe that future optimizers will achieve a significant evolution in machine learning by incorporating such autonomous mechanisms.  
 
@@ -100,7 +103,7 @@ I believe that future optimizers will achieve a significant evolution in machine
 
 ---
 
-##### Emo 2G vs AdamW, Adafactor, and Lion, Graph
+##### Emo 2G vs AdamW, Adafactor, and Lion, Graph  
 ![EmoSENS00](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test00.png?raw=true)  
 ![EmoSENS01](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test01.png?raw=true)  
 ![EmoSENS02](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test02.png?raw=true)  
@@ -122,9 +125,10 @@ In its development, we deeply appreciate the insights of those who came before u
 
 ---
 
-### 引用について / About citations
+### 引用について / About citations  
 
 ---
+
 このオプテイマイザについて引用をなさる場合は、以下の２つをご紹介ください  
 When citing this optimizer, please refer to the following two sources:  
 https://github.com/muooon/EmoNavi  
@@ -134,4 +138,4 @@ https://huggingface.co/muooon/EmoNAVI
 
 発想の逆転で shadow 的な後追い動作を先回りに変えたらいろいろできちゃいました！  
 We flipped the script and turned the shadow's trailing behavior into a proactive one,  
-Which led to a ton of new possibilities !!
+Which led to a ton of new possibilities !!  
