@@ -94,16 +94,16 @@ I believe that future optimizers will achieve a significant evolution in machine
 
 ##### EmoSENS、AIRY、CATS、 のみ shadow False 測定  
 ##### In EmoSENS, AIRY, and CATS, the shadow is set to False.  
-![EmoNAVI00](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/loss_comparison_panel.png?raw=true)
-![EmoNAVI01](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/fluctuation_and_accuracy_panel.png?raw=true)
-![EmoNAVI02](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/trec_gpt2_weight_pca_3panel.png?raw=true)
+![EmoNAVI00](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/loss_comparison_panel.png?raw=true)  
+![EmoNAVI01](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/fluctuation_and_accuracy_panel.png?raw=true)  
+![EmoNAVI02](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/trec_gpt2_weight_pca_3panel.png?raw=true)  
 
 ---
 
 ##### Emo 2G vs AdamW, Adafactor, and Lion, Graph
-![EmoNAVI00](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test00.png?raw=true)
-![EmoNAVI01](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test01.png?raw=true)
-![EmoNAVI02](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test02.png?raw=true)
+![EmoSENS00](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test00.png?raw=true)  
+![EmoSENS01](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test01.png?raw=true)  
+![EmoSENS02](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test02.png?raw=true)  
 
 ---
 
