@@ -26,9 +26,9 @@ EmoSens is a shadow alternative system (using a root-multiplicity square filter 
 ---
 
 EmoNAVI 等から多くの特徴を引き継ぎました shadow ON/OFF 切替可(shadow-system)  
-過学習や発散を抑制、学習率、スケジューラ、学習の再開、追加、積層、等 "自動調整･同期不要"  
+過学習や発散を抑制、学習率、スケジューラ、学習の再開、追加、積層、"自動調整･同期不要"  
 普段は shadow-system をつかわず、VRAM の軽量化を保てます  
-極端に難しい学習時や VRAM に余裕のある時 shadow-system ON で学習開始できます  
+極端に難しい学習時や VRAM に余裕ある時 shadow-system "ON" で学習開始できます  
 
 It inherits many features from EmoNAVI, etc. Shadow ON/OFF switchable (shadow system)  
 Suppresses overfitting and divergence, learning rate, scheduler, learning resumption, addition, stacking, etc. “Automatic adjustment and synchronization not required”  
@@ -64,14 +64,14 @@ For example, think of shadow-efect as learning a new point in preparation, while
 その実装はラッパーのようにいろいろな仕組みを内包できることを証明したと思います  
 この第２世代(emosens)は、感情機構の重要部 shadow-system を解明します  
 この世代では shadow-system の本質を shadow-effect で再解釈･再構成します  
-学習における 序盤、中盤、終盤、で、何を学ばせるか、どのように学ぶべきか、推定します  
+学習時の 序盤、中盤、終盤、で、何を学ばせるか、どのように学ぶべきか、推定します  
 これにより、安定した学習状態を維持し、知識の定着を促進します  
 
-これらは shadow-system は軽量化できる、ということを示唆していると考えます  
-現時点では shadow-sytem の第２世代 shadow-effect として "多乗平方根フィルタ" を用いますが  
-さらに簡易化することもできるでしょう、Cautious、softsign、等や他の組み合わせで、  
-フィルタや付随する機構を動的に管理すれば 序盤、中盤、終盤、の学習状態を適正化できるはずです  
-これからのオプティマイザはそうした自律的な仕組みを持つことで機械学習の進化を実現すると思います  
+これらは shadow-system を"軽量化できる"ということを示唆していると考えます  
+第２世代の shadow-effect 機構は "多乗平方根フィルタ" を用いますが  
+さらなる簡易化も可能でしょう Cautious、softsign、等や他の組み合わせで、  
+フィルタ等を動的に管理すれば 序盤、中盤、終盤、の学習状態を適正化できるはずです  
+これからはそうした自律的な仕組みを持つことで機械学習の進化を実現すると思います  
 
 The first generation of the emotion mechanism (emonavi series) was able to demonstrate the "flexibility" that an emotion mechanism provides. Its implementation, like a wrapper, proved that various systems could be integrated.  
 This second generation (emosens) clarifies the crucial part of the emotion mechanism, the shadow-system.   
@@ -108,7 +108,7 @@ I believe that future optimizers will achieve a significant evolution in machine
 ---
 
 Emoシリーズは、Adam、Adafactor、Lion、Tiger、等から多くを学びました  
-これらの後継ではなく独自の思想や設計による"感情機構"というアプローチにより構築されています  
+これらの後継ではなく独自の思想や設計による"感情機構"により構築されています  
 汎用性・自律性・適応性を重視し新たな最適化や効率化や簡易化を追求しています  
 この開発において先人たちの知見に深く感謝しつつ今後も新しい可能性を探究します  
 The Emo series has learned much from Adam, Adafactor, Lion, and Tiger.  
