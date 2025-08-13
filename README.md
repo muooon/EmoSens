@@ -1,4 +1,4 @@
-# EmoSENS / Emo-Family (2ndGen)  
+# EmoSENS / Emo-Family (2G)  
 ### あなたの望む最適化 EmoSENS が叶えます  
 #### The optimization you seek — EmoSENS makes it possible  
 ---
@@ -10,13 +10,14 @@
 
 ---
 
-詳しくは EmoNavi をご覧ください  
-こちらの EmoSens は shadow-effect で 自律の効果を持ちます  
+Emo系 第２世代 です"軽量化"を果たしました！  
+Emo系の基幹部分について詳しくは EmoNavi をご覧ください  
+この EmoSens は shadow-effect で 自律の効果を持ちます  
 これは shadow 機能(shadow-system)と併用可能です  
 EmoNavi https://github.com/muooon/EmoNavi  
-For more details, please see EmoNavi.  
-EmoSens is a shadow alternative system (using a root-multiplicity square filter and a sentiment scalar) designed to have the same self-autonomous effect as the EmoNavi family.  
-It can also be used in conjunction with the shadow feature.  
+The second generation of Emo family has been “lightweighted”!  
+For more information about the core components of the Emo family, please see EmoNavi.  
+EmoSens is a shadow alternative system (using a root-multiplicity square filter and a sentiment scalar) designed to have the same self-autonomous effect as the EmoNavi family. It can also be used in conjunction with the shadow feature.  
 
 ---
 
@@ -24,16 +25,15 @@ It can also be used in conjunction with the shadow feature.
 
 ---
 
-EmoNAVI 等にある shadow 機能 ON/OFF 切替可能、多くの特徴を引き継ぎました  
-過学習や発散を抑制、学習率、スケジューラ、学習の 再開、追加、積層、等 "自動調整･同期不要" 誰でも簡単です  
-普段は shadow をつかわず、VRAM を軽量に保持可能となりました  
-極端に難しい学習時には shadow を ON にして学習開始も可能です  
-VRAM に余裕のある時は shadow を使うとより良い学習を行えます  
+EmoNAVI 等から多くの特徴を引き継ぎました shadow ON/OFF 切替可(shadow-system)  
+過学習や発散を抑制、学習率、スケジューラ、学習の再開、追加、積層、等 "自動調整･同期不要"  
+普段は shadow-system をつかわず、VRAM の軽量化を保てます  
+極端に難しい学習時や VRAM に余裕のある時 shadow-system ON で学習開始できます  
 
-Engaging with EmoNAVI's core functionalities, we've introduced a new optimizer with a switchable ON/OFF shadow function.  
-This new version retains many of our key features: it curbs overfitting and divergence, autonomously adjusts the learning rate and scheduler, and eliminates the need for synchronization when resuming, adding to, or stacking models.  
-This makes it incredibly easy for anyone to use.  
-Typically, the shadow function is kept off, which allows for minimal VRAM usage. However, for extremely difficult training tasks, you have the option to enable the shadow function. For those with ample VRAM, using the shadow function can lead to even better training performance.  
+It inherits many features from EmoNAVI, etc. Shadow ON/OFF switchable (shadow system)  
+Suppresses overfitting and divergence, learning rate, scheduler, learning resumption, addition, stacking, etc. “Automatic adjustment and synchronization not required”  
+Normally, you can maintain VRAM optimization without using the shadow system.  
+When learning is extremely difficult or when there is sufficient VRAM, learning can be started with shadow-system ON.  
 
 EmoNAVI/SENS 系統は既存のオプティマイザにはない｢感情駆動型｣です、  
 調整の複雑なマルチモーダル学習などの新しい分野の課題への対応も期待します  
@@ -50,12 +50,12 @@ We expect it to address challenges in new areas, such as multimodal learning wit
 
 ---
 
-新たな機能、shadow-effect (shadow 代替システム) をつくりました  
+新機能 shadow-effect (shadow 代替システム) をつくりました  
 代替システムは "多乗平方根フィルターと感情スカラー" で構成されます  
 これにより emonavi 等の shadow に近い効果を維持します  
-例えますと shadow-effect：予習で重点を学ぶ、shadow-system：復習で重点を学ぶ、こういう感じです  
+例えますと shadow-effect：予習、shadow-system：復習、という感じです  
 動的フィルター、動的学習率、をつかうことでこの機能を実現しています  
-そしてこの機能は排他的ではないので shadow-system と同時に利用可能です  
+この機能は排他的ではないので shadow-system と併用可能です  
 
 We have developed a new feature, shadow-efect, which serves as a substitute for the existing shadow system. This new feature provides a similar effect to the shadow system used in emonavi and other applications.  
 For example, think of shadow-efect as learning a new point in preparation, while the shadow-system is for reinforcing that point through review. Although it's a dedicated mechanism, it's not exclusive, so it can be used at the same time as the shadow-system.  
@@ -64,7 +64,7 @@ For example, think of shadow-efect as learning a new point in preparation, while
 その実装はラッパーのようにいろいろな仕組みを内包できることを証明したと思います  
 この第２世代(emosens)は、感情機構の重要部 shadow-system を解明します  
 この世代では shadow-system の本質を shadow-effect で再解釈･再構成します  
-学習における 序盤、中盤、終盤、で、何を学ばせるか、どのように学ぶべきか、順番があると推定します  
+学習における 序盤、中盤、終盤、で、何を学ばせるか、どのように学ぶべきか、推定します  
 これにより、安定した学習状態を維持し、知識の定着を促進します  
 
 これらは shadow-system は軽量化できる、ということを示唆していると考えます  
@@ -97,6 +97,13 @@ I believe that future optimizers will achieve a significant evolution in machine
 ![EmoNAVI00](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/loss_comparison_panel.png?raw=true)
 ![EmoNAVI01](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/fluctuation_and_accuracy_panel.png?raw=true)
 ![EmoNAVI02](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/trec_gpt2_weight_pca_3panel.png?raw=true)
+
+---
+
+##### Emo 2G vs AdamW, Adafactor, and Lion, Graph
+![EmoNAVI00](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test00.png?raw=true)
+![EmoNAVI01](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test01.png?raw=true)
+![EmoNAVI02](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/emosens-test02.png?raw=true)
 
 ---
 
