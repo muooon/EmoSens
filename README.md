@@ -45,12 +45,24 @@ We expect it to address challenges in new areas, such as multimodal learning wit
 #### 更新履歴 / History  
 ---
 
+|★| EmoSENS、AIRY、CATS、v2.0 (250815) 更新、shadow-system の精密化(オプション機能の更新)  
+|★| EmoSENS, AIRY, CATS, updated to v2.0 (250815), refinement of shadow-system (update of optional functions)  
+
 |★| すぐに試したい方は"optimizer.zip"を解凍し使い方を確認してください  
 |★| If you want to try it out right away, please open the "optimizer.zip" and check the usage instructions.  
 
 |★| EmoSENS、AIRY、CATS、は shadow機能の on/off 切替えをできるようにしました  
 |★| EmoSENS、AIRY、and CATS are now able to switch the shadow function on and off.  
 
+---
+
+SDXL 全層LoRA のとき、EmoSENS +300MB、EmoCats "基準"、EmoAiry -300MB、くらいの VRAM消費 になります  
+特に EmoAiry は、軽量です、参考にした Adafactor とあまり変わりません  
+さらに EmoCats は、符号に重みも加味されることで更新と収束は安定します  
+using SDXL full-layer LoRA, VRAM  will be around EmoSENS +300MB, EmoCats "base value", and EmoAiry -300MB.   
+EmoAiry is lightweight and not much different from Adafactor, which was reference.  
+EmoCats stabilizes updates and convergence by incorporating weighted gradient signs.  
+  
 ---
 
 新機能 shadow-effect (shadow 代替システム) をつくりました  
