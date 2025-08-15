@@ -7,7 +7,6 @@ EmoSens v2.0 (250815) shadow-system v2.0 shadow-effect v1.0
 AMP対応完了(202507) p.data -> p 修正済み
 memo : "optimizer = EmoSens(model.parameters(), lr=1e-3, use_shadow=True)"
 optimizer 指定の際に True / False で shadow を切替できる(現在 False)
-shadow-system、effect、併用時は、system によるVRAM専有を低下させる？(全体は増加/navi比)
 """
 
 class EmoSens(Optimizer):
