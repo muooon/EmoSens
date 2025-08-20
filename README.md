@@ -3,10 +3,22 @@
 #### The optimization you seek — EmoSENS makes it possible  
 ---
 
+###### これは、単なる最適化アルゴリズムではありません──  
+###### **感情で学習をナビゲートする｢感情型オプティマイザ｣** です  
+###### 変革と感情学習の成果は"３次momentの発明"でした  
+---
+###### This is not just another optimizer —  
+###### **It’s an “Emotional Optimizer” that navigates learning through feeling.**  
+###### A result of transformative emotional learning: the reinvention of the third moment.  
+
+---
+
 #### 自動収束･自己制御･自律型 オプティマイザです  
 ##### EmoNAVI を引き継ぐ EmoSENS、AIRY、CATS、の登場です   
+##### 感情フィルタで歪度(3次モーメント)を修正します  
 #### Auto-convergence, self-control, autonomous optimizer  
 ###### EmoSENS, AIRY, and CATS, the successors to EmoNAVI, are here.  
+###### Emotion Filter (Third Moment) Correct skewness  
 
 ---
 
@@ -96,6 +108,18 @@ In other words, we believe that following this sequence is key to maintaining a 
 Another point is that the shadow-system can be made lightweight. Currently, the second-generation shadow-effect of the shadow-system uses a "multiple-order square root filter," but it should be possible to simplify this further.  
 By dynamically managing filters and their associated mechanisms using things like Cautious, softsign, or other combinations, we should be able to optimize the learning state at the beginning, middle, and end of the process.  
 I believe that future optimizers will achieve a significant evolution in machine learning by incorporating such autonomous mechanisms.  
+
+２次momentによる平均化は微小微細な勾配を過大評価しがちです  
+この歪みを捉え修正することで過適合や崩壊を抑止します  
+３次momentは２次だけでなく１次momentも精密化しますから  
+すべてのパラメータをできるだけ正当に評価し更新に取り入れる役割りをします  
+これが感情フィルタです  
+
+Averaging based on the second moment tends to overestimate minute and subtle gradients.  
+By identifying and correcting this distortion, we can suppress overfitting and model collapse.  
+The third moment refines not only the second moment but also the first,  
+enabling a more equitable evaluation of all parameters and their appropriate incorporation into updates.  
+This is an emotion filter.  
 
 ---
 
