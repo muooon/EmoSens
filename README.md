@@ -5,20 +5,20 @@
 
 ###### これは、単なる最適化アルゴリズムではありません──  
 ###### **感情で学習をナビゲートする｢感情型オプティマイザ｣** です  
-###### 変革と感情学習の成果は"３次momentの発明"でした  
+###### 変革とshadowの成果は"高次momentの発明"でした  
 ---
 ###### This is not just another optimizer —  
 ###### **It’s an “Emotional Optimizer” that navigates learning through feeling.**  
-###### A result of transformative emotional learning: the reinvention of the third moment.  
+###### A result of transformative shadow-system: the reinvention of the Higher moments.  
 
 ---
 
 #### 自動収束･自己制御･自律型 オプティマイザです  
 ##### EmoNAVI を引き継ぐ EmoSENS、AIRY、CATS、の登場です   
-##### 感情フィルタで歪度(3次モーメント)を修正します  
+##### 感情フィルタ(高次モーメント)で歪度等を修正します  
 #### Auto-convergence, self-control, autonomous optimizer  
 ###### EmoSENS, AIRY, and CATS, the successors to EmoNAVI, are here.  
-###### Emotion Filter (Third Moment) Correct skewness  
+###### Emotion Filter (Higher moments) Correct skewness and etc.  
 
 ---
 
@@ -111,15 +111,15 @@ I believe that future optimizers will achieve a significant evolution in machine
 
 ２次momentによる平均化は微小微細な勾配を過大評価しがちです  
 この歪みを捉え修正することで過適合や崩壊を抑止します  
-３次momentは２次だけでなく１次momentも精密化しますから  
+高次momentは２次だけでなく１次momentも精密化しますから  
 すべてのパラメータをできるだけ正当に評価し更新に取り入れる役割りをします  
-これが感情フィルタです  
+これが感情フィルタです(歪度、尖度、高次非対称性のmomentです)  
 
-Averaging based on the second moment tends to overestimate minute and subtle gradients.  
-By identifying and correcting this distortion, we can suppress overfitting and model collapse.  
-The third moment refines not only the second moment but also the first,  
-enabling a more equitable evaluation of all parameters and their appropriate incorporation into updates.  
-This is an emotion filter.  
+Averaging by the second moment tends to overestimate minute and subtle gradients.  
+By capturing and correcting this distortion, overfitting and collapse can be suppressed.  
+Higher-order moments refine not only the second moment but also the first moment.  
+They serve to evaluate all parameters as fairly as possible and incorporate them into updates.  
+This is the emotional filter (moments of skewness, kurtosis, and higher-order asymmetry). 
 
 ---
 
