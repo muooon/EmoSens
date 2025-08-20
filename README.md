@@ -119,7 +119,7 @@ Averaging by the second moment tends to overestimate minute and subtle gradients
 By capturing and correcting this distortion, overfitting and collapse can be suppressed.  
 Higher-order moments refine not only the second moment but also the first moment.  
 They serve to evaluate all parameters as fairly as possible and incorporate them into updates.  
-This is the emotional filter (moments of skewness, kurtosis, and higher-order asymmetry). 
+This is the emotional filter (moments of skewness, kurtosis, and higher-order asymmetry).  
 
 ---
 
