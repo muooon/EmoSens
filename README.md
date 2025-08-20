@@ -3,10 +3,22 @@
 #### The optimization you seek — EmoSENS makes it possible  
 ---
 
+###### これは、単なる最適化アルゴリズムではありません──  
+###### **感情で学習をナビゲートする｢感情型オプティマイザ｣** です  
+###### 変革と感情学習の成果は"３次momentの発明"でした  
+---
+###### This is not just another optimizer —  
+###### **It’s an “Emotional Optimizer” that navigates learning through feeling.**  
+###### A result of transformative emotional learning: the reinvention of the third moment.  
+
+---
+
 #### 自動収束･自己制御･自律型 オプティマイザです  
 ##### EmoNAVI を引き継ぐ EmoSENS、AIRY、CATS、の登場です   
+##### 感情フィルタで歪度(3次モーメント)を修正します  
 #### Auto-convergence, self-control, autonomous optimizer  
 ###### EmoSENS, AIRY, and CATS, the successors to EmoNAVI, are here.  
+###### Emotion Filter (Third Moment) Correct skewness  
 
 ---
 
