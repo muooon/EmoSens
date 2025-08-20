@@ -109,6 +109,18 @@ Another point is that the shadow-system can be made lightweight. Currently, the 
 By dynamically managing filters and their associated mechanisms using things like Cautious, softsign, or other combinations, we should be able to optimize the learning state at the beginning, middle, and end of the process.  
 I believe that future optimizers will achieve a significant evolution in machine learning by incorporating such autonomous mechanisms.  
 
+２次momentによる平均化は微小微細な勾配を過大評価しがちです  
+この歪みを捉え修正することで過適合や崩壊を抑止します  
+３次momentは２次だけでなく１次momentも精密化しますから  
+すべてのパラメータをできるだけ正当に評価し更新に取り入れる役割りをします  
+これが感情フィルタです  
+
+Averaging based on the second moment tends to overestimate minute and subtle gradients.  
+By identifying and correcting this distortion, we can suppress overfitting and model collapse.  
+The third moment refines not only the second moment but also the first,  
+enabling a more equitable evaluation of all parameters and their appropriate incorporation into updates.  
+This is an emotion filter.  
+
 ---
 
 (解説) 詳しい解説はこちら / (Explanation) For detailed explanation, click here.  
