@@ -145,7 +145,7 @@ Higher moment: Abstract implementation (mathematical accuracy requires high comp
 このように、moment群を組み合わせてLossの“意味”を再評価し、信頼できる方向に学習を誘導する  
 In this way, by combining moment groups, the “meaning” of loss is reevaluated and learning is guided in a reliable direction.  
 
-数式スで見る「暴走予兆」の検知、  
+数式で見る「暴走予兆」の検知、  
 以下のような構成で暴走の兆候を捉えています：  
 Detecting “signs of runaway behavior” using mathematical formulas.  
 We detect signs of runaway behavior using the following configuration:  
