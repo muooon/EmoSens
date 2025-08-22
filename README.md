@@ -57,6 +57,9 @@ We expect it to address challenges in new areas, such as multimodal learning wit
 #### 更新履歴 / History  
 ---
 
+|★| emo系、再テストを実施、ちょいと省VRAMだったことが判明、結果は上々です  
+|★| [report-vs-adamw(JPN)] (https://huggingface.co/muooon/EmoNAVI/blob/main/report/report-vs-adamw(JPN).txt)  
+
 |★| EmoSENS、AIRY、CATS、v2.0 (250815) 更新、shadow-system の精密化(オプション機能の更新)  
 |★| EmoSENS, AIRY, CATS, updated to v2.0 (250815), refinement of shadow-system (update of optional functions)  
 
@@ -120,6 +123,57 @@ By capturing and correcting this distortion, overfitting and collapse can be sup
 Higher-order moments refine not only the second moment but also the first moment.  
 They serve to evaluate all parameters as fairly as possible and incorporate them into updates.  
 This is the emotional filter (moments of skewness, kurtosis, and higher-order asymmetry).  
+
+高次moment：抽象化した実装(数学的な正確さは計算負荷高いため)  
+Higher moment: Abstract implementation (mathematical accuracy requires high computational load)  
+- filter_strength = torch.abs(grad).pow(1/3)  
+  → 3次moment(歪度)：勾配の非対称性を捉える Captures the asymmetry of the gradient.  
+- threshold = 1e-4 * (1 + abs(scalar))  
+  → 4次moment(尖度)：鋭さやピーク性を感情スカラーで調整 Adjust sharpness and peakiness with emotion scalars  
+- p.add_(filtered_update, alpha=-group['lr'] * (1 - abs(scalar)))  
+  → 5次moment(非対称性の変化)：更新量の抑制や促進を制御 Control the suppression or promotion of updates  
+
+![moment00](https://github.com/muooon/EmoSens/blob/main/AMP-compatible/data/moment00.png?raw=true)  
+
+どう補正しているか？ How do I correct it?  
+- 2次momentが高い＝揺らぎが大きい → 通常は「不安定」と判断される
+- 3次momentが正の方向に高いなら → それは「改善の兆し」かもしれない  
+- 4次momentが低いなら → その揺らぎは「滑らかで信頼できる」可能性が高い  
+- 2nd moment = high fluctuation → Normally judged to be “unstable”  
+- 3rd moment is high in the positive direction → It may be a “sign of improvement.”  
+- 4th moment is low → The fluctuation is likely to be “smooth and reliable.”  
+このように、moment群を組み合わせてLossの“意味”を再評価し、信頼できる方向に学習を誘導する  
+In this way, by combining moment groups, the “meaning” of loss is reevaluated and learning is guided in a reliable direction.  
+
+数式スで見る「暴走予兆」の検知、  
+以下のような構成で暴走の兆候を捉えています：  
+Detecting “signs of runaway behavior” using mathematical formulas.  
+We detect signs of runaway behavior using the following configuration:  
+
+1. moment群の定義(簡略形)  
+- m_1 = \mathbb{E}[g]  ← 勾配の平均(1次moment)  
+- m_2 = \mathbb{E}[g^2] ← 勾配の分散(2次moment)  
+- m_3 = \mathbb{E}[g^3] ← 歪度(Skewness)  
+- m_4 = \mathbb{E}[g^4] ← 尖度(Kurtosis)  
+ここで g は勾配、\mathbb{E}[\cdot] は期待値(平均)です  
+
+2. 感情スカラー(Emotion Scalar)の構成  
+暴走予兆の検知は、以下のような式で行われます：  
+\text{emotion} = \frac{m_3}{m_2 + \epsilon} \cdot \exp(-m_4)  
+この式の意味はこうです：  
+- \frac{m_3}{m_2}：歪度が高く、分散が小さい → 急激な変化の兆候  
+- \exp(-m_4)：尖度が高いときは抑制 → 極端なピークを警戒  
+つまり、歪度が高くて尖度が低いとき＝モデルが勢いよく安定的に学習している  
+逆に、尖度が高くなると、暴走の兆候とみなしてemotion値が抑制される  
+In other words, when skewness is high and kurtosis is low, the model is learning steadily and rapidly.  
+Conversely, when the sharpness increases, it is regarded as a sign of runaway behavior, and the emotion value is suppressed.  
+
+3. 学習率(lr)への反映  
+\text{lr}_{\text{adjusted}} = \text{base\_lr} \cdot (1 - \text{emotion})  
+このように、emotionが低ければ学習率は上がり高ければ抑えられます  
+つまり、暴走の予兆が検知されると、学習率が自動的に“冷却”されます  
+In this way, if emotion is low, the learning rate increases, and if it is high, it is suppressed.  
+In other words, when signs of runaway behavior are detected, the learning rate is automatically “cooled down.”  
 
 ---
 
