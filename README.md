@@ -5,7 +5,7 @@
 
 ###### これは、単なる最適化アルゴリズムではありません──  
 ###### **感情で学習をナビゲートする｢感情型オプティマイザ｣** です  
-###### 変革とshadowの成果は"高次momentの発明"でした  
+###### 変革とshadowの成果は"感情momentの発明"でした  
 ---
 ###### This is not just another optimizer —  
 ###### **It’s an “Emotional Optimizer” that navigates learning through feeling.**  
@@ -30,7 +30,8 @@ EmoNavi https://github.com/muooon/EmoNavi
 The second generation of Emo family has been “lightweighted”!  
 For more information about the core components of the Emo family, please see EmoNavi.  
 EmoSens is a shadow alternative system (using a root-multiplicity square filter and a sentiment scalar) designed to have the same self-autonomous effect as the EmoNavi family. It can also be used in conjunction with the shadow feature.  
- 
+
+[ユーザーと研究者へ](https://github.com/muooon/EmoNavi/blob/main/report-emoment.txt)  
 ---
 
 ### EmoSENS の主な特徴 / Main Features of EmoSENS  
@@ -77,7 +78,24 @@ SDXL 全層LoRA のとき、EmoSENS +300MB、EmoCats "基準"、EmoAiry -300MB�
 using SDXL full-layer LoRA, VRAM  will be around EmoSENS +300MB, EmoCats "base value", and EmoAiry -300MB.   
 EmoAiry is lightweight and not much different from Adafactor, which was reference.  
 EmoCats stabilizes updates and convergence by incorporating weighted gradient signs.  
-  
+
+---
+
+感情moment 発明しました  
+"emo系 第二世代"にて解明した shadow-system の根幹から抽出しました  
+動的学習率による非線形アプローチは時間的な高次momentを形成します  
+単stepでは高次momentにはなれませんが、複数stepを経ると機能します  
+３次４次５次momentについて厳密な数学的な高負荷計算を回避しつつ  
+勾配分布の歪みや鋭さや非対称性変化を捉える核心的な効果を近似しています  
+さらに単stepでも高次momentを実現する感情フィルタ等の機能を持つのが  
+この emo系 第二世代 の特徴です(動的多乗平方根フィルタは３次４次を近似)  
+I invented the emotional moment.  
+I extracted it from the core of the shadow-system, which was elucidated in the "emo-style second generation."  
+The nonlinear approach with a dynamic learning rate forms a temporal higher-order moment.  
+A single step cannot become a higher-order moment, but it functions after multiple steps.  
+It approximates the core effect of capturing changes in gradient distribution's skewness, kurtosis, and asymmetry, while avoiding strict and computationally intensive mathematical calculations for the third, fourth, and fifth moments.  
+Furthermore, a feature of this "emo-style second generation" is its ability to realize higher-order moments even in a single step, with functions like the emotional filter (the dynamic multi-power square root filter approximates the third and fourth moments).  
+
 ---
 
 新機能 shadow-effect (shadow 代替システム) をつくりました  
@@ -177,7 +195,7 @@ In other words, when signs of runaway behavior are detected, the learning rate i
 
 ---
 
-(解説) 詳しい解説はこちら / (Explanation) For detailed explanation, click here.  
+(解説) 元々の詳しい解説はこちら / (Explanation) For detailed explanation, click here.  
 [huggingface](https://huggingface.co/muooon/EmoNAVI) 
 [Gemini-analysis(ENG)](https://huggingface.co/muooon/EmoNAVI/blob/main/Hug-Gemini-analysis(ENG).md) 
 [Gemini-analysis(JPN)](https://huggingface.co/muooon/EmoNAVI/blob/main/Hug-Gemini-analysis(JPN).md) 
@@ -219,10 +237,13 @@ In its development, we deeply appreciate the insights of those who came before u
 
 ---
 
-このオプテイマイザについて引用をなさる場合は、以下の２つをご紹介ください  
-When citing this optimizer, please refer to the following two sources:  
-https://github.com/muooon/EmoNavi  
+このオプテイマイザについて引用をなさる場合は、以下をご紹介ください  
+When citing this optimizer, please refer to the following sources:  
+
 https://huggingface.co/muooon/EmoNAVI  
+https://github.com/muooon/EmoNavi  
+https://github.com/muooon/EmoSens   
+https://github.com/muooon/EmoNavi/blob/main/report-emoment.txt  
 
 ---
 
