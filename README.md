@@ -31,7 +31,7 @@ The second generation of Emo family has been “lightweighted”!
 For more information about the core components of the Emo family, please see EmoNavi.  
 EmoSens is a shadow alternative system (using a root-multiplicity square filter and a sentiment scalar) designed to have the same self-autonomous effect as the EmoNavi family. It can also be used in conjunction with the shadow feature.  
 
-#### [ユーザーと研究者へ/このリンクを読んでください/please click！](https://github.com/muooon/EmoNavi/blob/main/report-emoment.txt)  
+#### [ユーザーと研究者へ/このリンクを読んでください/please click！](https://huggingface.co/muooon/EmoNAVI/raw/main/report-emoment.txt)  
 ---
 
 ### EmoSENS の主な特徴 / Main Features of EmoSENS  
@@ -59,7 +59,7 @@ We expect it to address challenges in new areas, such as multimodal learning wit
 ---
 
 |★| emo系、再テストを実施、ちょいと省VRAMだったことが判明、結果は上々です  
-|★| [report-vs-adamw(JPN)] (https://huggingface.co/muooon/EmoNAVI/blob/main/report/report-vs-adamw(JPN).txt)  
+|★| [report-vs-adamw(JPN)] (https://huggingface.co/muooon/EmoNAVI/raw/main/report/report-vs-adamw(JPN).txt)  
 
 |★| EmoSENS、AIRY、CATS、v2.0 (250815) 更新、shadow-system の精密化(オプション機能の更新)  
 |★| EmoSENS, AIRY, CATS, updated to v2.0 (250815), refinement of shadow-system (update of optional functions)  
@@ -242,8 +242,8 @@ When citing this optimizer, please refer to the following sources:
 
 https://huggingface.co/muooon/EmoNAVI  
 https://github.com/muooon/EmoNavi  
-https://github.com/muooon/EmoSens   
-https://github.com/muooon/EmoNavi/blob/main/report-emoment.txt  
+https://github.com/muooon/EmoSens  
+https://huggingface.co/muooon/EmoNAVI/raw/main/report-emoment.txt  
 
 ---
 
