@@ -22,6 +22,16 @@
 
 ---
 
+Mathematical Explanation Here (paper)  
+
+#### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-paper(ENG).txt)  
+#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-paper(JPN).txt)   
+
+---
+
+※注意※ こちらは emo系 第二世代です、特別な事情のない限りは、emonavi(v3.0)以降をオススメします  
+※注意※ shadow-system ではなく effect を試したい方は、この第二世代をご使用ください  
+
 Emo系 第２世代 です"軽量化"を果たしました！  
 Emo系の基幹部分について詳しくは EmoNavi をご覧ください  
 この EmoSens は shadow-effect で 自律の効果を持ちます  
@@ -31,7 +41,6 @@ The second generation of Emo family has been “lightweighted”!
 For more information about the core components of the Emo family, please see EmoNavi.  
 EmoSens is a shadow alternative system (using a root-multiplicity square filter and a sentiment scalar) designed to have the same self-autonomous effect as the EmoNavi family. It can also be used in conjunction with the shadow feature.  
 
-#### [ユーザーと研究者へ/このリンクを読んでください/please click！](https://huggingface.co/muooon/EmoNAVI/raw/main/report-emoment.txt)  
 ---
 
 ### EmoSENS の主な特徴 / Main Features of EmoSENS  
@@ -195,11 +204,13 @@ In other words, when signs of runaway behavior are detected, the learning rate i
 
 ---
 
+[emonavi概要と応用(日本語)/Emonavi Overview and Applications (Japanese)](https://huggingface.co/muooon/EmoNAVI/raw/main/report-emoment.txt)  
+
 (解説) 元々の詳しい解説はこちら / (Explanation) For detailed explanation, click here.  
 [huggingface](https://huggingface.co/muooon/EmoNAVI) 
-[Gemini-analysis(ENG)](https://huggingface.co/muooon/EmoNAVI/blob/main/Hug-Gemini-analysis(ENG).md) 
-[Gemini-analysis(JPN)](https://huggingface.co/muooon/EmoNAVI/blob/main/Hug-Gemini-analysis(JPN).md) 
-[Gemini-analysis(JPN-02)](https://huggingface.co/muooon/EmoNAVI/blob/main/emonavi-Gemini-analysis(2)(JPN).txt) 
+[Gemini-analysis(ENG)](https://huggingface.co/muooon/EmoNAVI/raw/main/Hug-Gemini-analysis(ENG).md) 
+[Gemini-analysis(JPN)](https://huggingface.co/muooon/EmoNAVI/raw/main/Hug-Gemini-analysis(JPN).md) 
+[Gemini-analysis(JPN-02)](https://huggingface.co/muooon/EmoNAVI/raw/main/emonavi-Gemini-analysis(2)(JPN).txt)  
 
 ---
 
@@ -240,10 +251,13 @@ In its development, we deeply appreciate the insights of those who came before u
 このオプテイマイザについて引用をなさる場合は、以下をご紹介ください  
 When citing this optimizer, please refer to the following sources:  
 
+Official Code:  
 https://huggingface.co/muooon/EmoNAVI  
 https://github.com/muooon/EmoNavi  
 https://github.com/muooon/EmoSens  
-https://huggingface.co/muooon/EmoNAVI/raw/main/report-emoment.txt  
+
+paper:  
+https://huggingface.co/muooon/EmoNAVI/raw/main/emo-paper(ENG).txt  
 
 ---
 
