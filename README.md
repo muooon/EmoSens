@@ -26,12 +26,12 @@ EmoSens v3.7 is now complete. We will continue to prioritize and pursue more rob
 初期LRは1.0で大丈夫です(データセットの工夫にあなたの時間を割いてください)  
 The initial LR can be set to 1.0 (please focus your time on refining the dataset).  
 
-Mathematical Explanation Here (paper) v3.6  
+Mathematical Explanation Here (paper) v3.6～v3.7  
 非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)  
 Expected value convergence for non-convex functions  
 (also guarantees adaptability to flow matching)  
-#### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v36-paper(ENG).txt)  
-#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v36-paper(JPN).txt)  
+#### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(ENG).txt)  
+#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(JPN).txt)  
 
 ---
 
@@ -89,13 +89,13 @@ Fully autonomous, enabling flexible learning configurations through layering, re
  
 <summary> emotional moment </summary>  
 
-"emo系 第二世代"にて解明した shadow-system の根幹から抽出しました  
+"emo系 第二世代 v1.x"にて解明した shadow-system の根幹から抽出しました  
 動的学習率による非線形アプローチは時間的な高次momentを形成します  
 単stepでは高次momentにはなれませんが、複数stepを経ると機能します  
 ３次４次５次momentについて厳密な数学的な高負荷計算を回避しつつ  
 勾配分布の歪みや鋭さや非対称性変化を捉える核心的な効果を近似しています  
 I invented the emotional moment.  
-I extracted it from the core of the shadow-system, which was elucidated in the "emo-style second generation."  
+I extracted it from the core of the shadow-system, which was elucidated in the "emo-style second generation v1.x."  
 The nonlinear approach with a dynamic learning rate forms a temporal higher-order moment.  
 A single step cannot become a higher-order moment, but it functions after multiple steps.  
 It approximates the core effect of capturing changes in gradient distribution's skewness, kurtosis, and asymmetry, while avoiding strict and computationally intensive mathematical calculations for the third, fourth, and fifth moments.  
@@ -297,6 +297,7 @@ https://github.com/muooon/EmoSens
 paper:  
 https://huggingface.co/muooon/EmoNAVI/raw/main/emo-paper(ENG).txt  
 https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v36-paper(ENG).txt  
+https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(ENG).txt
 
 ---
 
