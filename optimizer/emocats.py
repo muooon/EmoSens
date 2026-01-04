@@ -5,8 +5,9 @@ from typing import Tuple, Callable, Union
 from collections import deque
 
 """
-EmoCats v3.7.0 (260101) shadow-system v3.1 -moment v3.1 emoDrive ｖ3.6 emoPulse v3.7
+EmoCats v3.7.1 (260105) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 EmoLynx v3.6 継承、 emoPulse 機構により完全自動化を目指す(emoScope により微調整可)
+emoDrive 的な加減速を emoPulse に統合し簡略化
 """
 
 # Helper function (Lynx)
@@ -15,13 +16,8 @@ def exists(val):
 
 class EmoCats(Optimizer):
     # クラス定義＆初期化 lynx用ベータ･互換性の追加(lynx用beta1･beta2)
-    def __init__(self, params: 
-                 Union[list, torch.nn.Module], 
-                 lr=1.0, 
-                 eps=1e-8,
-                 betas=(0.9, 0.995), 
-                 weight_decay=0.01, 
-                 use_shadow: bool = False, 
+    def __init__(self, params: Union[list, torch.nn.Module], lr=1.0, eps=1e-8,
+                 betas=(0.9, 0.995), weight_decay=0.01, use_shadow: bool = False, 
                  writer=None): 
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
@@ -29,8 +25,8 @@ class EmoCats(Optimizer):
         self._init_lr = lr
         self.should_stop = False     # 停止フラグの初期化
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
-        self.writer = writer         # 動的学習率や感情スカラー等を渡す
-        self.emoScope = 20.0 * lr    # 学習速度ではなく「視界の広さ」
+        self.writer = writer         # 動的学習率や感情スカラー等を渡す(研究向け)
+        self.emoScope = lr           # 動的学習率の調和とリズム
         self.noise_est = 0.0
         self.d_est = 0.0
 
@@ -67,21 +63,8 @@ class EmoCats(Optimizer):
         diff = (ema['long'] - ema['short']) / scale_base_l
         return math.tanh(1 * diff)
 
-    # 論文通りの抑制則/急変時は強抑制/悪化時は微減速/平時は無介入で収束を安定させる
-    # 区分別けは現状では無意味ですが後々にカスタマイズしやすい形式として整理してあります
-    def _decide_coeff(self, scalar):  # B <= x <= A: 等も可能
-        if abs(scalar) > 0.75:
-            return 1.0 - abs(scalar)  # 緊急｜急制動｜tanh 0.97(0.03)
-        elif abs(scalar) > 0.50:
-            return 1.0 - abs(scalar)  # 急変｜強抑制｜tanh 0.55(0.45)
-        elif abs(scalar) > 0.25:
-            return 1.0 - abs(scalar)  # 悪化｜微減速｜tanh 0.26(0.74)
-        else:
-            return 1.0                # 平時｜無介入｜他(常に 1.0 を返す)
-
     # (重要)現在は shadow-effect を参考に得た動的フィルタ効果の近似により use_shadow=False です
     # しかし全機能は shadow なしで全て成立します／コード確認時はこの shadow を考慮外として無視してください
-
     # Shadow混合比 ３段階構成 タスクに応じ調整可、以下を参考に 開始値・範囲量･変化幅を調整
     # return 開始値 + ((scalar) - 閾値) / 範囲量 * 変化幅 も可能(特殊用途向け)
     def _decide_ratio(self, scalar):
@@ -105,10 +88,8 @@ class EmoCats(Optimizer):
         ema = self._update_ema(self.state, loss_val)
         early_scalar = self._early_scalar(ema)
         scalar = self._compute_scalar(ema)
-        coeff = self._decide_coeff(scalar)
         ratio = self._decide_ratio(scalar)
         trust = math.copysign((1.0 - abs(scalar)), scalar)
-        emoDpt = 8.0 * abs(trust)
 
         for group in self.param_groups:
             # リンクス共通パラメータ抽出
@@ -136,22 +117,14 @@ class EmoCats(Optimizer):
                         leap_ratio = 0.1 * abs(trust)
                         state['shadow'].lerp_(p, leap_ratio)          
 
-                # emoDrive 作動域 (Turbo & Trust LR system)
-                if 0.25 < abs(scalar) < 0.5:
-                    emoDrive = emoDpt * (1.0 + 0.1 * trust)  # 加速／減速ゾーン補正
-                elif abs(scalar) > 0.75:
-                    emoDrive = coeff  # 緊急｜急制動｜tanh 0.97(0.03)
-                else:
-                    emoDrive = 1.0    # 無介入ゾーン
-
                 # emoPulse (loss 時系列から D / noise を推定し完全自動LRを生成)
                 # noise_estimate: loss の揺れ(不安定性)のEMA
-                self.noise_est = 0.8 * self.noise_est + 0.2 * abs(trust)
-                noise = max(self.noise_est, 1e-10)  # 下限 1e-10
-                # d_estimate: loss の改善傾向の EMA(距離 D の代理)
-                self.d_est = 0.9 * self.d_est + 0.1 * max(trust, 0.0)  # 非負にする
-                # 上限 妙に遅い／早すぎる、 emoScorpe：5.0～20.0くらいがいい／基準値20.0
-                d = min(self.d_est, self.emoScope)
+                self.noise_est = 0.7 * self.noise_est + 0.3 * abs(scalar)
+                noise = max(self.noise_est, 1e-8)  # 下限 eps
+                # distance_estimate: loss の改善傾向の EMA(距離 D の代理)
+                # emoScope：基準値1.0
+                self.d_est = 0.95 * self.d_est + 0.05 * max(trust, 1e-6)  # 非負非ゼロ
+                d = self.d_est * self.emoScope
 
                 # --- Start Gradient Update Logic ---
                 # lynx初期化(exp_avg_sq)
@@ -161,7 +134,7 @@ class EmoCats(Optimizer):
 
                 # Stepweight decay (from lynx): p = p * (1 - lr * wd)
                 # decoupled_wd 考慮 _wd_actual 使用(EmoNaviのwdは最後に適用)
-                emoPulse = min((d / noise), 1e-3)
+                emoPulse = max(min((((d / noise)**2) * 5e-5), 1e-3), 1e-6)
                 p.mul_(1 - emoPulse * _wd_actual)
                 beta1, beta2 = group['betas']
 
@@ -170,7 +143,7 @@ class EmoCats(Optimizer):
                 blended_grad = grad.mul(1 - beta1).add_(exp_avg, alpha=beta1)
 
                 # p: p = p - lr * sign(blended_grad)
-                p.add_(blended_grad.sign_(), alpha = -emoPulse * emoDrive)
+                p.add_(blended_grad.sign_(), alpha = -emoPulse)
 
                 # exp_avg = beta2 * exp_avg + (1 - beta2) * grad
                 exp_avg.mul_(beta2).add_(grad, alpha = 1 - beta2)
@@ -194,8 +167,6 @@ class EmoCats(Optimizer):
         if hasattr(self, 'writer') and self.writer is not None:
             self._step_count = getattr(self, "_step_count", 0) + 1
             self.writer.add_scalar("emoLR/base", emoPulse, self._step_count)
-            self.writer.add_scalar("emoLR/Turbo", emoPulse * emoDrive, self._step_count)
-            self.writer.add_scalar("emostate/emoDrive", emoDrive, self._step_count)
             self.writer.add_scalar("emostate/scalar", scalar, self._step_count)
 
         return
