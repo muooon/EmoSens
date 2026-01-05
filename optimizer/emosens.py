@@ -5,14 +5,19 @@ from collections import deque
 
 """
 EmoSens v3.7.1 (260105) shadow-system v3.1 -moment v3.1 emoPulse v3.7
-EmoNavi v3.6 継承、 emoPulse 機構により完全自動化を目指す(emoScope により微調整可)
-emoDrive 的な加減速を emoPulse に統合し簡略化
+EmoLynx v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
+emoPulse 機構により完全自動化を目指す(emoScope 微調整可／改善度反映率)
 """
 
 class EmoSens(Optimizer):
     # クラス定義＆初期化
-    def __init__(self, params, lr=1.0, eps=1e-8, betas=(0.9, 0.995), 
-                 weight_decay=0.01, use_shadow:bool=False, writer=None):
+    def __init__(self, params,
+                 lr=1.0, 
+                 eps=1e-8, 
+                 betas=(0.9, 0.995), 
+                 weight_decay=0.01, 
+                 use_shadow:bool=False, 
+                 writer=None):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
         self._init_lr = lr
@@ -20,8 +25,8 @@ class EmoSens(Optimizer):
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
         self.writer = writer         # 動的学習率や感情スカラー等を渡す(研究向け)
         self.emoScope = lr           # 動的学習率の調和とリズム
-        self.noise_est = 0.0
-        self.d_est = 0.0
+        self.noise_est = 0.1         # emoPulse nest 初期化
+        self.d_est = 0.1             # emoPulse dest 初期化
 
     # 感情EMA更新(緊張と安静)
     def _update_ema(self, state, loss_val):
