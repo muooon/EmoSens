@@ -114,7 +114,7 @@ class EmoSens(Optimizer):
                 noise = max(self.noise_est, 1e-8)  # 下限 eps
                 # distance_estimate: loss の改善傾向の EMA(距離 D の代理)
                 # emoScope：基準値1.0
-                self.d_est = 0.95 * self.d_est + 0.05 * max(trust, 1e-6)  # 非負非ゼロ
+                self.d_est = 0.95 * self.d_est + 0.05 * abs(trust)
                 d = self.d_est * self.emoScope
 
                 # --- Start Gradient Update Logic ---
