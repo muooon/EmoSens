@@ -169,11 +169,12 @@ class EmoAiry(Optimizer):
             if avg_abs < 0.05 and var < 0.005:
                 self.should_stop = True # 💡 外部からこれを見て判断可
 
-        # TensorBoardへの記録（step関数の末尾に追加）
+        # TensorBoardへの記録 (研究者向けデバッグ用) 要：外部記録コード
         if hasattr(self, 'writer') and self.writer is not None:
             self._step_count = getattr(self, "_step_count", 0) + 1
-            self.writer.add_scalar("emoLR/base", emoPulse, self._step_count)
+            self.writer.add_scalar("emostate/emoLR", emoPulse, self._step_count)
             self.writer.add_scalar("emostate/scalar", scalar, self._step_count)
+            self.writer.add_scalar("emostate/trust", trust, self._step_count)
 
         return
 
