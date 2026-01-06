@@ -128,7 +128,7 @@ class EmoCats(Optimizer):
                 # distance_estimate: loss の改善傾向の EMA(距離 D の代理)
                 # emoScope：基準値1.0
                 self.d_est = 0.95 * self.d_est + 0.05 * abs(trust)
-                d = self.d_est * self.emoScope
+                d = self.d_est
 
                 # --- Start Gradient Update Logic ---
                 # lynx初期化(exp_avg_sq)
@@ -138,7 +138,7 @@ class EmoCats(Optimizer):
 
                 # Stepweight decay (from lynx): p = p * (1 - lr * wd)
                 # decoupled_wd 考慮 _wd_actual 使用(EmoNaviのwdは最後に適用)
-                emoPulse = max(min((((d / noise)**2) * 5e-5), 1e-3), 1e-6)
+                emoPulse = max(min(((((d / noise)**2) * self.emoScope) * 5e-5), 1e-3), 1e-6)
                 p.mul_(1 - emoPulse * _wd_actual)
                 beta1, beta2 = group['betas']
 

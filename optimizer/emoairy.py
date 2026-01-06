@@ -115,7 +115,7 @@ class EmoAiry(Optimizer):
                 # distance_estimate: loss の改善傾向の EMA(距離 D の代理)
                 # emoScope：基準値1.0
                 self.d_est = 0.95 * self.d_est + 0.05 * abs(trust)
-                d = self.d_est * self.emoScope
+                d = self.d_este
 
                 # --- Start Gradient Update Logic ---
                 # 行列の形状が2次元以上の場合、分散情報ベースのAB近似を使用
@@ -150,7 +150,7 @@ class EmoAiry(Optimizer):
                 # 最終的なパラメータ更新 (decoupled weight decayも適用)
                 # 完全自動LR / 安全クリップ (emoPulse = step_size)
                 #step_size = group['lr']
-                emoPulse = max(min((((d / noise)**2) * 5e-5), 1e-3), 1e-6)
+                emoPulse = max(min(((((d / noise)**2) * self.emoScope) * 5e-5), 1e-3), 1e-6)
                 p.add_(p, alpha=-group['weight_decay'] * emoPulse)
                 p.add_(update_term, alpha=-emoPulse)
                 # --- End Gradient Update Logic ---

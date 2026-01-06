@@ -115,7 +115,7 @@ class EmoSens(Optimizer):
                 # distance_estimate: loss の改善傾向の EMA(距離 D の代理)
                 # emoScope：基準値1.0
                 self.d_est = 0.95 * self.d_est + 0.05 * abs(trust)
-                d = self.d_est * self.emoScope
+                d = self.d_est
 
                 # --- Start Gradient Update Logic ---
                 # 1次・2次モーメントを使った勾配補正(decoupled weight decay 構造に近い)
@@ -129,7 +129,7 @@ class EmoSens(Optimizer):
 
                 #step_size = group['lr']
                 # 完全自動LR / 安全クリップ (emoPulse = step_size)
-                emoPulse = max(min((((d / noise)**2) * 5e-5), 1e-3), 1e-6)
+                emoPulse = max(min(((((d / noise)**2) * self.emoScope) * 5e-5), 1e-3), 1e-6)
 
                 if group['weight_decay']:
                     p.add_(p, alpha=-group['weight_decay'] * emoPulse)
