@@ -32,8 +32,8 @@ Mathematical Explanation Here (paper) v3.6～v3.7
 非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)  
 Expected value convergence for non-convex functions  
 (also guarantees adaptability to flow matching)  
-#### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v36-paper(ENG).txt)  
-#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v36-paper(JPN).txt)  
+#### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(ENG).txt)  
+#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(JPN).txt)  
 
 ---
 
@@ -298,7 +298,6 @@ https://github.com/muooon/EmoSens
 
 paper:  
 https://huggingface.co/muooon/EmoNAVI/raw/main/emo-paper(ENG).txt  
-https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v36-paper(ENG).txt  
 https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(ENG).txt
 
 ---
@@ -308,6 +307,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 
