@@ -5,9 +5,10 @@ from typing import Tuple, Callable, Union
 from collections import deque
 
 """
-EmoCats v3.7.1 (260105) shadow-system v3.1 -moment v3.1 emoPulse v3.7
+EmoCats v3.7.3 (260107) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 EmoLynx v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
-emoPulse 機構により完全自動化を目指す(emoScope 微調整可／改善度反映率)
+emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
+dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
 """
 
 # Helper function (Lynx)
@@ -31,8 +32,9 @@ class EmoCats(Optimizer):
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
         self.writer = writer         # 動的学習率や感情スカラー等を渡す(研究向け)
         self.emoScope = lr           # 動的学習率の調和とリズム
-        self.noise_est = 0.1         # emoPulse nest 初期化
-        self.d_est = 0.1             # emoPulse dest 初期化
+        self.noise_est = 0.01        # emoPulse nest 初期化
+        self.d_est = 0.05            # emoPulse dest 初期化
+        self.dNR_hist = None         # emoPulse hist 初期化
 
     # 感情EMA更新(緊張と安静)
     def _update_ema(self, state, loss_val):
@@ -126,9 +128,17 @@ class EmoCats(Optimizer):
                 self.noise_est = 0.7 * self.noise_est + 0.3 * abs(scalar)
                 noise = max(self.noise_est, 1e-8)  # 下限 eps
                 # distance_estimate: loss の改善傾向の EMA(距離 D の代理)
-                # emoScope：基準値1.0
                 self.d_est = 0.95 * self.d_est + 0.05 * abs(trust)
                 d = self.d_est
+                # d / N 履歴 # 0.999 全履歴保持を模倣(1000件) + max (成功体験の維持)
+                dNR_now = (d / noise)**2
+                dNR_now_val = float(dNR_now)
+                if self.dNR_hist is None:
+                    self.dNR_hist = dNR_now_val
+                else:
+                    self.dNR_hist = max(self.dNR_hist * 0.999, float(dNR_now))
+                # ルートによるハイブリッド・パルス 「今の勢い」と「過去の蓄積のルート」を融合
+                comb_dNR = dNR_now_val * math.sqrt(self.dNR_hist)
 
                 # --- Start Gradient Update Logic ---
                 # lynx初期化(exp_avg_sq)
@@ -138,7 +148,8 @@ class EmoCats(Optimizer):
 
                 # Stepweight decay (from lynx): p = p * (1 - lr * wd)
                 # decoupled_wd 考慮 _wd_actual 使用(EmoNaviのwdは最後に適用)
-                emoPulse = max(min(((((d / noise)**2) * self.emoScope) * 5e-5), 1e-3), 1e-6)
+                # 完全自動LR / 安全クリップ (emoPulse = step_size) # emoScope：基準値1.0
+                emoPulse = max(min(((comb_dNR * self.emoScope) * 5e-5), 1e-3), 1e-6)
                 p.mul_(1 - emoPulse * _wd_actual)
                 beta1, beta2 = group['betas']
 
