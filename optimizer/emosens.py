@@ -26,8 +26,8 @@ class EmoSens(Optimizer):
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
         self.writer = writer         # 動的学習率や感情スカラー等を渡す(研究向け)
         self.emoScope = lr           # 動的学習率の調和とリズム
-        self.noise_est = 0.01        # emoPulse nest 初期化
-        self.d_est = 0.05            # emoPulse dest 初期化
+        self.noise_est = 0.05        # emoPulse nest 初期化
+        self.d_est = 0.01            # emoPulse dest 初期化
         self.dNR_hist = None         # emoPulse hist 初期化
 
     # 感情EMA更新(緊張と安静)
