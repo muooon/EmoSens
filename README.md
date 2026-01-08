@@ -1,12 +1,13 @@
 # EmoSENS / Emo-Family (2ndGen-v3.7)  
 
-## (現在仮公開中)
+## (現在仮公開中) 実験中－不完全のため機能不全です
+### (Currently in temporary release) Experimental - Not fully functional due to incomplete development.
 
 ### EmoSens 最新版 (v3.7) update  
 
-EmoSens (v3.7) emoPulse 機能(完全自動学習率)  
+EmoSens (v3.7) emoPulse 機能(完全自動学習率) を目指す  
 EmoNavi v3.6 を継承しさらに進化しました(完全自動適応"省VRAM･低負荷"で) emo系 の頂点へ  
-EmoSens (v3.7) emoPulse Feature (Fully Automatic Learning Rate)  
+EmoSens (v3.7) emoPulse Function (Fully Automatic Learning Rate)  
 EmoNavi v3.6 has been inherited and further evolved (with fully automatic adaptation for “VRAM-saving and low-load” performance) to reach the pinnacle of emo-style.  
 
 updateの内容  
@@ -22,8 +23,8 @@ Update Details
 </div>
 
 
-EmoSens v3.7 完成です、今後もより堅実な学習を最優先にし追求していきます、引き続きよろしくお願いします  
-EmoSens v3.7 is now complete. We will continue to prioritize and pursue more robust learning moving forward. Thank you for your continued support.  
+EmoSens v3.7 まだ未完成、今後もより堅実な学習を最優先にし追求していきます、引き続きよろしくお願いします  
+EmoSens v3.7 is now non-complete. We will continue to prioritize and pursue more robust learning moving forward. Thank you for your continued support.  
 
 初期LRは1.0で大丈夫です(データセットの工夫にあなたの時間を割いてください)  
 The initial LR can be set to 1.0 (please focus your time on refining the dataset).  
@@ -307,6 +308,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 
