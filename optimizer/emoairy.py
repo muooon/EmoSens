@@ -4,7 +4,7 @@ import math
 from collections import deque
 
 """
-EmoAiry v3.7.3 (260107) shadow-system v3.1 -moment v3.1 emoPulse v3.7
+EmoAiry v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 EmoFact v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
 emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
 dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
@@ -26,9 +26,10 @@ class EmoAiry(Optimizer):
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
         self.writer = writer         # 動的学習率や感情スカラー等を渡す(研究向け)
         self.emoScope = lr           # 動的学習率の調和とリズム
-        self.noise_est = 0.05        # emoPulse nest 初期化
-        self.d_est = 0.01            # emoPulse dest 初期化
+        self.noise_est = 1.0         # emoPulse nest 初期化
+        self.d_est = 0.02            # emoPulse dest 初期化
         self.dNR_hist = None         # emoPulse hist 初期化
+        #self.warmup = 0.01           # emoPulse warmup 初期化
 
     # 感情EMA更新(緊張と安静)
     def _update_ema(self, state, loss_val):
@@ -88,6 +89,31 @@ class EmoAiry(Optimizer):
         ratio = self._decide_ratio(scalar)
         trust = math.copysign((1.0 - abs(scalar)), scalar)
 
+        # emoPulse (loss 時系列から D / noise を推定し完全自動LRを生成)
+        #self.warmup = 0.97 * (getattr(self, 'warmup', 0.01) or 0.01) + 0.03 * 1.0
+        # d / N 履歴 (時間的D推定)  
+        self.noise_est = 0.97 * self.noise_est + 0.03 * abs(scalar)
+        self.d_est = 0.97 * self.d_est + 0.03 * abs(trust)
+        noise = max(self.noise_est, 1e-3)
+        d = self.d_est
+        # scalar、trust、の差分(瞬間的D推定)と各時間軸の確度推定(疑念と信頼の綱引き)
+        noise_base = abs(scalar - trust) + 0.1
+        d_base = abs(noise - d) + 0.1
+        # SNRにより異なる時間的確度比率から更新力を導出し２乗で出力最大化
+        dNR_now_val = (d_base / noise_base) ** 2
+        # d / N (SNR) の履歴化と最大値の成長率の増減
+        if self.dNR_hist is None:
+            self.dNR_hist = 1.0
+        else:
+            if dNR_now_val >= self.dNR_hist and trust >= 0.5:
+                # 加速：どんなに SNR が高くても、1.05倍という｢歩幅｣の成長制限
+                self.dNR_hist = min(dNR_now_val, self.dNR_hist * 1.05)
+            elif -0.5 <= trust <= 0.5:
+                # 減速：怪しい時は即座に比率を下げる(確実に信頼できない場合に下げ圧力を溜める)
+                self.dNR_hist = dNR_now_val * 0.98
+        # emoPulse 最終決定： emoScorp によるユーザー意思の反映と安全値による制限
+        emoPulse = max(min(self.dNR_hist * (self.emoScope * 1e-4), 3e-3), 1e-6)
+
         for group in self.param_groups:
             for p in group['params']:
                 if p.grad is None:
@@ -109,23 +135,6 @@ class EmoAiry(Optimizer):
                     else: # 書き戻しせず履歴更新のみ：10%×trust
                         leap_ratio = 0.1 * abs(trust)
                         state['shadow'].lerp_(p, leap_ratio)  
-
-                # emoPulse (loss 時系列から D / noise を推定し完全自動LRを生成)
-                # noise_estimate: loss の揺れ(不安定性)のEMA
-                self.noise_est = 0.7 * self.noise_est + 0.3 * abs(scalar)
-                noise = max(self.noise_est, 1e-8)  # 下限 eps
-                # distance_estimate: loss の改善傾向の EMA(距離 D の代理)
-                self.d_est = 0.95 * self.d_est + 0.05 * abs(trust)
-                d = self.d_est
-                # d / N 履歴 # 0.999 全履歴保持を模倣(1000件) + max (成功体験の維持)
-                dNR_now = (d / noise)**2
-                dNR_now_val = float(dNR_now)
-                if self.dNR_hist is None:
-                    self.dNR_hist = dNR_now_val
-                else:
-                    self.dNR_hist = max(self.dNR_hist * 0.999, float(dNR_now))
-                # ルートによるハイブリッド・パルス 「今の勢い」と「過去の蓄積のルート」を融合
-                comb_dNR = dNR_now_val * math.sqrt(self.dNR_hist)
 
                 # --- Start Gradient Update Logic ---
                 # 行列の形状が2次元以上の場合、分散情報ベースのAB近似を使用
@@ -158,9 +167,7 @@ class EmoAiry(Optimizer):
                     update_term = torch.sign(grad / denom)
 
                 # 最終的なパラメータ更新 (decoupled weight decayも適用)
-                # 完全自動LR / 安全クリップ (emoPulse = step_size) # emoScope：基準値1.0
                 #step_size = group['lr']
-                emoPulse = max(min(((comb_dNR * self.emoScope) * 5e-5), 1e-3), 1e-6)
                 p.add_(p, alpha=-group['weight_decay'] * emoPulse)
                 p.add_(update_term, alpha=-emoPulse)
                 # --- End Gradient Update Logic ---
