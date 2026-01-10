@@ -1,7 +1,7 @@
 # EmoSENS / Emo-Family (2ndGen-v3.7)  
 
-## (現在仮公開中) 実験中－不完全のため機能不全です
-### (Currently in temporary release) Experimental - Not fully functional due to incomplete development.
+## (現在仮公開中) 実験中－安定板候補です  
+### (Currently in temporary release) Experiment in progress—candidate for the stabilizer plate  
 
 ### EmoSens 最新版 (v3.7) update  
 
@@ -126,18 +126,21 @@ It approximates the core effect of capturing changes in gradient distribution's 
 
 ---
 
-emoDrive を直感的に見る表（±0.25〜±0.50）
+emoPulse：(d_base/noise_base)2 算出表  
 
-| scalar (+) | trust (+) | emoDrive (+) |   | scalar (-) | trust (-) | emoDrive (-) |
-|-----------:|----------:|-------------:|---|-----------:|----------:|-------------:|
-| 0.26 | 0.74 | 6.36 |   | -0.26 | -0.74 | 5.48 |
-| 0.30 | 0.70 | 5.99 |   | -0.30 | -0.70 | 5.04 |
-| 0.35 | 0.65 | 5.54 |   | -0.35 | -0.65 | 4.55 |
-| 0.40 | 0.60 | 5.09 |   | -0.40 | -0.60 | 4.03 |
-| 0.45 | 0.55 | 4.64 |   | -0.45 | -0.55 | 3.50 |
-| 0.49 | 0.51 | 4.29 |   | -0.49 | -0.51 | 3.16 |
+状態	scalar	trust	d_base	noise_base	dNR_now_val (2乗)  
++側 (極めて安定)	0.10	0.90	0.50	0.90	0.31  
++側 (理想的加速)	0.30	0.70	0.50	0.50	1.00  
++側 (確信的突破)	0.45	0.55	0.50	0.20	6.25  
+					
+-側 (わずかな迷い)	-0.10	-0.90	0.50	0.90	0.31  
+-側 (不信感の増大)	-0.30	-0.70	0.50	0.50	1.00  
+-側 (パニック/急変)	-0.50	-0.50	0.50	0.10	25.00  
 
-このように信頼値が高い(loss 評価が良い／0 に近い)ほど emoDrive の boost も大きくなります、マイナス側(loss 悪化時)も同様で 0 に近いほど boost は大きいです
+分母(noise_base)：abs(scalar - trust) が 0 に近づくほど(つまり感情スカラーと信頼度が一致するほど)、分母が最小値 0.1 に近づき2乗の結果は跳ね上がります。
++側：dNR_now_val が高く、trust も高ければ、履歴(dNR_hist)を 最大1.05倍 ずつ成長させます。
+-側：たとえ dNR_now_val が 25.00 と計算されても、trust が低い(-0.5〜0.5の範囲)ため、履歴は 0.98倍 で削られブレーキがかかります。
+エントロピーの抑制：この表の数値(dNR_now_val)そのまま学習率にせず、これを dNR_hist(履歴)に入れ、最終的に emoScope × 1e-4 として極めて小さな安全な学習率(1e-6 〜 3e-3)へと変換されます。
 
 ---  
 
@@ -191,10 +194,12 @@ The high efficiency and integration realized in this single package prioritize s
 
 ---
 
-## 学習係数の変化 Change in learning coefficient (v3.x)  
-<img width="1000" height="700" alt="coeff-plot36" src="https://github.com/user-attachments/assets/acb56ae1-cf7c-4198-944b-e703380eccf8" />
-このように 動的学習率 として機能します ／ coeff値：1.0 付近は無介入のため更新式の純粋な値になります <br>   
-It functions as a dynamic learning rate. ／ coeff value: Around 1.0 represents the pure value of the update formula due to no intervention. <br> 
+## グラフで見る emo系 の進行状況 Progress of emo-type as shown in the graph (v3.7.6)  
+<img width="1105" height="1153" alt="emov376-001" src="https://github.com/user-attachments/assets/d106069c-de8d-41d4-be74-2a9a01e24d0a" />  
+このように 動的学習率 として機能します ／ 下降しつづけるのは"元モデルの修正"の差分も学習しているかも？ <br>   
+It functions as a dynamic learning rate. ／ Could the continuous decline be due to also learning the differences in “original model corrections”? <br> 
+データセット状況：主に白黒画像11枚, 1batch, 300epoch(3300step), 全層LoRA, Rank16/Alpha16, e-pred, ZtSNR, <br>   
+Dataset Status: Primarily 11 black-and-white images, 1 batch, 300 epochs (3300 steps), full-layer LoRA, Rank16/Alpha16, e-pred, ZtSNR,  <br>  
 
 ---
 
@@ -308,6 +313,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 
