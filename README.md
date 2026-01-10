@@ -233,7 +233,7 @@ For updates prior to this, please refer to the v3.0 repository update history.
 ---  
 
 emo系 は 生物的反応で進化し続けます  
-感覚神経系(multi-EMA)、内分泌系(tanh(scalar))、免疫系(shadow-system)、これらの統合により中枢神経系と自律神経系を形成し、高度な判断と決定を行うという自然的に自律した機構として存在します  
+感覚神経系(multi-EMA)、内分泌系(tanh(scalar))、免疫系(shadow-system)、循環器系(emoPulse)、これらの統合により中枢神経系と自律神経系を形成し、高度な判断と決定を行うという自然的に自律した機構として存在します  
 
 ---  
 
@@ -316,6 +316,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 
