@@ -20,8 +20,8 @@ Update Details
 </div>
 
 
-EmoSens v3.7 まだ未完成、今後もより堅実な学習を最優先にし追求していきます、引き続きよろしくお願いします  
-EmoSens v3.7 is now non-complete. We will continue to prioritize and pursue more robust learning moving forward. Thank you for your continued support.  
+EmoSens v3.7 今後もより堅実な学習を最優先にし追求していきます、引き続きよろしくお願いします  
+EmoSens v3.7 We will continue to prioritize and pursue more robust learning moving forward. Thank you for your continued support.  
 
 初期LRは1.0で大丈夫です(データセットの工夫にあなたの時間を割いてください)  
 The initial LR can be set to 1.0 (please focus your time on refining the dataset).  
@@ -102,8 +102,8 @@ It approximates the core effect of capturing changes in gradient distribution's 
 
 ---
 
-### あなたの望む最適化 EmoNavi が叶えます  
-#### The optimization you seek — EmoNavi makes it possible  
+### あなたの望む最適化 EmoSens が叶えます  
+#### The optimization you seek — EmoSens makes it possible  
 ---
 ###### これは、単なる最適化アルゴリズムではありません──  
 ###### **感情で学習をナビゲートする｢感情型オプティマイザ｣** です  
@@ -115,9 +115,9 @@ It approximates the core effect of capturing changes in gradient distribution's 
 
 ---
 #### 自動収束･自己制御･自律型 オプティマイザです  
-##### EmoNavi を中心に、EmoFact、EmoLynx、もあります   
+##### EmoSens を中心に、EmoAiry、EmoCats、もあります   
 #### Auto-convergence, self-control, autonomous optimizer  
-###### It primarily features EmoNavi, along with EmoFact and EmoLynx.  
+###### It primarily features EmoSens, along with EmoAiry and EmoCats.  
 
 </details>
 
@@ -125,11 +125,11 @@ It approximates the core effect of capturing changes in gradient distribution's 
 
 emoPulse：(d_base/noise_base)2 算出表  
 
-| d_base \ noise_base | 0.1    | 0.5     | 0.7     |  
-|---------------------|--------|---------|---------|  
-| 0.1                 | 1.00   | 0.04    | 0.0204  |  
-| 0.5                 | 25.00  | 1.00    | 0.5102  |  
-| 0.7                 | 49.00  | 1.96    | 1.00    |  
+| d \ N base | 0.1    | 0.5     | 0.7     |  
+|------------|--------|---------|---------|  
+| 0.1        | 1.00   | 0.04    | 0.0204  |  
+| 0.5        | 25.00  | 1.00    | 0.5102  |  
+| 0.7        | 49.00  | 1.96    | 1.00    |  
 
 ・どれだけ d/N が高くても 1ステップで増えるのは最大 +５％  
 ・しかも “ 前より良い ＆ 信頼できる ” ときだけ成長を許可  
@@ -162,7 +162,7 @@ emoPulse：(d_base/noise_base)2 算出表
 
 ---  
 
-### EmoSens 主な特徴 / Main Features of EmoNavi  
+### EmoSens 主な特徴 / Main Features of EmoSens  
 
 ---
 
@@ -257,8 +257,8 @@ emo系 は 生物的反応で進化し続けます
 
 <details>
 
-<summary>EmoNavi v3.7 オプション指定方法<br>
-EmoNavi v3.7 Option Settings Guide</summary>  
+<summary>EmoSens v3.7 オプション指定方法<br>
+EmoSens v3.7 Option Settings Guide</summary>  
 
 |||オプション指定方法|||  
 ●shadow オフ(False にする)：  
@@ -268,9 +268,9 @@ eps=1e-8
 ●動的学習率と感情スカラー等の現在値を取得(ツール側などから取得する)：  
 writer=writer  
 外部ツール(TensorBoard等)で値を把握したい場合は Optimizer 初期化時に SummaryWriter を渡してください  
-writer = SummaryWriter(log_dir="./runs/emonavi")  
-optimizer = EmoNavi(model.parameters(), writer=writer)  
-tensorboard --logdir=./runs/emonavi  
+writer = SummaryWriter(log_dir="./runs/emosens")  
+optimizer = EmoSens(model.parameters(), writer=writer)  
+tensorboard --logdir=./runs/emoSens  
 
 |||Usage examples|||  
 ●Shadow off:  
@@ -279,9 +279,9 @@ use_shadow=False
 eps=1e-8  
 ●Monitor values with external tools (TensorBoard):  
 writer=writer  
-writer = SummaryWriter(log_dir="./runs/emonavi")  
-optimizer = EmoNavi(model.parameters(), writer=writer)  
-tensorboard --logdir=./runs/emonavi  
+writer = SummaryWriter(log_dir="./runs/emosens")  
+optimizer = EmoSens(model.parameters(), writer=writer)  
+tensorboard --logdir=./runs/emosens  
 
 </details>
 
@@ -332,17 +332,4 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
-
-
-
-
-
-
-
-
-
-
-
-
-
 
