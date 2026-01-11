@@ -1,8 +1,5 @@
 # EmoSENS / Emo-Family (2ndGen-v3.7)  
 
-## (現在仮公開中) 実験中－安定板候補です  
-### (Currently in temporary release) Experiment in progress—candidate for the stabilizer plate  
-
 ### EmoSens 最新版 (v3.7) update  
 
 EmoSens (v3.7) emoPulse 機能(完全自動学習率) を目指す  
@@ -29,7 +26,7 @@ EmoSens v3.7 is now non-complete. We will continue to prioritize and pursue more
 初期LRは1.0で大丈夫です(データセットの工夫にあなたの時間を割いてください)  
 The initial LR can be set to 1.0 (please focus your time on refining the dataset).  
 
-Mathematical Explanation Here (paper) v3.6～v3.7  
+Mathematical Explanation Here (paper) v3.7  
 非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)  
 Expected value convergence for non-convex functions  
 (also guarantees adaptability to flow matching)  
@@ -38,7 +35,7 @@ Expected value convergence for non-convex functions
 
 ---
 
-emo系 v3.7 test (スタンダードモデル) の特徴等  
+emo系 v3.7 RC (スタンダードモデル) の特徴等  
 
 | 名称      | 正確性 | メモリ負荷 | 非同期 | 備考                                      |  
 |-----------|--------|------------|--------|-------------------------------------------|  
@@ -56,7 +53,7 @@ emo系 v3.7 test (スタンダードモデル) の特徴等
 ユーザー指定の学習率を中心にし加減速を自動制御します  
 完全自律型のため、積層、再開、非同期、で、自由な学習を自由に組むことが可能です  
 
-emo-series v3.7 test (Standard-models) Features  
+emo-series v3.7 RC (Standard-models) Features  
 
 | Name    | Accurate | MemoryLoad | Asynchronous | Notes                                           |  
 |---------|----------|------------|--------------|--------------------------------------------------|  
@@ -223,7 +220,7 @@ It functions as a dynamic learning rate. ／ Could the continuous decline be due
 Dataset Status LEFT: Primarily 10 Photo images, 10 batch, 300 epochs (3000 steps), full-layer LoRA, Rank16/Alpha16, e-pred, ZtSNR,  <br>  
 データセット状況(右)：主に白黒画像11枚, 1batch, 300epoch(3300step), 全層LoRA, Rank16/Alpha16, e-pred, ZtSNR, <br>   
 Dataset Status RIGHT: Primarily 11 black-and-white images, 1 batch, 300 epochs (3300 steps), full-layer LoRA, Rank16/Alpha16, e-pred, ZtSNR,  <br>  
-es = EmoSens(Blue/Green)、ea = EmoAiry(Red/Gray)、ec = EmoCats(Yellow/Orange)  
+es = EmoSens(Red/Green)、ea = EmoAiry(Blue/Gray)、ec = EmoCats(Yellow/Orange)  
 
 ---
 
@@ -323,11 +320,9 @@ In its development, we deeply appreciate the insights of those who came before u
 When citing this optimizer, please refer to the following sources:  
 
 Official Code:  
-https://huggingface.co/muooon/EmoNavi  
 https://github.com/muooon/EmoSens 
 
 paper:  
-https://huggingface.co/muooon/EmoNAVI/raw/main/emo-paper(ENG).txt  
 https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(ENG).txt
 
 ---
@@ -337,6 +332,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 
