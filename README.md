@@ -2,10 +2,16 @@
 
 ### EmoSens 最新版 (v3.7) update  
 
+#### Loss あるかぎり emoPulse はやまない ――  
+##### “As long as there is loss, emoPulse will never stop —” 
+
+##### Grokking を経ずに フラットミニマ へ到達できるかもしれない選択肢  
+###### An option that might allow reaching Flat Minima without Grokking  
+
 EmoSens (v3.7) emoPulse 機能(完全自動学習率) を目指す  
 EmoNavi v3.6 を継承しさらに進化しました(完全自動適応"省VRAM･低負荷"で) emo系 の頂点へ  
 EmoSens (v3.7) emoPulse Function (Fully Automatic Learning Rate)  
-EmoNavi v3.6 has been inherited and further evolved (with fully automatic adaptation for “VRAM-saving and low-load” performance) to reach the pinnacle of emo-style.  
+EmoNavi v3.6 has been inherited and further evolved (with fully automatic adaptation for “VRAM-saving and low-load” performance) to reach the pinnacle of emo-style.   
 
 updateの内容  
 - 完全自動高値学習率：高速化と精緻化を同時に達成しつつ初期LRに悩まなくていい  
@@ -27,9 +33,11 @@ EmoSens v3.7 We will continue to prioritize and pursue more robust learning movi
 The initial LR can be set to 1.0 (please focus your time on refining the dataset).  
 
 Mathematical Explanation Here (paper) v3.7  
-非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)  
+(非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)
+(論文ではフラットミニマやグロッキングに対しての挙動も考察しています)  
 Expected value convergence for non-convex functions  
 (also guarantees adaptability to flow matching)  
+(Providing a direct path to Flat Minima without the necessity of Grokking.)  
 #### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(ENG).txt)  
 #### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(JPN).txt)  
 
@@ -270,7 +278,7 @@ writer=writer
 外部ツール(TensorBoard等)で値を把握したい場合は Optimizer 初期化時に SummaryWriter を渡してください  
 writer = SummaryWriter(log_dir="./runs/emosens")  
 optimizer = EmoSens(model.parameters(), writer=writer)  
-tensorboard --logdir=./runs/emoSens  
+tensorboard --logdir=./runs/emosens  
 
 |||Usage examples|||  
 ●Shadow off:  
@@ -306,9 +314,6 @@ In its development, we deeply appreciate the insights of those who came before u
 
 ### License Apache License 2.0 — see LICENSE for details.  
 ### ライセンス Apache License 2.0 — 詳細は LICENSE をご覧ください  
-
-##### 🤖 Built with  Copilot + human curiosity(v1.0).  
-##### 🤖 Copilot と人間の好奇心のコラボで誕生しました(v1.0)  
 
 ---
 
