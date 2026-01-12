@@ -2,8 +2,8 @@
 
 ### EmoSens 最新版 (v3.7) update  
 
-#### Loss あるかぎり emoPulse はやまない ――  
-##### “As long as there is loss, emoPulse will never stop —” 
+#### Loss あるかぎり emoPulse(鼓動) はやまない ――  
+##### “As long as there is loss, emoPulse(Heartbeat) will never stop —” 
 
 ##### Grokking を経ずに フラットミニマ へ到達できるかもしれない選択肢  
 ###### An option that might allow reaching Flat Minima without Grokking  
@@ -33,7 +33,7 @@ EmoSens v3.7 We will continue to prioritize and pursue more robust learning movi
 The initial LR can be set to 1.0 (please focus your time on refining the dataset).  
 
 Mathematical Explanation Here (paper) v3.7  
-(非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)
+(非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)  
 (論文ではフラットミニマやグロッキングに対しての挙動も考察しています)  
 Expected value convergence for non-convex functions  
 (also guarantees adaptability to flow matching)  
