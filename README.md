@@ -3,22 +3,22 @@
 ### EmoSens 最新版 (v3.7) update  
 
 #### Loss あるかぎり emoPulse(鼓動) はやまない ――  
-##### “As long as there is loss, emoPulse(Heartbeat) will never stop —” 
+##### “As long as there is loss, emoPulse(Heartbeat) will never stop —”  
 
 ##### Grokking を経ずに フラットミニマ へ到達できるかもしれない選択肢  
 ###### An option that might allow reaching Flat Minima without Grokking  
 
 EmoSens (v3.7) emoPulse 機能(完全自動学習率) を目指す  
-EmoNavi v3.6 を継承しさらに進化しました(完全自動適応"省VRAM･低負荷"で) emo系 の頂点へ  
+EmoNavi v3.6 を継承しさらに進化しました "完全自動･省VRAM･低負荷" emo系 の頂点へ  
 EmoSens (v3.7) emoPulse Function (Fully Automatic Learning Rate)  
 EmoNavi v3.6 has been inherited and further evolved (with fully automatic adaptation for “VRAM-saving and low-load” performance) to reach the pinnacle of emo-style.   
 
 updateの内容  
-- 完全自動高値学習率：高速化と精緻化を同時に達成しつつ初期LRに悩まなくていい  
+- 完全自動学習率：高速化と精緻化を同時に達成しつつ初期LRに悩まなくていい  
 - emoPulse：自律的にLRを増減させ"極低精度･超量子化"も安全安定で進行します  
 
 Update Details  
-- Fully Automatic High-Value Learning Rate: Achieves both acceleration and refinement while eliminating the need to worry about the initial learning rate.  
+- Fully Automatic Value Learning Rate: Achieves both acceleration and refinement while eliminating the need to worry about the initial learning rate.  
 - emoPulse： Autonomously adjusts LR levels to safely and stably proceed with “ultra-low precision, ultra-quantization.”  
 
 <div align="center">
@@ -26,7 +26,7 @@ Update Details
 </div>
 
 
-EmoSens v3.7 今後もより堅実な学習を最優先にし追求していきます、引き続きよろしくお願いします  
+EmoSens v3.7 今後もより堅実な学習を最優先にし追求します、引き続きよろしくお願いします  
 EmoSens v3.7 We will continue to prioritize and pursue more robust learning moving forward. Thank you for your continued support.  
 
 初期LRは1.0で大丈夫です(データセットの工夫にあなたの時間を割いてください)  
@@ -43,7 +43,7 @@ Expected value convergence for non-convex functions
 
 ---
 
-emo系 v3.7 RC (スタンダードモデル) の特徴等  
+emo系 v3.7 (スタンダードモデル) の特徴等  
 
 | 名称      | 正確性 | メモリ負荷 | 非同期 | 備考                                      |  
 |-----------|--------|------------|--------|-------------------------------------------|  
@@ -61,7 +61,7 @@ emo系 v3.7 RC (スタンダードモデル) の特徴等
 ユーザー指定の学習率を中心にし加減速を自動制御します  
 完全自律型のため、積層、再開、非同期、で、自由な学習を自由に組むことが可能です  
 
-emo-series v3.7 RC (Standard-models) Features  
+emo-series v3.7 (Standard-models) Features  
 
 | Name    | Accurate | MemoryLoad | Asynchronous | Notes                                           |  
 |---------|----------|------------|--------------|--------------------------------------------------|  
