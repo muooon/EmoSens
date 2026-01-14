@@ -11,31 +11,28 @@ emoPulse 機構により完全自動化を目指す(ユーザーによる emoSco
 dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
 """
 
-# Helper function (Lynx)
+# Helper function
 def exists(val):
     return val is not None
 
 class EmoCats(Optimizer):
-    # クラス定義＆初期化 lynx用ベータ･互換性の追加(lynx用beta1･beta2)
+    # クラス定義＆初期化 ベータ･互換性の追加
     def __init__(self, params: Union[list, torch.nn.Module], 
                  lr=1.0, 
                  eps=1e-8,
                  betas=(0.9, 0.995), 
                  weight_decay=0.01, 
-                 use_shadow: bool = False, 
-                 writer=None): 
+                 use_shadow: bool = False): 
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
         # lynxに応じてウェイト減衰のため保存
         self._init_lr = lr
         self.should_stop = False     # 停止フラグの初期化
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
-        self.writer = writer         # 動的学習率や感情スカラー等を渡す(研究向け)
         self.emoScope = lr           # 動的学習率の調和とリズム
         self.noise_est = 1.0         # emoPulse nest 初期化
         self.d_est = 0.02            # emoPulse dest 初期化
         self.dNR_hist = None         # emoPulse hist 初期化
-        #self.warmup = 0.01           # emoPulse warmup 初期化
 
     # 感情EMA更新(緊張と安静)
     def _update_ema(self, state, loss_val):
@@ -98,19 +95,19 @@ class EmoCats(Optimizer):
         ratio = self._decide_ratio(scalar)
         trust = math.copysign((1.0 - abs(scalar)), scalar)
 
-        # emoPulse (loss 時系列から D / noise を推定し完全自動LRを生成)
-        #self.warmup = 0.97 * (getattr(self, 'warmup', 0.01) or 0.01) + 0.03 * 1.0
+        # --- Start emoPulse (完全自動LR生成) ---
+        # emoPulse (loss 時系列から D / Noise を推定し完全自動LRを生成)
         # d / N 履歴 (時間的D推定)  
         self.noise_est = 0.97 * self.noise_est + 0.03 * abs(scalar)
         self.d_est = 0.97 * self.d_est + 0.03 * abs(trust)
         noise = max(self.noise_est, 1e-3)
         d = self.d_est
         # scalar、trust、の差分(瞬間的D推定)と各時間軸の確度推定(疑念と信頼の綱引き)
-        noise_base = abs(scalar - trust) + 0.1
+        Noise_base = abs(scalar - trust) + 0.1
         d_base = abs(noise - d) + 0.1
         # SNRにより異なる時間的確度比率から更新力を導出し２乗で出力最大化
-        dNR_now_val = (d_base / noise_base) ** 2
-        # d / N (SNR) の履歴化と最大値の成長率の増減
+        dNR_now_val = (d_base / Noise_base) ** 2
+        # db / Nb dNR(SNR) 履歴化と最大値の成長率の増減
         if self.dNR_hist is None:
             self.dNR_hist = 1.0
         else:
@@ -122,17 +119,15 @@ class EmoCats(Optimizer):
                 self.dNR_hist = dNR_now_val * 0.98
         # emoPulse 最終決定： emoScorp によるユーザー意思の反映と安全値による制限
         emoPulse = max(min(self.dNR_hist * (self.emoScope * 1e-4), 3e-3), 1e-6)
+        # --- End emoPulse (完全自動LR生成) ---
 
         for group in self.param_groups:
-            # リンクス共通パラメータ抽出
-            lr, wd, beta1, beta2 = group['lr'], group['weight_decay'], *group['betas']
+            # 共通パラメータ抽出
+            _wd_actual, beta1, beta2 = group['weight_decay'], *group['betas']
+            # PGチェックにフィルタ
+            for p in filter(lambda p: exists(p.grad), group['params']):
 
-            # ウェイト減衰の処理を分離 (from lynx)
-            _wd_actual = wd
-
-            for p in filter(lambda p: exists(p.grad), group['params']): # PGチェックにフィルタ
-
-                grad = p.grad # PG直接使用(計算に".data"不要)
+                grad = p.grad
                 state = self.state[p]
 
                 # 動的学習率補正により shadow 形成を信頼度で調整(trustは正値化(負にならない))
@@ -150,31 +145,32 @@ class EmoCats(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)          
 
                 # --- Start Gradient Update Logic ---
-                # lynx初期化(exp_avg_sq)
+                # exp_avg初期化
                 if 'exp_avg' not in state:
                     state['exp_avg'] = torch.zeros_like(p)
                 exp_avg = state['exp_avg']
 
-                # Stepweight decay (from lynx): p = p * (1 - lr * wd)
-                # decoupled_wd 考慮 _wd_actual 使用(EmoNaviのwdは最後に適用)
+                # Stepweight decay : decoupled_wd 
                 p.mul_(1 - emoPulse * _wd_actual)
                 beta1, beta2 = group['betas']
 
                 # 勾配ブレンド
-                # m_t = beta1 * exp_avg_prev + (1 - beta1) * grad
                 blended_grad = grad.mul(1 - beta1).add_(exp_avg, alpha=beta1)
 
-                # p: p = p - lr * sign(blended_grad)
-                p.add_(blended_grad.sign_(), alpha = -emoPulse)
-
-                # exp_avg = beta2 * exp_avg + (1 - beta2) * grad
+                # 最終的なパラメータ更新
+                p.add_(blended_grad.sign(), alpha = -emoPulse)
                 exp_avg.mul_(beta2).add_(grad, alpha = 1 - beta2)
                 # --- End Gradient Update Logic ---
+
+        # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
+        self._init_lr = emoPulse
+        for group in self.param_groups:
+            group['lr'] = emoPulse
 
         # 感情機構の発火が収まり"十分に安定"していることを外部伝達できる(自動停止ロジックではない)
         # Early Stop用 scalar 記録(バッファ共通で管理/最大32件保持/動静評価)
         hist = self.state.setdefault('scalar_hist', deque(maxlen=32))
-        hist.append(scalar)
+        hist.append(early_scalar)
 
         # Early Stop判断(静けさの合図)
         # 32ステップ分のスカラー値の静かな条件を満たした時"フラグ" should_stop = True になるだけ
@@ -184,13 +180,6 @@ class EmoCats(Optimizer):
             var = sum((s - mean)**2 for s in hist) / len(hist)
             if avg_abs < 0.05 and var < 0.005:
                 self.should_stop = True # 💡 外部からこれを見て判断可
-
-        # TensorBoardへの記録 (研究者向けデバッグ用) 要：外部記録コード
-        if hasattr(self, 'writer') and self.writer is not None:
-            self._step_count = getattr(self, "_step_count", 0) + 1
-            self.writer.add_scalar("emostate/emoLR", emoPulse, self._step_count)
-            self.writer.add_scalar("emostate/scalar", scalar, self._step_count)
-            self.writer.add_scalar("emostate/trust", trust, self._step_count)
 
         return
 

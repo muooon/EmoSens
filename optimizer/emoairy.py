@@ -17,19 +17,16 @@ class EmoAiry(Optimizer):
                  eps=1e-8, 
                  betas=(0.9, 0.995), 
                  weight_decay=0.01, 
-                 use_shadow:bool=False, 
-                 writer=None):
+                 use_shadow:bool=False):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
         self._init_lr = lr
         self.should_stop = False     # 停止フラグの初期化
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
-        self.writer = writer         # 動的学習率や感情スカラー等を渡す(研究向け)
         self.emoScope = lr           # 動的学習率の調和とリズム
         self.noise_est = 1.0         # emoPulse nest 初期化
         self.d_est = 0.02            # emoPulse dest 初期化
         self.dNR_hist = None         # emoPulse hist 初期化
-        #self.warmup = 0.01           # emoPulse warmup 初期化
 
     # 感情EMA更新(緊張と安静)
     def _update_ema(self, state, loss_val):
@@ -89,19 +86,19 @@ class EmoAiry(Optimizer):
         ratio = self._decide_ratio(scalar)
         trust = math.copysign((1.0 - abs(scalar)), scalar)
 
-        # emoPulse (loss 時系列から D / noise を推定し完全自動LRを生成)
-        #self.warmup = 0.97 * (getattr(self, 'warmup', 0.01) or 0.01) + 0.03 * 1.0
+        # --- Start emoPulse (完全自動LR生成) ---
+        # emoPulse (loss 時系列から D / Noise を推定し完全自動LRを生成)
         # d / N 履歴 (時間的D推定)  
         self.noise_est = 0.97 * self.noise_est + 0.03 * abs(scalar)
         self.d_est = 0.97 * self.d_est + 0.03 * abs(trust)
         noise = max(self.noise_est, 1e-3)
         d = self.d_est
         # scalar、trust、の差分(瞬間的D推定)と各時間軸の確度推定(疑念と信頼の綱引き)
-        noise_base = abs(scalar - trust) + 0.1
+        Noise_base = abs(scalar - trust) + 0.1
         d_base = abs(noise - d) + 0.1
         # SNRにより異なる時間的確度比率から更新力を導出し２乗で出力最大化
-        dNR_now_val = (d_base / noise_base) ** 2
-        # d / N (SNR) の履歴化と最大値の成長率の増減
+        dNR_now_val = (d_base / Noise_base) ** 2
+        # db / Nb dNR(SNR) 履歴化と最大値の成長率の増減
         if self.dNR_hist is None:
             self.dNR_hist = 1.0
         else:
@@ -113,6 +110,7 @@ class EmoAiry(Optimizer):
                 self.dNR_hist = dNR_now_val * 0.98
         # emoPulse 最終決定： emoScorp によるユーザー意思の反映と安全値による制限
         emoPulse = max(min(self.dNR_hist * (self.emoScope * 1e-4), 3e-3), 1e-6)
+        # --- End emoPulse (完全自動LR生成) ---
 
         for group in self.param_groups:
             for p in group['params']:
@@ -152,10 +150,8 @@ class EmoAiry(Optimizer):
 
                     # 再構築した近似勾配の平方根の積で正規化
                     denom = torch.sqrt(state['exp_avg_r'] * state['exp_avg_c']).add_(group['eps'])
-
                     # 最終的な更新項を計算
-                    #update_term = grad / denom # sign化で１次ベクトルとのバランス改善
-                    update_term = torch.sign(grad / denom)
+                    update_term = grad / denom
 
                 # 1次元(ベクトル)の勾配補正
                 else:
@@ -163,19 +159,24 @@ class EmoAiry(Optimizer):
                     exp_avg_sq = state.setdefault('exp_avg_sq', torch.zeros_like(p))
                     exp_avg_sq.mul_(beta1).addcmul_(grad, grad, value=(1 - beta2))
                     denom = exp_avg_sq.sqrt().add_(group['eps'])
-                    #update_term = grad / denom # sign化で２次momentとのバランス改善
-                    update_term = torch.sign(grad / denom)
+                    # 最終的な更新項を計算
+                    update_term = grad / denom
 
                 # 最終的なパラメータ更新 (decoupled weight decayも適用)
-                #step_size = group['lr']
+                # sign化で２次momentと１次ベクトルのバランス改善
                 p.add_(p, alpha=-group['weight_decay'] * emoPulse)
-                p.add_(update_term, alpha=-emoPulse)
+                p.add_(update_term.sign(), alpha=-emoPulse)
                 # --- End Gradient Update Logic ---
+
+        # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
+        self._init_lr = emoPulse
+        for group in self.param_groups:
+            group['lr'] = emoPulse
 
         # 感情機構の発火が収まり"十分に安定"していることを外部伝達できる(自動停止ロジックではない)
         # Early Stop用 scalar 記録(バッファ共通で管理/最大32件保持/動静評価)
         hist = self.state.setdefault('scalar_hist', deque(maxlen=32))
-        hist.append(scalar)
+        hist.append(early_scalar)
 
         # Early Stop判断(静けさの合図)
         # 32ステップ分のスカラー値の静かな条件を満たした時"フラグ" should_stop = True になるだけ
@@ -185,13 +186,6 @@ class EmoAiry(Optimizer):
             var = sum((s - mean)**2 for s in hist) / len(hist)
             if avg_abs < 0.05 and var < 0.005:
                 self.should_stop = True # 💡 外部からこれを見て判断可
-
-        # TensorBoardへの記録 (研究者向けデバッグ用) 要：外部記録コード
-        if hasattr(self, 'writer') and self.writer is not None:
-            self._step_count = getattr(self, "_step_count", 0) + 1
-            self.writer.add_scalar("emostate/emoLR", emoPulse, self._step_count)
-            self.writer.add_scalar("emostate/scalar", scalar, self._step_count)
-            self.writer.add_scalar("emostate/trust", trust, self._step_count)
 
         return
 
