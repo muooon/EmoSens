@@ -2,11 +2,13 @@
 
 ### EmoSens 最新版 (v3.7) update  
 
+
 #### Loss あるかぎり emoPulse(鼓動) はやまない ――  
 ##### “As long as there is loss, emoPulse(Heartbeat) will never stop —”  
 
 ##### Grokking を経ずに フラットミニマ へ到達できるかもしれない選択肢  
 ###### An option that might allow reaching Flat Minima without Grokking  
+
 
 EmoSens (v3.7) emoPulse 機能(完全自動学習率) を目指す  
 EmoNavi v3.6 を継承しさらに進化しました "完全自動･省VRAM･低負荷" emo系 の頂点へ  
@@ -166,7 +168,7 @@ emoPulse：(d_base/noise_base)2 算出表
 分母(noise_base)：abs(scalar - trust) が 0 に近づくほど(つまり感情スカラーと信頼度が一致するほど)、分母が最小値 0.1 に近づき2乗の結果は跳ね上がります。  
 +側：dNR_now_val が高く、trust も高ければ、履歴(dNR_hist)を 最大1.05倍 ずつ成長させます。  
 -側：たとえ dNR_now_val が 25.00 と計算されても、trust が低い(-0.5〜0.5の範囲)ため、履歴は 0.98倍 で削られブレーキがかかります。  
-エントロピーの抑制：この表の数値(dNR_now_val)そのまま学習率にせず、これを dNR_hist(履歴)に入れ、最終的に emoScope × 1e-4 として極めて小さな安全な学習率(1e-6 〜 3e-3)へと変換されます。 
+エントロピーの抑制：この表の数値(dNR_now_val)そのまま学習率にせず、これを dNR_hist(履歴)に入れ、最終的に emoScope × 1e-4 として極めて小さな安全な学習率(1e-6 〜 3e-3)へと変換されます。  
 
 ---  
 
@@ -251,8 +253,8 @@ es = EmoSens(Red/Green)、ea = EmoAiry(Blue/Gray)、ec = EmoCats(Yellow/Orange)
 |★| EmoNavi、Fact、Lynx、Clan、Zeal、Neco、v3.0 (250825) emosens(第２世代)で解明した"高次moment"(近似)のフィードバックを適用(更新) 全て "shadow=False" です  
 |★| EmoNavi, Fact, Lynx, Clan, Zeal, Neco, updated to v3.0 (250825), Incorporates (updates) feedback on “higher moments” (approximations) clarified by emosens (2nd generation). All are “shadow=False”  
 
-これ以前は v3.0 レポジトリの更新履歴をご覧ください  
-For updates prior to this, please refer to the v3.0 repository update history.  
+これ以前は v2.0 レポジトリの更新履歴をご覧ください  
+For updates prior to this, please refer to the v2.0 repository update history.  
 
 </details>
 
@@ -273,23 +275,13 @@ EmoSens v3.7 Option Settings Guide</summary>
 use_shadow=False  
 ●eps(0除算防止)：  
 eps=1e-8  
-●動的学習率と感情スカラー等の現在値を取得(ツール側などから取得する)：  
-writer=writer  
-外部ツール(TensorBoard等)で値を把握したい場合は Optimizer 初期化時に SummaryWriter を渡してください  
-writer = SummaryWriter(log_dir="./runs/emosens")  
-optimizer = EmoSens(model.parameters(), writer=writer)  
-tensorboard --logdir=./runs/emosens  
 
 |||Usage examples|||  
 ●Shadow off:  
 use_shadow=False  
 ●eps(Division by zero prevention)：  
 eps=1e-8  
-●Monitor values with external tools (TensorBoard):  
-writer=writer  
-writer = SummaryWriter(log_dir="./runs/emosens")  
-optimizer = EmoSens(model.parameters(), writer=writer)  
-tensorboard --logdir=./runs/emosens  
+
 
 </details>
 
