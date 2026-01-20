@@ -24,9 +24,9 @@ class EmoSens(Optimizer):
         self.should_stop = False     # 停止フラグの初期化
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
         self.emoScope = lr           # 動的学習率の調和とリズム
+        self.dNR_hist = 1.0          # emoPulse hist 初期化
         self.noise_est = 1.0         # emoPulse nest 初期化
         self.d_est = 0.02            # emoPulse dest 初期化
-        self.dNR_hist = None         # emoPulse hist 初期化
 
     # 感情EMA更新(緊張と安静)
     def _update_ema(self, state, loss_val):
@@ -51,15 +51,15 @@ class EmoSens(Optimizer):
             return math.tanh(diff_l)
         # longが静かでない時のみ、mediumの静けさを条件付きで採用
         if abs(diff_m) * scale_base_m < abs(diff_l) * scale_base_l:
-            return math.tanh(1 * diff_m)
+            return math.tanh(diff_m)
         else:
-            return math.tanh(1 * diff_l)
+            return math.tanh(diff_l)
 
     # アーリーストップ専用(静けさ判定の感情スカラ生成)
     def _early_scalar(self, ema):
         scale_base_l = max(ema['long'], 1e-5)
         diff = (ema['long'] - ema['short']) / scale_base_l
-        return math.tanh(1 * diff)
+        return math.tanh(diff)
 
     # (重要)現在は shadow-effect を参考に得た動的フィルタ効果の近似により use_shadow=False です
     # しかし全機能は shadow なしで全て成立します／コード確認時はこの shadow を考慮外として無視してください
@@ -99,15 +99,12 @@ class EmoSens(Optimizer):
         # SNRにより異なる時間的確度比率から更新力を導出し２乗で出力最大化
         dNR_now_val = (d_base / Noise_base) ** 2
         # db / Nb dNR(SNR) 履歴化と最大値の成長率の増減
-        if self.dNR_hist is None:
-            self.dNR_hist = 1.0
-        else:
-            if dNR_now_val >= self.dNR_hist and trust >= 0.5:
-                # 加速：どんなに SNR が高くても、1.05倍という｢歩幅｣の成長制限
-                self.dNR_hist = min(dNR_now_val, self.dNR_hist * 1.05)
-            elif -0.5 <= trust <= 0.5:
-                # 減速：怪しい時は即座に比率を下げる(確実に信頼できない場合に下げ圧力を溜める)
-                self.dNR_hist = dNR_now_val * 0.98
+        if dNR_now_val >= self.dNR_hist and trust >= 0.5:
+            # 加速：どんなに SNR が高くても、1.05倍という｢歩幅｣の成長制限
+            self.dNR_hist = min(dNR_now_val, self.dNR_hist * 1.05)
+        elif -0.5 <= trust <= 0.5:
+            # 減速：怪しい時は即座に比率を下げる(確実に信頼できない場合に下げ圧力を溜める)
+            self.dNR_hist = dNR_now_val * 0.98
         # emoPulse 最終決定： emoScorp によるユーザー意思の反映と安全値による制限
         emoPulse = max(min(self.dNR_hist * (self.emoScope * 1e-4), 3e-3), 1e-6)
         # --- End emoPulse (完全自動LR生成) ---
