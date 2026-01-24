@@ -2,13 +2,13 @@ import torch
 from torch.optim import Optimizer
 import math
 from typing import Tuple, Callable, Union
-from collections import deque
 
 """
 EmoCats v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 EmoLynx v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
 emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
 dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
+Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減する等の改修と微調整
 """
 
 # Helper function
@@ -17,12 +17,12 @@ def exists(val):
 
 class EmoCats(Optimizer):
     # クラス定義＆初期化 ベータ･互換性の追加
-    def __init__(self, params: Union[list, torch.nn.Module], 
-                 lr=1.0, 
+    def __init__(self, params: Union[list, torch.nn.Module],
+                 lr=1.0,
                  eps=1e-8,
-                 betas=(0.9, 0.995), 
-                 weight_decay=0.01, 
-                 use_shadow: bool = False): 
+                 betas=(0.9, 0.995),
+                 weight_decay=0.01,
+                 use_shadow: bool = False):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
         # lynxに応じてウェイト減衰のため保存
@@ -50,8 +50,9 @@ class EmoCats(Optimizer):
     def _compute_scalar(self, ema):
         scale_base_l = max(ema['long'], 1e-5)
         scale_base_m = max(ema['medium'], 1e-5)
-        diff_l = (ema['long'] - ema['short']) / scale_base_l
-        diff_m = (ema['long'] - ema['short']) / scale_base_m
+        diff_base = ema['long'] - ema['short']
+        diff_l = diff_base / scale_base_l
+        diff_m = diff_base / scale_base_m
         # longが十分静かなら、常にlongを優先
         if abs(diff_l) < 0.05:
             return math.tanh(diff_l)
@@ -60,12 +61,6 @@ class EmoCats(Optimizer):
             return math.tanh(diff_m)
         else:
             return math.tanh(diff_l)
-
-    # アーリーストップ専用(静けさ判定の感情スカラ生成)
-    def _early_scalar(self, ema):
-        scale_base_l = max(ema['long'], 1e-5)
-        diff = (ema['long'] - ema['short']) / scale_base_l
-        return math.tanh(diff)
 
     # (重要)現在は shadow-effect を参考に得た動的フィルタ効果の近似により use_shadow=False です
     # しかし全機能は shadow なしで全て成立します／コード確認時はこの shadow を考慮外として無視してください
@@ -90,17 +85,16 @@ class EmoCats(Optimizer):
 
         # EMA更新・スカラー生成(EMA差分からスカラーを生成しスパイク比率等を決定)
         ema = self._update_ema(self.state, loss_val)
-        early_scalar = self._early_scalar(ema)
         scalar = self._compute_scalar(ema)
         ratio = self._decide_ratio(scalar)
         trust = math.copysign((1.0 - abs(scalar)), scalar)
 
         # --- Start emoPulse (完全自動LR生成) ---
         # emoPulse (loss 時系列から D / Noise を推定し完全自動LRを生成)
-        # d / N 履歴 (時間的D推定)  
+        # d / N 履歴 (時間的D推定)
         self.noise_est = 0.97 * self.noise_est + 0.03 * abs(scalar)
         self.d_est = 0.97 * self.d_est + 0.03 * abs(trust)
-        noise = max(self.noise_est, 1e-3)
+        noise = max(self.noise_est, 1e-8)
         d = self.d_est
         # scalar、trust、の差分(瞬間的D推定)と各時間軸の確度推定(疑念と信頼の綱引き)
         Noise_base = abs(scalar - trust) + 0.1
@@ -131,7 +125,7 @@ class EmoCats(Optimizer):
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
                 # 混合比率：スカラーが閾値を超える場合にのみ計算される(信頼できる感情信号かどうかの選別)
                 # 急変時は感情機構による shadow 混合で強く抑制する(急制動による安定性の確保)
-                # 新 shadow-system は動的学習率と信頼度で協調し選択的スパース性も発揮する   
+                # 新 shadow-system は動的学習率と信頼度で協調し選択的スパース性も発揮する
                 if self.use_shadow :
                     if 'shadow' not in state: # 🔸shadow = False (デフォルト)
                         state['shadow'] = p.clone()
@@ -139,7 +133,7 @@ class EmoCats(Optimizer):
                         p.mul_(1-ratio).add_(state['shadow'], alpha=abs(trust))
                     else: # 書き戻しせず履歴更新のみ：10%×trust
                         leap_ratio = 0.1 * abs(trust)
-                        state['shadow'].lerp_(p, leap_ratio)          
+                        state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
                 # exp_avg初期化
@@ -147,7 +141,7 @@ class EmoCats(Optimizer):
                     state['exp_avg'] = torch.zeros_like(p)
                 exp_avg = state['exp_avg']
 
-                # Stepweight decay : decoupled_wd 
+                # Stepweight decay : decoupled_wd
                 p.mul_(1 - emoPulse * _wd_actual)
                 beta1, beta2 = group['betas']
 
@@ -164,25 +158,19 @@ class EmoCats(Optimizer):
         for group in self.param_groups:
             group['lr'] = emoPulse
 
-        # 感情機構の発火が収まり"十分に安定"していることを外部伝達できる(自動停止ロジックではない)
-        # Early Stop用 scalar 記録(バッファ共通で管理/最大32件保持/動静評価)
-        hist = self.state.setdefault('scalar_hist', deque(maxlen=32))
-        hist.append(early_scalar)
-
-        # Early Stop判断(静けさの合図)
-        # 32ステップ分のスカラー値の静かな条件を満たした時"フラグ" should_stop = True になるだけ
-        if len(hist) >= 32:
-            avg_abs = sum(abs(s) for s in hist) / len(hist)
-            mean = sum(hist) / len(hist)
-            var = sum((s - mean)**2 for s in hist) / len(hist)
-            if avg_abs < 0.05 and var < 0.005:
-                self.should_stop = True # 💡 外部からこれを見て判断可
+        # 感情機構の穏やかさ"安定状態"を外部伝達する(自動停止ではない)
+        # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
+        # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
+        if abs(scalar) <= 1e-5 and abs(Noise_base - d_base) <= 1e-6:
+            self.should_stop = True   # 💡 外部からこれを見て判断可
+        else:
+            self.should_stop = False  # 💡 誤判定などの取り消し
 
         return
 
 """
  https://github.com/muooon/EmoSens
- Cats was developed with inspiration from Lion, Tiger, and emolynx, 
- which we deeply respect for their lightweight and intelligent design.  
+ Cats was developed with inspiration from Lion, Tiger, and emolynx,
+ which we deeply respect for their lightweight and intelligent design.
  Cats also integrates EmoNAVI to enhance its capabilities.
 """
