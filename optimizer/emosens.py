@@ -148,8 +148,9 @@ class EmoSens(Optimizer):
         # 感情機構の穏やかさ"安定状態"を外部伝達する(自動停止ではない)
         # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
-        if abs(scalar) <= 1e-5 and abs(Noise_base - d_base) <= 1e-6:
+        if abs(scalar) <= 5e-6 and abs(Noise_base - d_base) <= 5e-7:
             self.should_stop = True   # 💡 外部からこれを見て判断可
+            self.emoScope = 1.0       # ユーザー意思を目的の収束へ整える
         else:
             self.should_stop = False  # 💡 誤判定などの取り消し
 
