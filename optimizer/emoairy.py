@@ -31,9 +31,9 @@ class EmoAiry(Optimizer):
     # 感情EMA更新(緊張と安静)
     def _update_ema(self, state, loss_val):
         ema = state.setdefault('ema', {})
-        ema['short'] = 0.3 * loss_val + 0.7 * ema.get('short', loss_val)
+        ema['short']  = 0.3  * loss_val + 0.7  * ema.get('short', loss_val)
         ema['medium'] = 0.05 * loss_val + 0.95 * ema.get('medium', loss_val)
-        ema['long'] = 0.01 * loss_val + 0.99 * ema.get('long', loss_val)
+        ema['long']   = 0.01 * loss_val + 0.99 * ema.get('long', loss_val)
         return ema
 
     # 感情スカラー値生成(EMA差分、滑らかな非線形スカラー、tanh(diff) は ±1.0 で有界性)
@@ -156,11 +156,10 @@ class EmoAiry(Optimizer):
                 # 最終的なパラメータ更新 (decoupled weight decayも適用)
                 # sign化で２次momentと１次ベクトルのバランス改善
                 p.add_(p, alpha=-group['weight_decay'] * emoPulse)
-                p.add_(update_term.sign(), alpha=-emoPulse)
+                p.add_(update_term.sign_(), alpha=-emoPulse)
                 # --- End Gradient Update Logic ---
 
         # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
-        self._init_lr = emoPulse
         for group in self.param_groups:
             group['lr'] = emoPulse
 

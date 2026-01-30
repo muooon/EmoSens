@@ -1,7 +1,7 @@
 import torch
 from torch.optim import Optimizer
 import math
-from typing import Tuple, Callable, Union
+from typing import Callable
 
 """
 EmoCats v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
@@ -17,7 +17,7 @@ def exists(val):
 
 class EmoCats(Optimizer):
     # クラス定義＆初期化 ベータ･互換性の追加
-    def __init__(self, params: Union[list, torch.nn.Module],
+    def __init__(self, params,
                  lr=1.0,
                  eps=1e-8,
                  betas=(0.9, 0.995),
@@ -25,7 +25,6 @@ class EmoCats(Optimizer):
                  use_shadow: bool = False):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
-        # lynxに応じてウェイト減衰のため保存
         self._init_lr = lr
         self.should_stop = False     # 停止フラグの初期化
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
@@ -37,9 +36,9 @@ class EmoCats(Optimizer):
     # 感情EMA更新(緊張と安静)
     def _update_ema(self, state, loss_val):
         ema = state.setdefault('ema', {})
-        ema['short'] = 0.3 * loss_val + 0.7 * ema.get('short', loss_val)
+        ema['short']  = 0.3  * loss_val + 0.7  * ema.get('short', loss_val)
         ema['medium'] = 0.05 * loss_val + 0.95 * ema.get('medium', loss_val)
-        ema['long'] = 0.01 * loss_val + 0.99 * ema.get('long', loss_val)
+        ema['long']   = 0.01 * loss_val + 0.99 * ema.get('long', loss_val)
         return ema
 
     # 感情スカラー値生成(EMA差分、滑らかな非線形スカラー、tanh(diff) は ±1.0 で有界性)
@@ -114,7 +113,7 @@ class EmoCats(Optimizer):
 
         for group in self.param_groups:
             # 共通パラメータ抽出
-            _wd_actual, beta1, beta2 = group['weight_decay'], *group['betas']
+            _wd_actual, beta1, beta2 = group['weight_decay'], * group['betas']
             # PGチェックにフィルタ
             for p in filter(lambda p: exists(p.grad), group['params']):
 
@@ -136,25 +135,24 @@ class EmoCats(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # exp_avg初期化
+                # exp_avg 初期化
                 if 'exp_avg' not in state:
                     state['exp_avg'] = torch.zeros_like(p)
                 exp_avg = state['exp_avg']
 
-                # Stepweight decay : decoupled_wd
-                p.mul_(1 - emoPulse * _wd_actual)
+                # Step weight decay : decoupled_wd
+                p.mul_(1 - lr * _wd_actual)
                 beta1, beta2 = group['betas']
 
                 # 勾配ブレンド
-                blended_grad = grad.mul(1 - beta1).add_(exp_avg, alpha=beta1)
+                blended_grad = grad.mul(1 - beta1).add(exp_avg, alpha=beta1)
 
                 # 最終的なパラメータ更新
-                p.add_(blended_grad.sign(), alpha = -emoPulse)
+                p.add_(blended_grad.sign_(), alpha = -lr * emoDrive)
                 exp_avg.mul_(beta2).add_(grad, alpha = 1 - beta2)
                 # --- End Gradient Update Logic ---
 
         # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
-        self._init_lr = emoPulse
         for group in self.param_groups:
             group['lr'] = emoPulse
 
