@@ -4,10 +4,10 @@ import math
 from typing import Callable
 
 """
-EmoCats v3.8.0 (260130) shadow-system v3.1 -moment v3.1 emoPulse v3.7.1
+EmoTion v3.8.0 (260130) shadow-system v3.1 -moment v3.1 emoPulse v3.8
 emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
-EmoCats v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
-EmoLynx v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
+EmoTion v3.7.6 (260120) shadow-system v3.1 -moment v3.1 emoPulse v3.7
+All-Emo v3.6, v3.7 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
 emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
 dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
 Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減する等の改修と微調整
@@ -17,14 +17,14 @@ Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減�
 def exists(val):
     return val is not None
 
-class EmoCats(Optimizer):
+class EmoTion(Optimizer):
     # クラス定義＆初期化
     def __init__(self, params, 
                  lr=1.0, 
                  eps=1e-8, 
                  betas=(0.9, 0.995), 
                  weight_decay=0.01, 
-                 use_shadow:bool=False): 
+                 use_shadow:bool=False):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
         self._init_lr = lr
@@ -77,9 +77,9 @@ class EmoCats(Optimizer):
 
     # 損失取得(損失値 loss_val を数値化、感情判定に使用、存在しないパラメータ(更新不要)はスキップ)
     @torch.no_grad()
-    def step(self, closure: Callable | None = None): # クロージャの型ヒントを追加
+    def step(self, closure: Callable | None = None):
         loss = None
-        if exists(closure): # 一貫性のためにexistsヘルパーを使う
+        if exists(closure):
             with torch.enable_grad():
                 loss = closure()
         loss_val = loss.item() if loss is not None else 0.0
@@ -114,13 +114,11 @@ class EmoCats(Optimizer):
         # --- End emoPulse (完全自動LR生成) ---
 
         for group in self.param_groups:
-            # 共通パラメータ抽出
-            _wd_actual, beta1, beta2 = group['weight_decay'], *group['betas']
-            # PGチェックにフィルタ
+            beta1, beta2 = group['betas']
             for p in filter(lambda p: exists(p.grad), group['params']):
-
                 grad = p.grad
                 state = self.state[p]
+                d_p = grad.shape
 
                 # 動的学習率補正により shadow 形成を信頼度で調整(trustは正値化(負にならない))
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
@@ -137,21 +135,36 @@ class EmoCats(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # exp_avg初期化
-                if 'exp_avg' not in state:
-                    state['exp_avg'] = torch.zeros_like(p)
-                exp_avg = state['exp_avg']
+                # 2次元以上かつ一定サイズ以上を行列近似対象とする
+                # 判定：2次元以上かつ「低ランク化」でメモリコストが全体の 5% 以下の場合に適用
+                if grad.dim() >= 2 and ((d_p[0] + d_p[1]) / p.numel()) < 0.05:
+                    # 4次元を2次元(行列)として解釈する
+                    grad_matrix = grad.view(d_p[0], -1) 
+                    d0, d1 = grad_matrix.shape
+                    # --- Low-Rank Moment Logic ---
+                    if 'exp_avg_row' not in state:
+                        state['exp_avg_row'] = torch.zeros(d0, dtype=grad.dtype, device=grad.device)
+                        state['exp_avg_col'] = torch.zeros(d1, dtype=grad.dtype, device=grad.device)
+                    
+                    row, col = state['exp_avg_row'], state['exp_avg_col']
+                    
+                    # 1次モーメントを低ランクで復元
+                    # Lion-style update with blended gradient
+                    update = row.view(-1, 1).mul(col).mul_(beta1).add_(grad_matrix, alpha=1 - beta1).sign_()
+                    
+                    # 行列分解形式での履歴更新
+                    row.mul_(beta2).add_(grad_matrix.mean(dim=1), alpha=1 - beta2)
+                    col.mul_(beta2).add_(grad_matrix.mean(dim=0), alpha=1 - beta2)
+                    # 元のテンソル形状（4次元など）に戻す
+                    update = update.view(d_p)
 
-                # Stepweight decay : decoupled_wd
-                p.mul_(1 - emoPulse * _wd_actual)
-                beta1, beta2 = group['betas']
-
-                # 勾配ブレンド
-                blended_grad = grad.mul(1 - beta1).add(exp_avg, alpha=beta1)
-
-                # 最終的なパラメータ更新
-                p.add_(blended_grad.sign(), alpha = -emoPulse)
-                exp_avg.mul_(beta2).add_(grad, alpha = 1 - beta2)
+                else:
+                    # --- Momentless Update (1次元/小行列) ---
+                    # 現在の勾配の符号のみとし履歴を持たずメモリ消費を抑える
+                    update = grad.sign()
+                # Weight Decay
+                p.add_(p, alpha=-group['weight_decay'] * emoPulse)
+                p.add_(update, alpha=-emoPulse)
                 # --- End Gradient Update Logic ---
 
         # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
@@ -171,7 +184,6 @@ class EmoCats(Optimizer):
 
 """
  https://github.com/muooon/EmoSens
- Cats was developed with inspiration from Lion, Tiger, and emolynx,
- which we deeply respect for their lightweight and intelligent design.
- Cats also integrates EmoNAVI to enhance its capabilities.
+ An emotion-driven optimizer that feels loss and navigates accordingly.
+ Don't think. Feel. Don't stop. Keep running. Believe in what's beyond.
 """
