@@ -60,7 +60,7 @@ emo-series v3.8 (Standard-models) Features
 | emosens | ★★★★     | ★★         | 1st born｜accurate｜Adam-type         |  
 | emoairy | ★★       | ★★★★       | 2nd born｜Lightweight｜Adafactor-type |  
 | emocats | ★★★      | ★★★        | Accurate and Lightweight｜Lion-type |  
-| emocats | ★★★      | ★★★★★      | Lightest ＆ "most accurate"｜Origenal-type |
+| emocats | ★★★      | ★★★★★      | "most Lightest" ＆ accurate｜Origenal-type |
 
 [Efficiency] Risk-Aware Updates: Proactively prevents overfitting and convergence stagnation while eliminating redundant updates.  
 [Functionality] Lightweight and High-Performance: Enhances user experience through automatic stop signals and support for fully autonomous distributed learning.  
@@ -318,4 +318,5 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
