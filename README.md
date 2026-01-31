@@ -1,6 +1,6 @@
-# EmoSENS / Emo-Family (2ndGen-v3.8)  
+# EmoSENS / Emo-Family (2ndGen-v3.7)  
 
-### EmoSens 最新版 (v3.8) update  
+### EmoSens 最終版 (v3.7) 保存版  
 
 
 #### Loss あるかぎり emoPulse(鼓動) はやまない ――  
@@ -10,8 +10,8 @@
 ###### An option that might allow reaching Flat Minima without Grokking  
 
 
-EmoSens (v3.8) emoPulse (完全自動学習率) 等の調整をしました  
-EmoSens (v3.8) emoPulse (Fully Automatic Learning Rate) Adjustment  
+EmoSens (v3.7) emoPulse (完全自動学習率) 等の調整をしました  
+EmoSens (v3.7) emoPulse (Fully Automatic Learning Rate) Adjustment  
 
 v3.7以降の特徴  
 - 完全自動学習率：高速化と精緻化を同時に達成しつつ初期LRに悩まなくていい  
@@ -46,7 +46,6 @@ emo系 v3.8 (スタンダードモデル) の特徴等
 | emosens   | ★★★★   | ★★         | 最初に誕生｜正確｜Adam型       |  
 | emoairy   | ★★     | ★★★★       | ２番目に誕生｜軽量｜Adafactor型 |  
 | emocats   | ★★★    | ★★★        | 軽量＆正確の両立｜Lion型         |  
-| emotion   | ★★★    | ★★★★★      | "最軽量"で正確｜オリジナル型         |  
 
 [効率性] 危険抑止更新：過学習や収束の停滞に先回りし無駄な更新を排除しながら進行します  
 [機能性] 軽量で高機能：自動停止合図や完全自律型の分散学習への対応でユーザー体験を向上させます  
@@ -60,7 +59,6 @@ emo-series v3.8 (Standard-models) Features
 | emosens | ★★★★     | ★★         | 1st born｜accurate｜Adam-type         |  
 | emoairy | ★★       | ★★★★       | 2nd born｜Lightweight｜Adafactor-type |  
 | emocats | ★★★      | ★★★        | Accurate and Lightweight｜Lion-type |  
-| emocats | ★★★      | ★★★★★      | "most Lightest" ＆ accurate｜Origenal-type |
 
 [Efficiency] Risk-Aware Updates: Proactively prevents overfitting and convergence stagnation while eliminating redundant updates.  
 [Functionality] Lightweight and High-Performance: Enhances user experience through automatic stop signals and support for fully autonomous distributed learning.  
@@ -145,11 +143,11 @@ emoPulse：(d_base/noise_base)^2 算出表
 | 側   | 状態         | scalar | trust | noise_base | dNR_now_val(2乗) | emoPulse への影響        |
 |------|--------------|--------|-------|------------|-------------------|---------------------------|
 | +側  | 安定・改善   |  0.20  | 0.80  |   0.70     |       0.51        | 維持(様子見)              |
-| +側  | 理想的調和   |  0.45  | 0.55  |   0.20     |       6.25        | 加速(1.5倍成長)          |
-| +側  | 一致（最大） |  0.50  | 0.50  |   0.10     |      25.00        | 最大加速(1.5倍成長)      |
+| +側  | 理想的調和   |  0.45  | 0.55  |   0.20     |       6.25        | 加速(1.05倍成長)          |
+| +側  | 一致（最大） |  0.50  | 0.50  |   0.10     |      25.00        | 最大加速(1.05倍成長)      |
 | -側  | 軽い不一致   | -0.20  | -0.80 |   0.70     |       0.51        | 維持(様子見)              |
-| -側  | 強い違和感   | -0.45  | -0.55 |   0.20     |       6.25        | 減速(0.8倍)              |
-| -側  | 逆転一致     | -0.50  | -0.50 |   0.10     |      25.00        | 最大減速(0.8倍)          |
+| -側  | 強い違和感   | -0.45  | -0.55 |   0.20     |       6.25        | 減速(0.98倍)              |
+| -側  | 逆転一致     | -0.50  | -0.50 |   0.10     |      25.00        | 最大減速(0.98倍)          |
 
 分母(noise_base)：abs(scalar - trust) が 0 に近づくほど(つまり感情スカラーと信頼度が一致するほど)、分母が最小値 0.1 に近づき2乗の結果は跳ね上がります。  
 +側：dNR_now_val が高く、trust も高ければ、履歴(dNR_hist)を 最大1.50倍 ずつ成長させます。  
@@ -223,9 +221,6 @@ es = EmoSens(Red/Green)、ea = EmoAiry(Blue/Gray)、ec = EmoCats(Yellow/Orange)
 <details>
 
 <summary> 更新履歴 / History </summary>  
-
-|★| EmoSens世代 v3.8 (260130) emoPulse 機構等の調整  
-|★| EmoSens Generation v3.8 (260130) Adjustments to emoPulse Mechanism, etc.   
 
 |★| EmoSens、Airy、Cats、v3.7 (260101) Navi v3.6 を継承し完全自動高値学習率を実現しました(追加テンソルなし)、emoPulse 機構により劇的な進化を遂げました  
 |★| EmoSens, Airy, Cats, v3.7 (260101) Building upon Navi v3.6, we have achieved fully automatic high-value learning rate optimization (without additional tensors), and through the emoPulse mechanism, we have achieved dramatic evolution.  
@@ -318,5 +313,6 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
