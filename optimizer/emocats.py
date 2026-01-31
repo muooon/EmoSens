@@ -135,20 +135,20 @@ class EmoCats(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # exp_avg 初期化
+                # exp_avg初期化
                 if 'exp_avg' not in state:
                     state['exp_avg'] = torch.zeros_like(p)
                 exp_avg = state['exp_avg']
 
-                # Step weight decay : decoupled_wd
-                p.mul_(1 - lr * _wd_actual)
+                # Stepweight decay : decoupled_wd
+                p.mul_(1 - emoPulse * _wd_actual)
                 beta1, beta2 = group['betas']
 
                 # 勾配ブレンド
                 blended_grad = grad.mul(1 - beta1).add(exp_avg, alpha=beta1)
 
                 # 最終的なパラメータ更新
-                p.add_(blended_grad.sign_(), alpha = -lr * emoDrive)
+                p.add_(blended_grad.sign(), alpha = -emoPulse)
                 exp_avg.mul_(beta2).add_(grad, alpha = 1 - beta2)
                 # --- End Gradient Update Logic ---
 
