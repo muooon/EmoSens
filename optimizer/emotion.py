@@ -3,16 +3,16 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoAiry v3.8.1 (260202) shadow-system v3.1 -moment v3.1 emoPulse v3.8
+EmoTion v3.8.1 (260202) shadow-system v3.1 -moment v3.1 emoPulse v3.8
 emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
-EmoAiry v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
-EmoFact v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
+EmoTion v3.7.6 (260120) shadow-system v3.1 -moment v3.1 emoPulse v3.7
+All-Emo v3.6, v3.7 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
 emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
 dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
 Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減する等の改修と微調整
 """
 
-class EmoAiry(Optimizer):
+class EmoTion(Optimizer):
     # クラス定義＆初期化
     def __init__(self, params,
                  lr=1.0,
@@ -72,8 +72,8 @@ class EmoAiry(Optimizer):
 
     # 損失取得(損失値 loss_val を数値化、感情判定に使用、存在しないパラメータ(更新不要)はスキップ)
     @torch.no_grad()
-    def step(self, closure=None):
-        loss = closure() if closure is not None else None
+    def step(self, closure=None): 
+        loss = torch.enable_grad()(closure)() if closure is not None else None
         loss_val = loss.item() if loss is not None else 0.0
 
         # EMA更新・スカラー生成(EMA差分からスカラーを生成しスパイク比率等を決定)
@@ -107,12 +107,11 @@ class EmoAiry(Optimizer):
 
         for group in self.param_groups:
             beta1, beta2 = group['betas']
-            for p in group['params']:
-                if p.grad is None:
-                    continue
+            for p in (p for p in group['params'] if p.grad is not None):
 
                 grad = p.grad
                 state = self.state[p]
+                d_p = grad.shape
 
                 # 動的学習率補正により shadow 形成を信頼度で調整(trustは正値化(負にならない))
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
@@ -129,33 +128,39 @@ class EmoAiry(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # 行列の形状が2次元以上の場合、分散情報ベースのAB近似を使用
-                if grad.dim() >= 2:
-                    # 行と列の2乗平均を計算 (分散の軽量な近似)
-                    r_sq = torch.mean(grad * grad, dim=tuple(range(1, grad.dim())), keepdim=True).add_(group['eps'])
-                    c_sq = torch.mean(grad * grad, dim=0, keepdim=True).add_(group['eps'])
+                # 2次元以上かつ一定サイズ以上を行列近似対象とする
+                # 判定：2次元以上かつ「低ランク化」でメモリコストが全体の 5% 以下の場合に適用
+                if grad.dim() >= 2 and ((d_p[0] + d_p[1]) / p.numel()) < 0.05:
+                    # 4次元を2次元(行列)として解釈する
+                    grad_matrix = grad.view(d_p[0], -1)
+                    d0, d1 = grad_matrix.shape
+                    # 低ランク近似にする
+                    if 'exp_avg_row' not in state:
+                        state['exp_avg_row'] = torch.zeros(d0, dtype=grad.dtype, device=grad.device)
+                        state['exp_avg_col'] = torch.zeros(d1, dtype=grad.dtype, device=grad.device)
 
-                    # 分散情報から勾配の近似行列を生成
-                    # AB行列として見立てたものを直接生成し更新項を計算する
-                    # A = sqrt(r_sq), B = sqrt(c_sq) AB行列近似を再現し履歴化で平滑化する
-                    state.setdefault('exp_avg_r', torch.zeros_like(r_sq)).mul_(beta1).add_(torch.sqrt(r_sq), alpha=1 - beta1)
-                    state.setdefault('exp_avg_c', torch.zeros_like(c_sq)).mul_(beta1).add_(torch.sqrt(c_sq), alpha=1 - beta1)
+                    row, col = state['exp_avg_row'], state['exp_avg_col']
 
-                    # 再構築した近似勾配の平方根の積で正規化
-                    denom = torch.sqrt(state['exp_avg_r'] * state['exp_avg_c']).add_(group['eps'])
-                    # 最終的な更新項を計算
-                    update_term = grad / denom
+                    # 履歴の更新(行列の構造的統計量)
+                    row.mul_(beta2).add_(grad_matrix.mean(dim=1), alpha=1 - beta2)
+                    col.mul_(beta2).add_(grad_matrix.mean(dim=0), alpha=1 - beta2)
 
-                # 1次元(ベクトル)の勾配(履歴化せず瞬間値にする)
+                    # 行列フィルタ生成「1次モーメントの慣性」を近似的に含む
+                    r_filter = row / (row.norm() + group['eps'])
+                    c_filter = col / (col.norm() + group['eps'])
+                    # grad_matrix 構造情報で「更新ベクトル場」へ変換する
+                    grad_matrix.mul_(r_filter.unsqueeze(1)).mul_(c_filter.unsqueeze(0))
+
+                    # 多次元行列の更新準備
+                    update = grad
+
                 else:
-                    # 最終的な更新項を計算
-                    update_term = grad
+                    # 1次元/小行列の更新準備
+                    update = grad
 
-                # 最終的なパラメータ更新 (decoupled weight decayも適用)
-                # [テンソル]2D以上：不正確、1D：正確、[履歴]2D以上：正確化、1D：ナシ、でバランス改善
-                # sign化で２次momentと１次ベクトルのデータの質(粒度)を揃える
+                # Weight Decay
                 p.mul_(1.0 - group['weight_decay'] * emoPulse)
-                p.add_(update_term.sign_(), alpha=-emoPulse)
+                p.add_(update.sign_(), alpha=-emoPulse)
                 # --- End Gradient Update Logic ---
 
         # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
@@ -175,6 +180,6 @@ class EmoAiry(Optimizer):
 
 """
  https://github.com/muooon/EmoSens
- Airy is inspired by Adafactor, and emofact,
- and its VRAM-friendly design is something everyone loves.
+ Thank you Adafactor and Lion. 
+ Believing in a future for democratic AI learning.
 """

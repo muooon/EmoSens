@@ -3,6 +3,8 @@ from torch.optim import Optimizer
 import math
 
 """
+EmoSens v3.8.1 (260202) shadow-system v3.1 -moment v3.1 emoPulse v3.8
+emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
 EmoSens v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 EmoNavi v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
 emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
@@ -12,11 +14,11 @@ Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減�
 
 class EmoSens(Optimizer):
     # クラス定義＆初期化
-    def __init__(self, params,
-                 lr=1.0,
-                 eps=1e-8,
-                 betas=(0.9, 0.995),
-                 weight_decay=0.01,
+    def __init__(self, params, 
+                 lr=1.0, 
+                 eps=1e-8, 
+                 betas=(0.9, 0.995), 
+                 weight_decay=0.01, 
                  use_shadow:bool=False):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
@@ -31,9 +33,9 @@ class EmoSens(Optimizer):
     # 感情EMA更新(緊張と安静)
     def _update_ema(self, state, loss_val):
         ema = state.setdefault('ema', {})
-        ema['short']  = 0.3  * loss_val + 0.7  * ema.get('short', loss_val)
+        ema['short'] = 0.3 * loss_val + 0.7 * ema.get('short', loss_val)
         ema['medium'] = 0.05 * loss_val + 0.95 * ema.get('medium', loss_val)
-        ema['long']   = 0.01 * loss_val + 0.99 * ema.get('long', loss_val)
+        ema['long'] = 0.01 * loss_val + 0.99 * ema.get('long', loss_val)
         return ema
 
     # 感情スカラー値生成(EMA差分、滑らかな非線形スカラー、tanh(diff) は ±1.0 で有界性)
@@ -85,7 +87,7 @@ class EmoSens(Optimizer):
         # d / N 履歴 (時間的D推定)
         self.noise_est = 0.97 * self.noise_est + 0.03 * abs(scalar)
         self.d_est = 0.97 * self.d_est + 0.03 * abs(trust)
-        noise = max(self.noise_est, 1e-8)
+        noise = max(self.noise_est, 1e-10) # max:1e-12程度(変更後：要アーリーストップ見直し)
         d = self.d_est
         # scalar、trust、の差分(瞬間的D推定)と各時間軸の確度推定(疑念と信頼の綱引き)
         Noise_base = abs(scalar - trust) + 0.1
@@ -94,16 +96,17 @@ class EmoSens(Optimizer):
         dNR_now_val = (d_base / Noise_base) ** 2
         # db / Nb dNR(SNR) 履歴化と最大値の成長率の増減
         if dNR_now_val >= self.dNR_hist and trust >= 0.5:
-            # 加速：どんなに SNR が高くても、1.05倍という｢歩幅｣の成長制限
-            self.dNR_hist = min(dNR_now_val, self.dNR_hist * 1.05)
+            # 加速：どんなに SNR が高くても、1.50倍という｢歩幅｣の成長制限
+            self.dNR_hist = min(dNR_now_val, self.dNR_hist * 1.50)
         elif -0.5 <= trust <= 0.5:
             # 減速：怪しい時は即座に比率を下げる(確実に信頼できない場合に下げ圧力を溜める)
-            self.dNR_hist = dNR_now_val * 0.98
+            self.dNR_hist = dNR_now_val * 0.80
         # emoPulse 最終決定： emoScorp によるユーザー意思の反映と安全値による制限
         emoPulse = max(min(self.dNR_hist * (self.emoScope * 1e-4), 3e-3), 1e-6)
         # --- End emoPulse (完全自動LR生成) ---
 
         for group in self.param_groups:
+            beta1, beta2 = group['betas']
             for p in group['params']:
                 if p.grad is None:
                     continue
@@ -126,17 +129,17 @@ class EmoSens(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # 1次・2次モーメントを使った勾配補正(decoupled weight decay 構造に近い)
+                # 1次・2次モーメントを使った勾配補正(decoupled weight decay)
                 exp_avg = state.setdefault('exp_avg', torch.zeros_like(p))
                 exp_avg_sq = state.setdefault('exp_avg_sq', torch.zeros_like(p))
-                beta1, beta2 = group['betas']
 
                 exp_avg.mul_(beta1).add_(grad, alpha=1 - beta1)
                 exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1 - beta2)
+
                 denom = exp_avg_sq.sqrt().add_(group['eps'])
 
                 if group['weight_decay']:
-                    p.add_(p, alpha=-group['weight_decay'] * emoPulse)
+                    p.mul_(1.0 - group['weight_decay'] * emoPulse)
                 p.addcdiv_(exp_avg, denom, value=-emoPulse)
                 # --- End Gradient Update Logic ---
 
