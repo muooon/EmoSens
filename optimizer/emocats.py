@@ -1,10 +1,9 @@
 import torch
 from torch.optim import Optimizer
 import math
-from typing import Callable
 
 """
-EmoCats v3.8.0 (260130) shadow-system v3.1 -moment v3.1 emoPulse v3.7.1
+EmoCats v3.8.1 (260202) shadow-system v3.1 -moment v3.1 emoPulse v3.8
 emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
 EmoCats v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 EmoLynx v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
@@ -12,10 +11,6 @@ emoPulse 機構により完全自動化を目指す(ユーザーによる emoSco
 dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
 Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減する等の改修と微調整
 """
-
-# Helper function
-def exists(val):
-    return val is not None
 
 class EmoCats(Optimizer):
     # クラス定義＆初期化
@@ -77,11 +72,8 @@ class EmoCats(Optimizer):
 
     # 損失取得(損失値 loss_val を数値化、感情判定に使用、存在しないパラメータ(更新不要)はスキップ)
     @torch.no_grad()
-    def step(self, closure: Callable | None = None): # クロージャの型ヒントを追加
-        loss = None
-        if exists(closure): # 一貫性のためにexistsヘルパーを使う
-            with torch.enable_grad():
-                loss = closure()
+    def step(self, closure=None): 
+        loss = torch.enable_grad()(closure)() if closure is not None else None
         loss_val = loss.item() if loss is not None else 0.0
 
         # EMA更新・スカラー生成(EMA差分からスカラーを生成しスパイク比率等を決定)
@@ -114,10 +106,8 @@ class EmoCats(Optimizer):
         # --- End emoPulse (完全自動LR生成) ---
 
         for group in self.param_groups:
-            # 共通パラメータ抽出
-            _wd_actual, beta1, beta2 = group['weight_decay'], *group['betas']
-            # PGチェックにフィルタ
-            for p in filter(lambda p: exists(p.grad), group['params']):
+            beta1, beta2 = group['betas']
+            for p in (p for p in group['params'] if p.grad is not None):
 
                 grad = p.grad
                 state = self.state[p]
@@ -142,15 +132,14 @@ class EmoCats(Optimizer):
                     state['exp_avg'] = torch.zeros_like(p)
                 exp_avg = state['exp_avg']
 
-                # Stepweight decay : decoupled_wd
-                p.mul_(1 - emoPulse * _wd_actual)
-                beta1, beta2 = group['betas']
+                # decoupled weight decay
+                p.mul_(1.0 - group['weight_decay'] * emoPulse)
 
                 # 勾配ブレンド
                 blended_grad = grad.mul(1 - beta1).add(exp_avg, alpha=beta1)
 
                 # 最終的なパラメータ更新
-                p.add_(blended_grad.sign(), alpha = -emoPulse)
+                p.add_(blended_grad.sign_(), alpha = -emoPulse)
                 exp_avg.mul_(beta2).add_(grad, alpha = 1 - beta2)
                 # --- End Gradient Update Logic ---
 
@@ -173,5 +162,4 @@ class EmoCats(Optimizer):
  https://github.com/muooon/EmoSens
  Cats was developed with inspiration from Lion, Tiger, and emolynx,
  which we deeply respect for their lightweight and intelligent design.
- Cats also integrates EmoNAVI to enhance its capabilities.
 """

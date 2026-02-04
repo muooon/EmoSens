@@ -3,7 +3,7 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoAiry v3.8.0 (260130) shadow-system v3.1 -moment v3.1 emoPulse v3.8
+EmoAiry v3.8.1 (260202) shadow-system v3.1 -moment v3.1 emoPulse v3.8
 emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
 EmoAiry v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 EmoFact v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
@@ -14,11 +14,11 @@ Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減�
 
 class EmoAiry(Optimizer):
     # クラス定義＆初期化
-    def __init__(self, params, 
-                 lr=1.0, 
-                 eps=1e-8, 
-                 betas=(0.9, 0.995), 
-                 weight_decay=0.01, 
+    def __init__(self, params,
+                 lr=1.0,
+                 eps=1e-8,
+                 betas=(0.9, 0.995),
+                 weight_decay=0.01,
                  use_shadow:bool=False):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
@@ -87,7 +87,7 @@ class EmoAiry(Optimizer):
         # d / N 履歴 (時間的D推定)
         self.noise_est = 0.97 * self.noise_est + 0.03 * abs(scalar)
         self.d_est = 0.97 * self.d_est + 0.03 * abs(trust)
-        noise = max(self.noise_est, 1e-8) # max:1e-12程度(変更後：要アーリーストップ見直し)
+        noise = max(self.noise_est, 1e-10) # max:1e-12程度(変更後：要アーリーストップ見直し)
         d = self.d_est
         # scalar、trust、の差分(瞬間的D推定)と各時間軸の確度推定(疑念と信頼の綱引き)
         Noise_base = abs(scalar - trust) + 0.1
@@ -106,13 +106,13 @@ class EmoAiry(Optimizer):
         # --- End emoPulse (完全自動LR生成) ---
 
         for group in self.param_groups:
+            beta1, beta2 = group['betas']
             for p in group['params']:
                 if p.grad is None:
                     continue
 
                 grad = p.grad
                 state = self.state[p]
-                d_p = grad.shape
 
                 # 動的学習率補正により shadow 形成を信頼度で調整(trustは正値化(負にならない))
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
@@ -130,35 +130,33 @@ class EmoAiry(Optimizer):
 
                 # --- Start Gradient Update Logic ---
                 # 行列の形状が2次元以上の場合、分散情報ベースのAB近似を使用
-                # 判定：2次元以上かつ「低ランク化」でメモリコストが全体の 5% 以下の場合に適用
-                if grad.dim() >= 2 and ((d_p[0] + d_p[1]) / p.numel()) < 0.05:
+                if grad.dim() >= 2:
                     # 行と列の2乗平均を計算 (分散の軽量な近似)
-                    r_sq = torch.mean(grad * grad, dim=tuple(range(1, grad.dim())), keepdim=True).add_(group['eps'])
-                    c_sq = torch.mean(grad * grad, dim=0, keepdim=True).add_(group['eps'])
+                    r_sq = grad.pow(2).mean(dim=tuple(range(1, grad.dim())), keepdim=True)
+                    c_sq = grad.pow(2).mean(dim=0, keepdim=True)
 
                     # 分散情報から勾配の近似行列を生成
                     # AB行列として見立てたものを直接生成し更新項を計算する
-                    # A = sqrt(r_sq), B = sqrt(c_sq) AB行列の近似を再現しEMAで平滑化する
-                    beta1, beta2 = group['betas']
-                    state.setdefault('exp_avg_r', torch.zeros_like(r_sq)).mul_(beta1).add_(torch.sqrt(r_sq), alpha=1 - beta1)
-                    state.setdefault('exp_avg_c', torch.zeros_like(c_sq)).mul_(beta1).add_(torch.sqrt(c_sq), alpha=1 - beta1)
+                    # A = sqrt(r_sq), B = sqrt(c_sq) AB行列近似を再現し履歴化で平滑化する
+                    state.setdefault('exp_avg_r', torch.zeros_like(r_sq)).mul_(beta2).add_(r_sq, alpha=1 - beta2)
+                    state.setdefault('exp_avg_c', torch.zeros_like(c_sq)).mul_(beta2).add_(c_sq, alpha=1 - beta2)
 
                     # 再構築した近似勾配の平方根の積で正規化
                     denom = torch.sqrt(state['exp_avg_r'] * state['exp_avg_c']).add_(group['eps'])
                     # 最終的な更新項を計算
                     update_term = grad / denom
 
-                # 1次元(ベクトル)/小行列の勾配補正
+                # 1次元(ベクトル)の勾配補正
                 else:
-                    # 今の勾配の平均絶対値でスケーリング
-                    # 現在の勾配の符号のみ履歴を持たずメモリ消費を抑える
-                    denom = grad.abs().mean().add_(group['eps'])
+                    exp_avg_sq = state.setdefault('exp_avg_sq', torch.zeros_like(p))
+                    exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1 - beta2)
+                    denom = exp_avg_sq.sqrt().add_(group['eps'])
                     # 最終的な更新項を計算
                     update_term = grad / denom
 
                 # 最終的なパラメータ更新 (decoupled weight decayも適用)
-                # sign化で２次momentと１次ベクトルのバランス改善
-                p.add_(p, alpha=-group['weight_decay'] * emoPulse)
+                # sign化で２次momentと１次ベクトルのデータの質(粒度)を揃える
+                p.mul_(1.0 - group['weight_decay'] * emoPulse)
                 p.add_(update_term.sign_(), alpha=-emoPulse)
                 # --- End Gradient Update Logic ---
 
@@ -169,7 +167,7 @@ class EmoAiry(Optimizer):
         # 感情機構の穏やかさ"安定状態"を外部伝達する(自動停止ではない)
         # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
-        if abs(scalar) <= 1e-6 and abs(Noise_base - d_base) <= 1e-7:
+        if abs(scalar) <= 5e-6 and abs(Noise_base - d_base) <= 5e-7:
             self.should_stop = True   # 💡 外部からこれを見て判断可
             self.emoScope = 1.0       # ユーザー意思を目的の収束へ整える
         else:

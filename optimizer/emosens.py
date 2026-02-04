@@ -3,7 +3,7 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoSens v3.8.0 (260130) shadow-system v3.1 -moment v3.1 emoPulse v3.8
+EmoSens v3.8.1 (260202) shadow-system v3.1 -moment v3.1 emoPulse v3.8
 emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
 EmoSens v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 EmoNavi v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
@@ -106,6 +106,7 @@ class EmoSens(Optimizer):
         # --- End emoPulse (完全自動LR生成) ---
 
         for group in self.param_groups:
+            beta1, beta2 = group['betas']
             for p in group['params']:
                 if p.grad is None:
                     continue
@@ -128,17 +129,17 @@ class EmoSens(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # 1次・2次モーメントを使った勾配補正(decoupled weight decay 構造に近い)
+                # 1次・2次モーメントを使った勾配補正(decoupled weight decay)
                 exp_avg = state.setdefault('exp_avg', torch.zeros_like(p))
                 exp_avg_sq = state.setdefault('exp_avg_sq', torch.zeros_like(p))
-                beta1, beta2 = group['betas']
 
                 exp_avg.mul_(beta1).add_(grad, alpha=1 - beta1)
                 exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1 - beta2)
+
                 denom = exp_avg_sq.sqrt().add_(group['eps'])
 
                 if group['weight_decay']:
-                    p.add_(p, alpha=-group['weight_decay'] * emoPulse)
+                    p.mul_(1.0 - group['weight_decay'] * emoPulse)
                 p.addcdiv_(exp_avg, denom, value=-emoPulse)
                 # --- End Gradient Update Logic ---
 
@@ -149,7 +150,7 @@ class EmoSens(Optimizer):
         # 感情機構の穏やかさ"安定状態"を外部伝達する(自動停止ではない)
         # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
-        if abs(scalar) <= 1e-6 and abs(Noise_base - d_base) <= 1e-7:
+        if abs(scalar) <= 5e-6 and abs(Noise_base - d_base) <= 5e-7:
             self.should_stop = True   # 💡 外部からこれを見て判断可
             self.emoScope = 1.0       # ユーザー意思を目的の収束へ整える
         else:

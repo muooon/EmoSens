@@ -28,44 +28,46 @@ Features in v3.7 and later
 初期LRは1.0で大丈夫です(データセットの工夫にあなたの時間を割いてください)  
 The initial LR can be set to 1.0 (please focus your time on refining the dataset).  
 
-Mathematical Explanation Here (paper) v3.7  
+Mathematical Explanation Here (paper) v3.7 and later  
 (非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)  
 (論文ではフラットミニマやグロッキングに対しての挙動も考察しています)  
 Expected value convergence for non-convex functions  
 (also guarantees adaptability to flow matching)  
 (Providing a direct path to Flat Minima without the necessity of Grokking.)  
-#### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(ENG).txt)  
-#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(JPN).txt)  
+#### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v38-paper(ENG).txt)  
+#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v38-paper(JPN).txt)  
 
 ---
 
 emo系 v3.8 (スタンダードモデル) の特徴等  
 
-| 名称      | 正確性 | メモリ負荷 | 備考                                      |  
-|-----------|--------|------------|-------------------------------------------|  
-| emosens   | ★★★★   | ★★         | 最初に誕生｜正確｜Adam型       |  
-| emoairy   | ★★     | ★★★★       | ２番目に誕生｜軽量｜Adafactor型 |  
-| emocats   | ★★★    | ★★★        | 軽量＆正確の両立｜Lion型         |  
-| emotion   | ★★★    | ★★★★★      | "最軽量"で正確｜オリジナル型         |  
+| 名称      | 時間的正確性 | メモリ効率 | 備考                                      |  
+|-----------|------------|------------|-------------------------------------------|  
+| emosens   | ★★★★★      | ★★         | 最初に誕生｜正確｜Adam型       |  
+| emoairy   | ★★★        | ★★★★★      | ２番目に誕生｜軽量｜Adafactor型 |  
+| emocats   | ★★★☆        | ★★★☆        | 軽量＆正確の両立｜Lion型         |  
+| emotion   | ★★★★       | ★★★★       | "軽量"で正確｜オリジナル型         |  
 
-[効率性] 危険抑止更新：過学習や収束の停滞に先回りし無駄な更新を排除しながら進行します  
-[機能性] 軽量で高機能：自動停止合図や完全自律型の分散学習への対応でユーザー体験を向上させます  
-[信頼性] 安全優先設計：動的制御で学習の不安定な局面でモデルを保護し安定した収束を促します  
-完全自律型のため、積層、再開、非同期、で、自由な学習を自由に組むことが可能です  
+[効率性] 危険抑止更新：過学習や収束の停滞に先回りし無駄な更新を排除します  
+[機能性] 軽量で高機能：自動停止合図や自律した分散学習等対応でユーザー体験を向上させます  
+[信頼性] 安全優先設計：動的制御で学習の不安定な局面でモデルを保護し安定収束を促します  
+※ 完全自律型のため、積層、再開、非同期、で、自由な学習を自由に組むことが可能です  
+※ EmoTion は、幾何学的直交更新と２次モーメント完全排除で正確性と効率性を向上します
 
 emo-series v3.8 (Standard-models) Features  
 
-| Name    | Accurate | MemoryLoad | Notes                                           |  
-|---------|----------|------------|--------------------------------------------------|  
-| emosens | ★★★★     | ★★         | 1st born｜accurate｜Adam-type         |  
-| emoairy | ★★       | ★★★★       | 2nd born｜Lightweight｜Adafactor-type |  
-| emocats | ★★★      | ★★★        | Accurate and Lightweight｜Lion-type |  
-| emocats | ★★★      | ★★★★★      | "most Lightest" ＆ accurate｜Origenal-type |
+| Name    | Time-Accurate | MemoryLoad | Notes                                           |  
+|---------|------------|------------|--------------------------------------------------|  
+| emosens | ★★★★★      | ★★         | 1st born｜accurate｜Adam-type         |  
+| emoairy | ★★★        | ★★★★★      | 2nd born｜Lightweight｜Adafactor-type |  
+| emocats | ★★★☆        | ★★★☆        | Accurate and Lightweight｜Lion-type |  
+| emotion | ★★★★       | ★★★★       | "Lightest" ＆ accurate｜Origenal-type |
 
 [Efficiency] Risk-Aware Updates: Proactively prevents overfitting and convergence stagnation while eliminating redundant updates.  
 [Functionality] Lightweight and High-Performance: Enhances user experience through automatic stop signals and support for fully autonomous distributed learning.  
 [Reliability] Safety-First Design: Protects the model during unstable learning phases with dynamic control, promoting stable convergence.  
-Fully autonomous, enabling flexible learning configurations through layering, resumption, and asynchronous processing    
+※ Fully autonomous, enabling flexible learning configurations through layering, resumption, and asynchronous processing    
+※ EmoTion enhances accuracy and efficiency through geometric orthogonal updating and complete elimination of second moments.
 
 ---
 
@@ -144,9 +146,9 @@ emoPulse：(d_base/noise_base)^2 算出表
 
 | 側   | 状態         | scalar | trust | noise_base | dNR_now_val(2乗) | emoPulse への影響        |
 |------|--------------|--------|-------|------------|-------------------|---------------------------|
-| +側  | 安定・改善   |  0.20  | 0.80  |   0.70     |       0.51        | 維持(様子見)              |
-| +側  | 理想的調和   |  0.45  | 0.55  |   0.20     |       6.25        | 加速(1.5倍成長)          |
 | +側  | 一致（最大） |  0.50  | 0.50  |   0.10     |      25.00        | 最大加速(1.5倍成長)      |
+| +側  | 理想的調和   |  0.45  | 0.55  |   0.20     |       6.25        | 加速(1.5倍成長)          |
+| +側  | 安定・改善   |  0.20  | 0.80  |   0.70     |       0.51        | 維持(様子見)              |
 | -側  | 軽い不一致   | -0.20  | -0.80 |   0.70     |       0.51        | 維持(様子見)              |
 | -側  | 強い違和感   | -0.45  | -0.55 |   0.20     |       6.25        | 減速(0.8倍)              |
 | -側  | 逆転一致     | -0.50  | -0.50 |   0.10     |      25.00        | 最大減速(0.8倍)          |
@@ -318,5 +320,4 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
-
 

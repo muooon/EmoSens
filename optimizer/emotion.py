@@ -1,29 +1,22 @@
 import torch
 from torch.optim import Optimizer
 import math
-from typing import Callable
 
 """
-EmoTion v3.8.0 (260130) shadow-system v3.1 -moment v3.1 emoPulse v3.8
-emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
-EmoTion v3.7.6 (260120) shadow-system v3.1 -moment v3.1 emoPulse v3.7
-All-Emo v3.6, v3.7 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
-emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
-dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
-Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減する等の改修と微調整
+EmoTion v3.8.1 (260204) shadow-system v3.1 -moment v3.1 emoPulse v3.8
+これまでの emo系 のすべて、emo系 v3.7 を継承し独自更新式を持つ、完全オリジナル最適化器
+The “geometric relationship” between "W"eight and "G"radient Method
+これまでの統計手法をやめ、重みベクトルと勾配ベクトルの直交性(W-Ref Geometry)に基づいて、
+過去の慣性と現在の勾配を動的にブレンドする、1次モーメント単一保持型の幾何学的最適化アルゴリズム
 """
-
-# Helper function
-def exists(val):
-    return val is not None
 
 class EmoTion(Optimizer):
     # クラス定義＆初期化
-    def __init__(self, params, 
-                 lr=1.0, 
-                 eps=1e-8, 
-                 betas=(0.9, 0.995), 
-                 weight_decay=0.01, 
+    def __init__(self, params,
+                 lr=1.0,
+                 eps=1e-8,
+                 betas=(0.9, 0.995),
+                 weight_decay=0.01,
                  use_shadow:bool=False):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
@@ -45,7 +38,7 @@ class EmoTion(Optimizer):
 
     # 感情スカラー値生成(EMA差分、滑らかな非線形スカラー、tanh(diff) は ±1.0 で有界性)
     # 係数"1"：ema差分 のスケール調整処理に活用(感度調節係数)／通常は1(タスクに応じ調整可(非推奨))
-    # scale_base：Loss値とema値の乖離を修正(分母 ema(long) 「改善率」共通化/loss種に非依存)
+    # scale_base：Loss値とema値の乖離を修正(分母 ema(long) ｢改善率｣共通化/loss種に非依存)
     # 1e-5(デフォルト)／1e-6(感度向上)／1e-4(安定性向上)：分母を０にせず安定させる
     # トラウマ的反応や慣れによる鈍化で安定性向上(ema-medium 安定と急変を信頼度で感知)
     def _compute_scalar(self, ema):
@@ -77,11 +70,8 @@ class EmoTion(Optimizer):
 
     # 損失取得(損失値 loss_val を数値化、感情判定に使用、存在しないパラメータ(更新不要)はスキップ)
     @torch.no_grad()
-    def step(self, closure: Callable | None = None):
-        loss = None
-        if exists(closure):
-            with torch.enable_grad():
-                loss = closure()
+    def step(self, closure=None):
+        loss = torch.enable_grad()(closure)() if closure is not None else None
         loss_val = loss.item() if loss is not None else 0.0
 
         # EMA更新・スカラー生成(EMA差分からスカラーを生成しスパイク比率等を決定)
@@ -115,10 +105,10 @@ class EmoTion(Optimizer):
 
         for group in self.param_groups:
             beta1, beta2 = group['betas']
-            for p in filter(lambda p: exists(p.grad), group['params']):
+            for p in (p for p in group['params'] if p.grad is not None):
+
                 grad = p.grad
                 state = self.state[p]
-                d_p = grad.shape
 
                 # 動的学習率補正により shadow 形成を信頼度で調整(trustは正値化(負にならない))
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
@@ -135,36 +125,42 @@ class EmoTion(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # 2次元以上かつ一定サイズ以上を行列近似対象とする
-                # 判定：2次元以上かつ「低ランク化」でメモリコストが全体の 5% 以下の場合に適用
-                if grad.dim() >= 2 and ((d_p[0] + d_p[1]) / p.numel()) < 0.05:
-                    # 4次元を2次元(行列)として解釈する
-                    grad_matrix = grad.view(d_p[0], -1) 
-                    d0, d1 = grad_matrix.shape
-                    # --- Low-Rank Moment Logic ---
-                    if 'exp_avg_row' not in state:
-                        state['exp_avg_row'] = torch.zeros(d0, dtype=grad.dtype, device=grad.device)
-                        state['exp_avg_col'] = torch.zeros(d1, dtype=grad.dtype, device=grad.device)
-                    
-                    row, col = state['exp_avg_row'], state['exp_avg_col']
-                    
-                    # 1次モーメントを低ランクで復元
-                    # Lion-style update with blended gradient
-                    update = row.view(-1, 1).mul(col).mul_(beta1).add_(grad_matrix, alpha=1 - beta1).sign_()
-                    
-                    # 行列分解形式での履歴更新
-                    row.mul_(beta2).add_(grad_matrix.mean(dim=1), alpha=1 - beta2)
-                    col.mul_(beta2).add_(grad_matrix.mean(dim=0), alpha=1 - beta2)
-                    # 元のテンソル形状（4次元など）に戻す
-                    update = update.view(d_p)
+                # --- Start EmoTion v4.0 (Pure W-Ref Geometry) ---
+                # p: 重みW, grad: 勾配g, state: 状態保存用辞書
+                
+                # 1. 1次モーメント(exp_avg)の初期化: O(N) のみ
+                if 'exp_avg' not in state:
+                    state['exp_avg'] = torch.zeros_like(p)
+                    state['rho_ema'] = torch.zeros(1, device=p.device, dtype=p.dtype)
 
-                else:
-                    # --- Momentless Update (1次元/小行列) ---
-                    # 現在の勾配の符号のみとし履歴を持たずメモリ消費を抑える
-                    update = grad.sign()
-                # Weight Decay
-                p.add_(p, alpha=-group['weight_decay'] * emoPulse)
-                p.add_(update, alpha=-emoPulse)
+                # 2. W-Reference / Geometry (幾何学的直交性) 算出
+                # 勾配が重みに対して｢新鮮｣(直交)か｢冗長｣(平行)かを判定
+                p_norm = p.norm()
+                g_norm = grad.norm()
+                rho = torch.abs(torch.sum(p * grad)) / (p_norm * g_norm + 1e-8)
+                
+                # rhoの履歴更新 (スカラーのみ)
+                state['rho_ema'].mul_(beta1).add_(rho, alpha=1 - beta1)
+
+                # 3. 幾何学的適応型ブレンド
+                # 従来の beta1 固定ではなく、直交しているほど今の勾配 g を強く取り込む
+                # freshness が高い(rhoが小さい)ほど、慣性を無視して新しい方向へ舵を切る
+                freshness = (1.0 - state['rho_ema'])
+                
+                # exp_avg = beta1 * exp_avg + (1 - beta1) * grad の｢幾何学的拡張｣
+                # 慣性と現時点の勾配を、直交性に基づいて混ぜ合わせる
+                state['exp_avg'].mul_(beta1).add_(grad, alpha=(1.0 - beta1) * freshness.item())
+
+                # 4. 更新ベクトルの決定 (Lionライクな符号抽出、または生ベクトル)
+                # ここでは｢方向の純度｣を優先し、更新の勢いを一定に保つ
+                update_vec = torch.sign(state['exp_avg']) 
+
+                # 5. 重みの更新 (emoPulse = 絶対歩幅)
+                if group['weight_decay'] != 0:
+                    p.mul_(1 - emoPulse * group['weight_decay'])
+
+                p.add_(update_vec, alpha=-emoPulse)
+                # --- End EmoTion v4.0 ---
                 # --- End Gradient Update Logic ---
 
         # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
@@ -184,6 +180,6 @@ class EmoTion(Optimizer):
 
 """
  https://github.com/muooon/EmoSens
- An emotion-driven optimizer that feels loss and navigates accordingly.
- Don't think. Feel. Don't stop. Keep running. Believe in what's beyond.
+ Pure W-Ref Geometry. Believing in a future for democratic AI learning.
+ Taking decisive steps forward, Weight-Reference Optimizer. 
 """
