@@ -313,7 +313,7 @@ Official Code:
 https://github.com/muooon/EmoSens  
 
 paper:  
-https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v37-paper(ENG).txt  
+https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v38-paper(ENG).txt  
 DOI取得版/DOI-Acquired Version  
 https://huggingface.co/muooon/EmoTion-Optimizer  
 
@@ -324,6 +324,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 
