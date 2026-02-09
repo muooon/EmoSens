@@ -49,6 +49,7 @@ emo系 v3.8 (スタンダードモデル) の特徴等
 | emoairy   | ★★★        | ★★★★★      | ２番目に誕生｜軽量｜Adafactor型 |  
 | emocats   | ★★★☆        | ★★★☆        | 軽量＆正確の両立｜Lion型         |  
 | emotion   | ★★★★       | ★★★★       | "軽量"で正確｜オリジナル型         |  
+| emovoid   | ★★★        | ★★★★★      | "最軽量"で正確｜オリジナル型         | 
 
 [効率性] 危険抑止更新：過学習や収束の停滞に先回りし無駄な更新を排除します  
 [機能性] 軽量で高機能：自動停止合図や自律した分散学習等対応でユーザー体験を向上させます  
@@ -61,9 +62,10 @@ emo-series v3.8 (Standard-models) Features
 | Name    | Time-Accurate | MemoryLoad | Notes                                           |  
 |---------|------------|------------|--------------------------------------------------|  
 | emosens | ★★★★★      | ★★         | 1st born｜accurate｜Adam-type         |  
-| emoairy | ★★★        | ★★★★★      | 2nd born｜Lightweight｜Adafactor-type |  
-| emocats | ★★★☆        | ★★★☆        | Accurate and Lightweight｜Lion-type |  
-| emotion | ★★★★       | ★★★★       | "Lightest" ＆ accurate｜Origenal-type |
+| emoairy | ★★★        | ★★★★★      | 2nd born｜Lightest｜Adafactor-type |  
+| emocats | ★★★☆        | ★★★☆        | Accurate and Light ｜ Lion-type |  
+| emotion | ★★★★       | ★★★★       | "Lightest" ＆ Accurate｜Origenal-type |  
+| emovoid | ★★★        | ★★★★★      | "Lightest" ＆ Accurate｜Origenal-type |
 
 [Efficiency] Risk-Aware Updates: Proactively prevents overfitting and convergence stagnation while eliminating redundant updates.  
 [Functionality] Lightweight and High-Performance: Enhances user experience through automatic stop signals and support for fully autonomous distributed learning.  
@@ -324,6 +326,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 
