@@ -55,7 +55,8 @@ emo系 v3.8 (スタンダードモデル) の特徴等
 [機能性] 軽量で高機能：自動停止合図や自律した分散学習等対応でユーザー体験を向上させます  
 [信頼性] 安全優先設計：動的制御で学習の不安定な局面でモデルを保護し安定収束を促します  
 ※ 完全自律型のため、積層、再開、非同期、で、自由な学習を自由に組むことが可能です  
-※ EmoTion は、幾何学的直交更新と２次モーメント完全排除で正確性と効率性を向上します
+※ EmoTion は、幾何学的直交更新と２次モーメント完全排除で正確性と効率性を向上します  
+※ EmoVoid は、幾何学的直交更新と１次２次モーメント完全排除でVRAM効率を向上します
 
 emo-series v3.8 (Standard-models) Features  
 
@@ -72,6 +73,7 @@ emo-series v3.8 (Standard-models) Features
 [Reliability] Safety-First Design: Protects the model during unstable learning phases with dynamic control, promoting stable convergence.  
 ※ Fully autonomous, enabling flexible learning configurations through layering, resumption, and asynchronous processing    
 ※ EmoTion enhances accuracy and efficiency through geometric orthogonal updating and complete elimination of second moments.
+※ EmoVoid improves VRAM efficiency by using geometric orthogonal updates and completely eliminating first and second moments.
 
 ---
 
@@ -326,6 +328,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 
