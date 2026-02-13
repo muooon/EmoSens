@@ -3,20 +3,20 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoTion v3.8.1 (260204) Moment-Free Edition
-shadow-system v3.1 -moment v3.1 emoPulse v3.8
+EmoNano v3.8.1 (260211) Moment-Free Edition
+shadow-system v3.1 -moment v3.1 emoPulse v3.8 emoVault v3.8
 これまでの emo系 のすべて、emo系 v3.7 を継承し独自更新式を持つ、完全オリジナル最適化器
 The “geometric relationship” between "W"eight and "G"radient Method
-これまでの統計手法をやめ、重みベクトルと勾配ベクトルの直交性(W-Ref Geometry)に基づいて、
-過去の慣性と現在の勾配を動的にブレンドする、1次モーメント単一保持型の幾何学的最適化アルゴリズム
+1次2次モーメント廃止、重みベクトルと勾配ベクトルの直交性(W-Ref Geometry)のみで更新
+emoVault：inertia(慣性)を自己組織化、完全モーメントフリーの幾何学的最適化アルゴリズム
 """
 
-class EmoTion(Optimizer):
+class EmoNano(Optimizer):
     # クラス定義＆初期化
     def __init__(self, params,
                  lr=1.0,
                  eps=1e-8,
-                 betas=(0.9, 0.995),
+                 betas=(0.9, 0.99),
                  weight_decay=0.01,
                  use_shadow:bool=False):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
@@ -104,6 +104,25 @@ class EmoTion(Optimizer):
         emoPulse = max(min(self.dNR_hist * (self.emoScope * 1e-4), 3e-3), 1e-6)
         # --- End emoPulse (完全自動LR生成) ---
 
+        # --- Start W-ref-geo emoVault Logic ---
+        # 初回だけデバイスをパラメータと同期させる
+        if 'vault' not in self.state:
+            device = self.param_groups[0]['params'][0].device
+            self.state['vault'] = torch.zeros(1, device=device)
+            self.state['global_rho'] = torch.tensor(0.5, device=device)
+
+        # エネルギーの更新(瞬間の値で決定)
+        beta2, _ = self.param_groups[0]['betas']
+        reward = torch.cos(torch.pi * self.state['global_rho'])
+        self.state['vault'] = self.state['vault'] * beta2 + reward * (1 - beta2)
+        inertia = 1.0 + self.state['vault']
+
+        # 今ステップのグローバル値を集計する変数を初期化(これらは単なるスカラ)
+        dot_sum = torch.tensor(0.0, device=self.state['vault'].device)
+        p_norm_sum = torch.tensor(0.0, device=self.state['vault'].device)
+        g_norm_sum = torch.tensor(0.0, device=self.state['vault'].device)
+        # --- End W-ref-geo emoVault Logic ---
+
         for group in self.param_groups:
             beta1, beta2 = group['betas']
             for p in (p for p in group['params'] if p.grad is not None):
@@ -113,6 +132,7 @@ class EmoTion(Optimizer):
 
                 p_norm = p.norm()
                 g_norm = grad.norm()
+                pdg = torch.sum(p * grad).abs()
 
                 # 動的学習率補正により shadow 形成を信頼度で調整(trustは正値化(負にならない))
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
@@ -129,39 +149,30 @@ class EmoTion(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # --- EmoTion (Pure W-Ref Geometry) ---
-                # 1. 1次モーメント(exp_avg)の初期化: O(N) のみ
-                if 'exp_avg' not in state:
-                    state['exp_avg'] = torch.zeros_like(p)
-                    state['rho_ema'] = torch.zeros(1, device=p.device, dtype=p.dtype)
+                # --- EmoNano (Pure W-Ref Geometry) ---
+                # メモリ消費最小｢直交方向への超感度｣｢スライス方式｣で効率化
+                # rho の算出：定義済みのノルム変数を使用 1e-8 分母で破綻を防ぐ
+                rho = pdg / (p_norm * g_norm + 1e-8)
+                freshness = 1.0 - rho
 
-                # 2. W-Reference / Geometry (幾何学的直交性) 算出
-                # 勾配が重み(実体)に対して｢新鮮｣(直交)か｢冗長｣(平行)かを判定
-                # 高次元空間における集中現象を利用した「情報の選別」
-                rho = torch.abs(torch.sum(p * grad)) / (p_norm * g_norm + 1e-8)
+                # 全体の rho を算出する成分を、ここで「ついでに」足し合わせる
+                # スライス積算：VRAMを圧迫せず、スカラ値を足していく
+                dot_sum += pdg
+                p_norm_sum += p_norm
+                g_norm_sum += g_norm
 
-                # rhoの履歴更新 (スカラーのみ)
-                state['rho_ema'].mul_(beta1).add_(rho, alpha=1 - beta1)
+                # 更新ベクトルの生成
+                # sign(grad) で方向を決め、個別の freshness と 全体の inertia を乗算
+                update_vec = torch.sign(grad) * (freshness * inertia)
 
-                # 3. 幾何学的適応型ブレンド
-                # 従来の beta1 固定ではなく、直交しているほど今の勾配 g を強く取り込む
-                # freshness が高い(rhoが小さい)ほど、慣性を無視して新しい方向へ舵を切る
-                freshness = (1.0 - state['rho_ema'])
-
-                # exp_avg = beta1 * exp_avg + (1 - beta1) * grad の｢幾何学的拡張｣
-                # 慣性と現時点の勾配を、直交性に基づいて混ぜ合わせる
-                state['exp_avg'].mul_(beta1).add_(grad, alpha=(1.0 - beta1) * freshness.item())
-
-                # 4. 更新ベクトルの決定 (Lionライクな符号抽出、または生ベクトル)
-                # ここでは｢方向の純度｣を優先し、更新の勢いを一定に保つ
-                update_vec = torch.sign(state['exp_avg']) 
-
-                # 5. 重みの更新 (emoPulse = 絶対歩幅)
-                if group['weight_decay'] != 0:
-                    p.mul_(1 - emoPulse * group['weight_decay'])
-
+                # 更新
+                if group['weight_decay']:
+                    p.mul_(1.0 - group['weight_decay'] * emoPulse)
                 p.add_(update_vec, alpha=-emoPulse)
                 # --- End Gradient Update Logic ---
+
+        # 「次のステップ」のための global_rho をスカラー計算で更新
+        self.state['global_rho'] = dot_sum / (p_norm_sum * g_norm_sum + 1e-8)
 
         # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
         for group in self.param_groups:
@@ -180,6 +191,6 @@ class EmoTion(Optimizer):
 
 """
  https://github.com/muooon/EmoSens
- Pure W-Ref Geometry. Believing in a future for democratic AI learning.
- Taking decisive steps forward, Weight-Reference Optimizer. 
+ A new-generation geometric optimization algorithm pursuing nano.
+ Taking decisive steps forward, Weight-Reference Optimizer.
 """

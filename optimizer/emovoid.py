@@ -3,7 +3,8 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoVoid v3.8.1 (260204) shadow-system v3.1 -moment v3.1 emoPulse v3.8
+EmoVoid v3.8.1 (260204) Moment-Free Edition
+shadow-system v3.1 -moment v3.1 emoPulse v3.8
 これまでの emo系 のすべて、emo系 v3.7 を継承し独自更新式を持つ、完全オリジナル最適化器
 The “geometric relationship” between "W"eight and "G"radient Method
 これまでの統計手法を完全になくし、重みベクトルと勾配ベクトルの直交性(W-Ref Geometry)のみで、
@@ -110,6 +111,9 @@ class EmoVoid(Optimizer):
                 grad = p.grad
                 state = self.state[p]
 
+                p_norm = p.norm()
+                g_norm = grad.norm()
+
                 # 動的学習率補正により shadow 形成を信頼度で調整(trustは正値化(負にならない))
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
                 # 混合比率：スカラーが閾値を超える場合にのみ計算される(信頼できる感情信号かどうかの選別)
@@ -125,15 +129,9 @@ class EmoVoid(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # --- Start EmoVoid (Pure W-Ref Geometry) ---
-                # 1次モーメント廃止版
+                # --- EmoVoid (Pure W-Ref Geometry) ---
                 # メモリ消費を最小、計算負荷を極小、｢直交方向への超感度｣｢膨張への自己抑制｣を両立
-                # ノルム取得(計算効率と安全性の確保)
-                p_norm = p.norm()
-                g_norm = grad.norm()
-
-                # rho の算出：定義済みのノルム変数を使用
-                # 1e-8 分母において、p か g のどちらかが 0 でも破綻を防ぐ
+                # rho の算出：定義済みのノルム変数を使用 1e-8 分母で破綻を防ぐ
                 rho = torch.abs(torch.sum(p * grad)) / (p_norm * g_norm + 1e-8)
                 # 鮮度(直交性スコア)
                 freshness = (1.0 - rho) # EMAを通さない瞬間の鮮度
@@ -145,7 +143,6 @@ class EmoVoid(Optimizer):
 
                 # 更新
                 p.add_(update_vec, alpha=-emoPulse)
-                # --- End EmoVoid ---
                 # --- End Gradient Update Logic ---
 
         # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
