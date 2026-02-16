@@ -3,13 +3,12 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoAiry v3.8.1 (260202) shadow-system v3.1 -moment v3.1 emoPulse v3.8
-emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
-EmoAiry v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
-EmoFact v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
+EmoAiry v3.8.3 (260215) Standard Edition
+shadow-system v3.1 -moment v3.1 emoPulse v3.8
+これまでの emo系 のすべて、emo系 v3.7 を継承し、早期停止関連の効率化やコード修正等を実施
+EmoAiry v3.8.1 (260201) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
-dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
-Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減する等の改修と微調整
+emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
 """
 
 class EmoAiry(Optimizer):
@@ -138,9 +137,15 @@ class EmoAiry(Optimizer):
                     # 分散情報から勾配の近似行列を生成
                     # AB行列として見立てたものを直接生成し更新項を計算する
                     # A = sqrt(r_sq), B = sqrt(c_sq) AB行列近似を再現し履歴化で平滑化する
-                    state.setdefault('exp_avg_r', torch.zeros_like(r_sq)).mul_(beta2).add_(r_sq, alpha=1 - beta2)
-                    state.setdefault('exp_avg_c', torch.zeros_like(c_sq)).mul_(beta2).add_(c_sq, alpha=1 - beta2)
+                    if 'exp_avg_r' not in state:
+                        exp_avg_r = state.setdefault('exp_avg_r', torch.zeros_like(r_sq))
+                        exp_avg_c = state.setdefault('exp_avg_c', torch.zeros_like(c_sq))
 
+                    exp_avg_r = state['exp_avg_r']
+                    exp_avg_c = state['exp_avg_c']
+                    # 指数移動平均の更新
+                    exp_avg_r.mul_(beta2).add_(r_sq, alpha=1 - beta2)
+                    exp_avg_c.mul_(beta2).add_(c_sq, alpha=1 - beta2)
                     # 再構築した近似勾配の平方根の積で正規化
                     denom = torch.sqrt(state['exp_avg_r'] * state['exp_avg_c']).add_(group['eps'])
                     # 最終的な更新項を計算
@@ -148,7 +153,9 @@ class EmoAiry(Optimizer):
 
                 # 1次元(ベクトル)の勾配補正
                 else:
-                    exp_avg_sq = state.setdefault('exp_avg_sq', torch.zeros_like(p))
+                    if 'exp_avg' not in state:
+                        exp_avg_sq = state.setdefault('exp_avg_sq', torch.zeros_like(p))
+                    exp_avg_sq = state['exp_avg_sq']
                     exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1 - beta2)
                     denom = exp_avg_sq.sqrt().add_(group['eps'])
                     # 最終的な更新項を計算
@@ -168,8 +175,9 @@ class EmoAiry(Optimizer):
         # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
         if abs(scalar) <= 5e-6 and abs(Noise_base - d_base) <= 5e-7:
+            if not self.should_stop:
+                self.emoScope = 1.0   # ユーザー意思を目的の収束へ整える
             self.should_stop = True   # 💡 外部からこれを見て判断可
-            self.emoScope = 1.0       # ユーザー意思を目的の収束へ整える
         else:
             self.should_stop = False  # 💡 誤判定などの取り消し
 

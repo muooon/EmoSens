@@ -3,13 +3,12 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoCats v3.8.1 (260202) shadow-system v3.1 -moment v3.1 emoPulse v3.8
-emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
-EmoCats v3.7.6 (260109) shadow-system v3.1 -moment v3.1 emoPulse v3.7
-EmoLynx v3.6 継承 emoDrive 機構を emoPulse へ統合し簡略化(循環器的機構)
+EmoCats v3.8.3 (260215) Standard Edition
+shadow-system v3.1 -moment v3.1 emoPulse v3.8
+これまでの emo系 のすべて、emo系 v3.7 を継承し、早期停止関連の効率化やコード修正等を実施
+EmoAiry v3.8.1 (260201) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
-dNR係数により emoPulse に履歴を混ぜて安定させた(d / N 履歴 による信頼度の維持)
-Early scalar、Early Stop、効率化しつつ精度向上させ負荷も軽減する等の改修と微調整
+emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
 """
 
 class EmoCats(Optimizer):
@@ -151,8 +150,9 @@ class EmoCats(Optimizer):
         # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
         if abs(scalar) <= 5e-6 and abs(Noise_base - d_base) <= 5e-7:
+            if not self.should_stop:
+                self.emoScope = 1.0   # ユーザー意思を目的の収束へ整える
             self.should_stop = True   # 💡 外部からこれを見て判断可
-            self.emoScope = 1.0       # ユーザー意思を目的の収束へ整える
         else:
             self.should_stop = False  # 💡 誤判定などの取り消し
 

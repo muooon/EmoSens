@@ -3,12 +3,12 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoVoid v3.8.1 (260204) Moment-Free Edition
+EmoVoid v3.8.3 (260215) Moment-Free Edition
 shadow-system v3.1 -moment v3.1 emoPulse v3.8
-これまでの emo系 のすべて、emo系 v3.7 を継承し独自更新式を持つ、完全オリジナル最適化器
+これまでの emo系 のすべてを継承し、独自更新式の特徴を受け継ぐ完全オリジナル最適化器
 The “geometric relationship” between "W"eight and "G"radient Method
-これまでの統計手法を完全になくし、重みベクトルと勾配ベクトルの直交性(W-Ref Geometry)のみで、
-メモリコストを極限まで削ぎ落とした、1次2次モーメント廃止の幾何学的最適化アルゴリズム
+幾何学的最適化アルゴリズム Approx W-Ref Geometry 近似アシスト更新にし負荷低減
+完全1次2次モーメント廃止、さまざまなコストを極限まで低減、正確性と軽量性と快適性を向上
 """
 
 class EmoVoid(Optimizer):
@@ -104,15 +104,35 @@ class EmoVoid(Optimizer):
         emoPulse = max(min(self.dNR_hist * (self.emoScope * 1e-4), 3e-3), 1e-6)
         # --- End emoPulse (完全自動LR生成) ---
 
+        # --- Start Approx W-Ref Geometry 近似アシスト ---
+        # Weight Reference Geometry ("W"eight and "G"radient Method)
+        # 中間テンソルによるVRAM負荷やcos類似度測定の計算負荷を実質０にする
+        with torch.no_grad():
+            # 現在の全パラメータのL1ノルムを一括計算(計算負荷: 低)
+            # foreach_norm は各層のノルムをリストで返す。sumで1つの数値に集約。
+            params = self.param_groups[0]['params']
+            point_gl1 = sum(torch._foreach_norm(params, 1))
+            prev = getattr(self, "prev_gl1", None)
+            curr_step = getattr(self, '_step_count', 0)
+            self._step_count = curr_step + 1
+            # ウォームアップ期間中のみ、前回のノルムと比較して「一括修正」
+            if prev is not None and curr_step < 55:
+                # 前回のエネルギーを維持するための比率(スライス的な全層一律係数)
+                ratio = (prev / (point_gl1 + 1e-8)).item()
+                # 全層の重みを一撃でスケーリング(中間テンソル作成なし、最速)
+                torch._foreach_mul_(params, ratio)
+                # 修正したので、現在のノルムも再計算(または近似)
+                point_gl1 *= ratio
+            # 今回のノルムを次回の比較用に保存
+            self.prev_gl1 = point_gl1
+        # --- End Approx W-Ref Geometry 近似アシスト ---
+
         for group in self.param_groups:
             beta1, beta2 = group['betas']
             for p in (p for p in group['params'] if p.grad is not None):
 
                 grad = p.grad
                 state = self.state[p]
-
-                p_norm = p.norm()
-                g_norm = grad.norm()
 
                 # 動的学習率補正により shadow 形成を信頼度で調整(trustは正値化(負にならない))
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
@@ -129,20 +149,9 @@ class EmoVoid(Optimizer):
                         state['shadow'].lerp_(p, leap_ratio)
 
                 # --- Start Gradient Update Logic ---
-                # --- EmoVoid (Pure W-Ref Geometry) ---
-                # メモリ消費を最小、計算負荷を極小、｢直交方向への超感度｣｢膨張への自己抑制｣を両立
-                # rho の算出：定義済みのノルム変数を使用 1e-8 分母で破綻を防ぐ
-                rho = torch.abs(torch.sum(p * grad)) / (p_norm * g_norm + 1e-8)
-                # 鮮度(直交性スコア)
-                freshness = (1.0 - rho) # EMAを通さない瞬間の鮮度
-
-                # Weight Decay が不要な理由：
-                # ノルムが増大する方向に進もうとすると rho 増加で自らブレーキを踏む
-                # 慣性を使わず、現在の勾配の方向(sign)に、鮮度を乗算
-                update_vec = torch.sign(grad) * freshness
-
-                # 更新
-                p.add_(update_vec, alpha=-emoPulse)
+                # --- EmoVoid (Approx W-Ref Geometry) ---
+                # 更新：emoPulse「時間軸」、W-Ref-Geo「空間軸」でODE近似へ導く
+                p.add_(grad.sign_(), alpha=-emoPulse)
                 # --- End Gradient Update Logic ---
 
         # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
@@ -153,8 +162,10 @@ class EmoVoid(Optimizer):
         # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
         if abs(scalar) <= 5e-6 and abs(Noise_base - d_base) <= 5e-7:
+            if not self.should_stop:
+                self.emoScope = 1.0   # ユーザー意思を目的の収束へ整える
+                self._step_count = 0  # 幾何学的再調整の再始動
             self.should_stop = True   # 💡 外部からこれを見て判断可
-            self.emoScope = 1.0       # ユーザー意思を目的の収束へ整える
         else:
             self.should_stop = False  # 💡 誤判定などの取り消し
 

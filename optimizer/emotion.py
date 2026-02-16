@@ -3,9 +3,9 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoTion v3.8.1 (260204) Moment-Free Edition
+EmoTion v3.8.3 (260215) Moment-Free Edition
 shadow-system v3.1 -moment v3.1 emoPulse v3.8
-これまでの emo系 のすべて、emo系 v3.7 を継承し独自更新式を持つ、完全オリジナル最適化器
+これまでの emo系 のすべてを継承し、独自更新式を持つ、完全オリジナル最適化器
 The “geometric relationship” between "W"eight and "G"radient Method
 これまでの統計手法をやめ、重みベクトルと勾配ベクトルの直交性(W-Ref Geometry)に基づいて、
 過去の慣性と現在の勾配を動的にブレンドする、1次モーメント単一保持型の幾何学的最適化アルゴリズム
@@ -130,37 +130,36 @@ class EmoTion(Optimizer):
 
                 # --- Start Gradient Update Logic ---
                 # --- EmoTion (Pure W-Ref Geometry) ---
-                # 1. 1次モーメント(exp_avg)の初期化: O(N) のみ
+                # 1次モーメント(exp_avg)の初期化: O(N) のみ
                 if 'exp_avg' not in state:
                     state['exp_avg'] = torch.zeros_like(p)
                     state['rho_ema'] = torch.zeros(1, device=p.device, dtype=p.dtype)
 
-                # 2. W-Reference / Geometry (幾何学的直交性) 算出
+                exp_avg = state['exp_avg']
+                rho_ema = state['rho_ema']
+
+                # W-Reference / Geometry (幾何学的直交性) 算出
                 # 勾配が重み(実体)に対して｢新鮮｣(直交)か｢冗長｣(平行)かを判定
                 # 高次元空間における集中現象を利用した「情報の選別」
-                rho = torch.abs(torch.sum(p * grad)) / (p_norm * g_norm + 1e-8)
+                rho = torch.abs(torch.dot(p.view(-1), grad.view(-1))) / (p_norm * g_norm + 1e-8)
 
                 # rhoの履歴更新 (スカラーのみ)
-                state['rho_ema'].mul_(beta1).add_(rho, alpha=1 - beta1)
+                rho_ema.mul_(beta1).add_(rho, alpha=1 - beta1)
 
-                # 3. 幾何学的適応型ブレンド
+                # 幾何学的適応型ブレンド
                 # 従来の beta1 固定ではなく、直交しているほど今の勾配 g を強く取り込む
                 # freshness が高い(rhoが小さい)ほど、慣性を無視して新しい方向へ舵を切る
-                freshness = (1.0 - state['rho_ema'])
+                freshness = 1.0 - rho_ema.item()
 
                 # exp_avg = beta1 * exp_avg + (1 - beta1) * grad の｢幾何学的拡張｣
                 # 慣性と現時点の勾配を、直交性に基づいて混ぜ合わせる
-                state['exp_avg'].mul_(beta1).add_(grad, alpha=(1.0 - beta1) * freshness.item())
+                exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1) * freshness)
 
-                # 4. 更新ベクトルの決定 (Lionライクな符号抽出、または生ベクトル)
-                # ここでは｢方向の純度｣を優先し、更新の勢いを一定に保つ
-                update_vec = torch.sign(state['exp_avg']) 
-
-                # 5. 重みの更新 (emoPulse = 絶対歩幅)
+                # 重みの更新 (emoPulse = 絶対歩幅)
                 if group['weight_decay'] != 0:
-                    p.mul_(1 - emoPulse * group['weight_decay'])
+                    p.mul_(1.0 - group['weight_decay'] * emoPulse)
 
-                p.add_(update_vec, alpha=-emoPulse)
+                p.add_(exp_avg.sign(), alpha=-emoPulse)
                 # --- End Gradient Update Logic ---
 
         # ユーザー指定初期LRを実効値(emoPulse)で可視化する(PyTorch標準)
@@ -171,8 +170,9 @@ class EmoTion(Optimizer):
         # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
         if abs(scalar) <= 5e-6 and abs(Noise_base - d_base) <= 5e-7:
+            if not self.should_stop:
+                self.emoScope = 1.0   # ユーザー意思を目的の収束へ整える
             self.should_stop = True   # 💡 外部からこれを見て判断可
-            self.emoScope = 1.0       # ユーザー意思を目的の収束へ整える
         else:
             self.should_stop = False  # 💡 誤判定などの取り消し
 
