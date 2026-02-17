@@ -9,6 +9,12 @@
 - EmoTion (v3.8) オリジナル W-Ref-Geometry and Moment-Free の公開  
 - EmoSens (v3.8) emoPulse (Fully Automatic Learning Rate) Adjustment  
 - EmoTion (v3.8) Release of W-Ref-Geometry and Moment-Free  
+- EmoTion (v3.8+) CPU-GPU DiT等で共有メモリをつかう場合は FFT-Aware を使用してください  
+- EmoSens (v3.8+) When using shared memory in CPU-GPU DiT, etc., please use FFT-Aware.  
+
+##### ※ PyTorchの仕様によりCPU側メモリを利用する場合、つまりFFT(フルファインチューン)等では中間テンソルが必要なため FFT-Aware 版を公開しました。ご不便と思いますがご容赦ください。  
+
+##### ※ Due to PyTorch's specifications, when utilizing CPU-side memory—such as during FFT (full fine-tuning)—intermediate tensors are required. Therefore, we have released an FFT-Aware Edition. We apologize for any inconvenience this may cause.  
 
 ### v3.7以降の特徴  
 - 完全自動学習率：高速化と精緻化を同時に達成しつつ初期LRに悩まなくていい  
@@ -20,17 +26,19 @@ Features in v3.7 and later
 - emoPulse： Autonomously adjusts LR levels to safely and stably proceed with “ultra-low precision, ultra-quantization.”  
 - The initial LR can be set to 1.0 (please focus your time on refining the dataset).   
 
-#### 解説 ･ Explanation  
+### 解説 ･ Explanation  
 Mathematical Explanation Here (paper) v3.7 and later  
 (非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)  
 (論文ではフラットミニマやグロッキングに対しての挙動も考察しています)  
 Expected value convergence for non-convex functions  
 (also guarantees adaptability to flow matching)  
 (Providing a direct path to Flat Minima without the necessity of Grokking.)  
+
 #### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v38-paper(ENG).txt)  
+
 #### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v38-paper(JPN).txt)  
-DOI取得版/DOI-Acquired Version  
-https://huggingface.co/muooon/EmoTion-Optimizer  
+
+#### [DOI取得版/DOI-Acquired Version](https://huggingface.co/muooon/EmoTion-Optimizer)  
 
 ---
 
