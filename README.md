@@ -9,12 +9,12 @@
 - EmoTion (v3.8) オリジナル W-Ref-Geometry and Moment-Free の公開  
 - EmoSens (v3.8) emoPulse (Fully Automatic Learning Rate) Adjustment  
 - EmoTion (v3.8) Release of W-Ref-Geometry and Moment-Free  
-- EmoTion (v3.8+) CPU-GPU DiT等で共有メモリをつかう場合は FFT-Aware を使用してください  
-- EmoSens (v3.8+) When using shared memory in CPU-GPU DiT, etc., please use FFT-Aware.  
+- EmoTion (v3.8+) FFT(フルファインチューン)をつかう場合は FFT-Aware を使用してください  
+- EmoSens (v3.8+) When using FFT (Full Fine Tune), please use FFT-Aware.  
 
-##### ※ PyTorchの仕様によりCPU側メモリを利用する場合、つまりFFT(フルファインチューン)等では中間テンソルが必要なため FFT-Aware 版を公開しました。ご不便と思いますがご容赦ください。  
+##### ※ PyTorchの仕様により、FFT(フルファインチューン)等でデバイス指定が必要なため FFT-Aware 版をご使用ください(ご不便と思いますがご容赦ください)  
 
-##### ※ Due to PyTorch's specifications, when utilizing CPU-side memory—such as during FFT (full fine-tuning)—intermediate tensors are required. Therefore, we have released an FFT-Aware Edition. We apologize for any inconvenience this may cause.  
+##### ※ Due to PyTorch specifications, device specification is required for operations like FFT (full fine-tuning). Please use the FFT-Aware version (we apologize for any inconvenience this may cause).  
 
 ### v3.7以降の特徴  
 - 完全自動学習率：高速化と精緻化を同時に達成しつつ初期LRに悩まなくていい  
@@ -353,4 +353,5 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
