@@ -8,7 +8,7 @@
 - EmoSens (v3.8) emoPulse (完全自動学習率) 等の調整をしました  
 - EmoTion (v3.8) オリジナル W-Ref-Geometry and Moment-Free の公開  
 - EmoSens (v3.8) emoPulse (Fully Automatic Learning Rate) Adjustment  
-- EmoTion (v3.8) Release of W-Ref-Geometry and Moment-Free    
+- EmoTion (v3.8) Release of W-Ref-Geometry and Moment-Free  
 
 ##### ※ FFT版を統合済み(フルファインチューン) Optionの引数でモード切替可です  
 
@@ -50,9 +50,9 @@ emo系 v3.8 (Standard / Moment-Free) の特徴等
 
 | 名称      | 時間的正確性 | メモリ効率 | 備考                                      |  
 |-----------|------------|------------|-------------------------------------------|  
-| emosens   | ★★★★★      | ★★         | 最初に誕生｜正確｜Adam型       |  
-| emoairy   | ★★★        | ★★★★★      | ２番目に誕生｜軽量｜Adafactor型 |  
-| emocats   | ★★★☆        | ★★★☆        | 軽量＆正確の両立｜Lion型         |  
+| emosens   | ★★★★       | ★★         | 最初に誕生｜正確｜Adam型       |  
+| emoairy   | ★★         | ★★★★       | ２番目に誕生｜軽量｜Adafactor型 |  
+| emocats   | ★★★☆        | ★★★★        | 軽量＆正確の両立｜Lion型         |  
 |-----------|------------|------------|-------------------------------------------|  
 | emotion   | ★★★★       | ★★★★       | "軽量"で正確｜オリジナル型         |  
 | emovoid   | ★★★        | ★★★★★      | "最軽量"で正確｜オリジナル型         |  
@@ -68,9 +68,9 @@ emo-series v3.8 (Standard / Moment-Free) Features
 
 | Name    | Time-Accurate | MemoryLoad | Notes                               |  
 |---------|---------------|------------|--------------------------------------|  
-| emosens | ★★★★★         | ★★         | 1st born｜Accurate｜Adam-type         |  
-| emoairy | ★★★           | ★★★★★      | 2nd born｜Lightest｜Adafactor-type    |  
-| emocats | ★★★☆          | ★★★☆        | Light & Accurate｜Lion-type          |  
+| emosens | ★★★★          | ★★         | 1st born｜Accurate｜Adam-type         |  
+| emoairy | ★★            | ★★★★       | 2nd born｜Lightest｜Adafactor-type    |  
+| emocats | ★★★☆          | ★★★★        | Light & Accurate｜Lion-type          |  
 |---------|---------------|------------|--------------------------------------|  
 | emotion | ★★★★          | ★★★★        | “Light” & Accurate｜Original-type    |  
 | emovoid | ★★★           | ★★★★★      | “Lightest” & Accurate｜Original-type |  
@@ -206,16 +206,20 @@ emoPulse：(d_base/noise_base)^2 算出表
 
 <details>
 
-<summary>EmoSens v3.7 以降 オプション指定方法<br>
-EmoSens v3.7 and later Option Settings Guide</summary>  
+<summary>EmoSens v3.8 以降 オプション指定方法<br>
+EmoSens v3.8 and later Option Settings Guide</summary>  
 
 |||オプション指定方法|||  
-●shadow オフ(False にする)：  
+●FFT-mode (オンにする)：  
+fftmode=True
+●shadow (オフにする)：  
 use_shadow=False  
 ●eps(0除算防止)：  
 eps=1e-8  
 
 |||Usage examples|||  
+●FFT-mode on：  
+fftmode=True
 ●Shadow off:  
 use_shadow=False  
 ●eps(Division by zero prevention)：  
@@ -309,7 +313,7 @@ es = EmoSens(Red/Green)、ea = EmoAiry(Blue/Gray)、ec = EmoCats(Yellow/Orange)
 ---
 
 emo系 は 生物的反応で進化し続けます  
-感覚神経系(multi-EMA)、内分泌系(tanh(scalar))、免疫系(shadow-system)、循環器系(emoPulse)、これらの統合により中枢神経系と自律神経系を形成し、高度な判断と決定を行うという自然的に自律した機構として存在します  
+感覚神経系(multi-EMA)、内分泌系(tanh(scalar))、免疫系(shadow-system)、循環器系(emoPulse)、平衡感覚器系(W-Ref-Geo)、これらの統合により中枢神経系と自律神経系を形成し、高度な判断と決定を行うという自然的に自律した機構として存在します  
 
 ---  
 
@@ -351,6 +355,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 
