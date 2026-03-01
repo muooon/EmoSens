@@ -32,6 +32,9 @@ class EmoVoid(Optimizer):
         self.noise_est = 1.0         # emoPulse nest 初期化
         self.d_est = 0.02            # emoPulse dest 初期化
 
+        # use_shadow 緊急時モデル保護：通常 False (将来の特殊アーキテクチャへの保護機能)
+        # fftmode 学習モード切替え：通常 False (学習スケールをFFTとそれ以外で適正化)
+
         if self.fftmode:
             self.base_scale, self.max_lim, self.min_lim = 1e-5, 3e-4, 1e-8
             self.stop_scalar,self.stop_dNRsub = 5e-7, 5e-8
@@ -68,7 +71,7 @@ class EmoVoid(Optimizer):
             return math.tanh(diff_l)
 
     # (重要)現在は shadow-effect を参考に得た動的フィルタ効果の近似により use_shadow=False です
-    # しかし全機能は shadow なしで全て成立します／コード確認時はこの shadow を考慮外として無視してください
+    # しかし全機能は shadow なしで全て成立します／通常のVRAM負荷は shadow を考慮外として無視してください
     # emoPulse機構によるLR推定はWt打ち消しODE近似相当のためshadowは未知のアーキテクチャへの保険(免疫系)
     # Shadow混合比 ３段階構成 タスクに応じ調整可、以下を参考に 開始値・範囲量･変化幅を調整
     # return 開始値 + ((scalar) - 閾値) / 範囲量 * 変化幅 も可能(特殊用途向け)
@@ -118,7 +121,7 @@ class EmoVoid(Optimizer):
 
         # --- Start Approx W-Ref Geometry [Void] 近似アシスト ---
         # Weight Reference Geometry ("W"eight and "G"radient Method)
-        # 中間テンソルによるVRAM負荷やcos類似度測定の計算負荷を実質０にする
+        # 中間テンソルによるVRAM負荷やcos類似度測定の計算負荷を実質０に(平衡感覚器系)
         with torch.no_grad():
             # 現在の全パラメータのL1ノルムを一括計算(計算負荷: 低)
             # foreach_norm は各層のノルムをリストで返す。sumで1つの数値に集約。

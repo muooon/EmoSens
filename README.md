@@ -52,10 +52,10 @@ emo系 v3.8 (Standard / Moment-Free) の特徴等
 |-----------|------------|------------|-------------------------------------------|  
 | emosens   | ★★★★       | ★★         | 最初に誕生｜正確｜Adam型       |  
 | emoairy   | ★★         | ★★★★       | ２番目に誕生｜軽量｜Adafactor型 |  
-| emocats   | ★★★☆        | ★★★★        | 軽量＆正確の両立｜Lion型         |  
+| emocats   | ★★★☆        | ★★★☆        | 軽量＆正確の両立｜Lion型         |  
 |-----------|------------|------------|-------------------------------------------|  
-| emotion   | ★★★★       | ★★★★       | "軽量"で正確｜オリジナル型         |  
-| emovoid   | ★★★        | ★★★★★      | "最軽量"で正確｜オリジナル型         |  
+| emotion   | ★★★★       | ★★★☆       | "軽量"で正確｜オリジナル型         |  
+| emovoid   | ★★☆        | ★★★★★      | "最軽量"で正確｜オリジナル型         |  
 
 [効率性] 危険抑止更新：過学習や収束の停滞に先回りし無駄な更新を排除します  
 [機能性] 軽量で高機能：停止合図や自律した分散学習等でユーザー体験を向上させます  
@@ -70,10 +70,10 @@ emo-series v3.8 (Standard / Moment-Free) Features
 |---------|---------------|------------|--------------------------------------|  
 | emosens | ★★★★          | ★★         | 1st born｜Accurate｜Adam-type         |  
 | emoairy | ★★            | ★★★★       | 2nd born｜Lightest｜Adafactor-type    |  
-| emocats | ★★★☆          | ★★★★        | Light & Accurate｜Lion-type          |  
+| emocats | ★★★☆          | ★★★☆        | Light & Accurate｜Lion-type          |  
 |---------|---------------|------------|--------------------------------------|  
-| emotion | ★★★★          | ★★★★        | “Light” & Accurate｜Original-type    |  
-| emovoid | ★★★           | ★★★★★      | “Lightest” & Accurate｜Original-type |  
+| emotion | ★★★★          | ★★★☆        | “Light” & Accurate｜Original-type    |  
+| emovoid | ★★☆           | ★★★★★      | “Lightest” & Accurate｜Original-type |  
 
 [Efficiency] Risk-Aware Updates: Proactively prevents overfitting and convergence stagnation while eliminating redundant updates.  
 [Functionality] Lightweight and High-Performance: Enhances user experience through automatic stop signals and support for fully autonomous distributed learning.  
@@ -300,7 +300,7 @@ For updates prior to this, please refer to the v2.0 repository update history.
 
 ---  
 
-## グラフで見る emo系 の進行状況 Progress of emo-type as shown in the graph (v3.7)  
+## グラフで見る emo系 の進行状況 Progress of emo-type as shown in the graph (v3.7 and later)  
 <img width="2218" height="1153" alt="emov376-003-tile" src="https://github.com/user-attachments/assets/a1c5891b-a842-4ed1-a147-d4658e1ca16b" />  
 このように 動的学習率 として機能します ／ 下降しつづけるのは"元モデルの修正"の差分も学習しているかも？ <br>   
 It functions as a dynamic learning rate. ／ Could the continuous decline be due to also learning the differences in “original model corrections”? <br> 
@@ -308,7 +308,13 @@ It functions as a dynamic learning rate. ／ Could the continuous decline be due
 Dataset Status LEFT: Primarily 10 Photo images, 10 batch, 300 epochs (3000 steps), full-layer LoRA, Rank16/Alpha16, e-pred, ZtSNR,  <br>  
 データセット状況(右)：主に白黒画像11枚, 1batch, 300epoch(3300step), 全層LoRA, Rank16/Alpha16, e-pred, ZtSNR, <br>   
 Dataset Status RIGHT: Primarily 11 black-and-white images, 1 batch, 300 epochs (3300 steps), full-layer LoRA, Rank16/Alpha16, e-pred, ZtSNR,  <br>  
-es = EmoSens(Red/Green)、ea = EmoAiry(Blue/Gray)、ec = EmoCats(Yellow/Orange)  
+es = EmoSens(Red/Green)、ea = EmoAiry(Blue/Gray)、ec = EmoCats(Yellow/Orange) <br> 
+ <br> 
+<img width="1166" height="644" alt="スクリーンショット 2026-03-01 094343" src="https://github.com/user-attachments/assets/c667e792-e668-40b1-a07f-6cf2ceb6a686" />  
+こちらは Anima-Preview にて 画像20枚、512px、LR:1.0、での FFT(Full-Fine-Tuning) の学習状態です <br> 
+紫色：EmoSens、水色：EmoAiry、赤色：EmoCat、灰色：EmoTion、黄色：EmoVoid <br> 
+EmoTion は、LR：1.0 を少し下げると良いだろうと思います 橙色：EmoTion/LR:0.5 <br>
+経過時間にも注目してください <br>  
 
 ---
 
@@ -355,6 +361,7 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
+
 
 
 

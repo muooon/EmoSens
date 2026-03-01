@@ -32,6 +32,9 @@ class EmoTion(Optimizer):
         self.noise_est = 1.0         # emoPulse nest 初期化
         self.d_est = 0.02            # emoPulse dest 初期化
 
+        # use_shadow 緊急時モデル保護：通常 False (将来の特殊アーキテクチャへの保護機能)
+        # fftmode 学習モード切替え：通常 False (学習スケールをFFTとそれ以外で適正化)
+
         if self.fftmode:
             self.base_scale, self.max_lim, self.min_lim = 1e-5, 3e-4, 1e-8
             self.stop_scalar,self.stop_dNRsub = 5e-7, 5e-8
@@ -68,7 +71,7 @@ class EmoTion(Optimizer):
             return math.tanh(diff_l)
 
     # (重要)現在は shadow-effect を参考に得た動的フィルタ効果の近似により use_shadow=False です
-    # しかし全機能は shadow なしで全て成立します／コード確認時はこの shadow を考慮外として無視してください
+    # しかし全機能は shadow なしで全て成立します／通常のVRAM負荷は shadow を考慮外として無視してください
     # emoPulse機構によるLR推定はWt打ち消しODE近似相当のためshadowは未知のアーキテクチャへの保険(免疫系)
     # Shadow混合比 ３段階構成 タスクに応じ調整可、以下を参考に 開始値・範囲量･変化幅を調整
     # return 開始値 + ((scalar) - 閾値) / 範囲量 * 変化幅 も可能(特殊用途向け)
@@ -118,7 +121,7 @@ class EmoTion(Optimizer):
 
         # --- Start Approx W-Ref Geometry [Tion] 近似アシスト ---
         # Weight Reference Geometry ("W"eight and "G"radient Method)
-        # 中間テンソルによるVRAM負荷やcos類似度測定の計算負荷を実質０にする
+        # 中間テンソルによるVRAM負荷やcos類似度測定の計算負荷を実質０に(平衡感覚器系)
         with torch.no_grad():
             # 現在の全パラメータのL1ノルムを一括計算(計算負荷: 低)
             # foreach_norm は各層のノルムをリストで返す。sumで1つの数値に集約。
@@ -129,8 +132,8 @@ class EmoTion(Optimizer):
             if prev is not None:
                 # 前回のエネルギーを維持するための比率(スライス的な全層一律係数)
                 gratio = (abs(point_gl1 - prev) / (prev + 1e-8)).item()
-                # freshness: 全域の動きが激しいほど 1.0 に近づく
-                self.g_freshness = min(gratio / 0.05, 1.0)
+                # freshness: 全域の動きが激しいほど 1.0 に近づく(係数0.05前後で安定)
+                self.g_freshness = min(gratio / 0.03, 1.0)
                 # 現在の修正したノルムを復元(近似)スケール調整で打ち消し
                 point_gl1 *= gratio
             else:
@@ -174,16 +177,18 @@ class EmoTion(Optimizer):
 
                 # exp_avg = beta1 * exp_avg + (1 - beta1) * grad の｢幾何学的拡張｣
                 # 慣性と現時点の勾配を、直交性に基づいて混ぜ合わせる
-                exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1) * self.g_freshness)
+                # freshness が 0 のときは alpha=0 となり、exp_avg は減衰せず 100% 維持される
+                g_alpha = (1.0 - beta1) * self.g_freshness
+                exp_avg.mul_(1.0 - g_alpha).add_(grad.to(p.device), alpha=g_alpha)
 
                 # 重みの更新 (emoPulse = 絶対歩幅)
                 if group['weight_decay'] != 0:
                     p.mul_(1.0 - group['weight_decay'] * emoPulse)
 
                 # FFT版と通常版を統合する分岐(デバイス状態判定)
-                if p.device != grad.device:
+                if p.device != exp_avg.device:
                     # FFTモード：デバイス間の計算を同じ場所へ統一
-                    update = exp_avg.to(p.device).sign()
+                    update = exp_avg.sign().to(p.device)
                 else:
                     # 通常モード：同じ場所の場合は負荷軽減
                     update = exp_avg.sign()
