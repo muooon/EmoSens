@@ -1,0 +1,22 @@
+
+emo-series beginners edition usage
+
+    アーリーストップ点灯で誰でも"学習停止"のタイミングを逃しません
+	以下のコードにより "✨[READY TO STOP]✨" が学習中に表示されます
+	これは感情scalarが極小値になり、かつdNRベースも極小値というLoss信号の信頼度を計測しています
+    これが表示された後は学習できるものを吸収し終えたという合図です、いつでも学習停止可能の合図です
+	焦ってすぐに止めずに、これ以降でそれほど進行せず保存されたものを優先候補として試してください
+
+        if abs(scalar) <= self.stop_scalar and abs(Noise_base - d_base) <= self.stop_dNRsub:
+            if not self.should_stop:
+                self.emoScope = 1.0   # ユーザー意思を目的の収束へ整える
+            self.should_stop = True   # 💡 外部からこれを見て判断可
+            print(f"✨[READY TO STOP]✨")
+        else:
+            self.should_stop = False  # 💡 誤判定などの取り消し
+
+	Early Stop indicator ensures no one misses the “learning stop” timing
+	The above code displays “✨[READY TO STOP]✨” during learning
+	This measures the reliability of the loss signal when the emotion scalar reaches its minimum value and the dNR base also hits its minimum
+	Once displayed, it signals that all learnable information has been absorbed—you can stop learning anytime
+	Don't rush to stop immediately; instead, prioritize testing saved models that haven't progressed much since this point

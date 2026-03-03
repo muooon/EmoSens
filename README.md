@@ -5,8 +5,10 @@
 
 # EmoSens / Tion 最新版 update  
 
+- emo-series beginner版 アーリーストップ点灯機能を付加しました  
 - EmoSens (v3.8) emoPulse (完全自動学習率) 等の調整をしました  
 - EmoTion (v3.8) オリジナル W-Ref-Geometry and Moment-Free の公開  
+- emo-series beginners edition：Added early stop indicator function
 - EmoSens (v3.8) emoPulse (Fully Automatic Learning Rate) Adjustment  
 - EmoTion (v3.8) Release of W-Ref-Geometry and Moment-Free  
 
@@ -55,7 +57,7 @@ emo系 v3.8 (Standard / Moment-Free) の特徴等
 | emocats   | ★★★☆        | ★★★☆        | 軽量＆正確の両立｜Lion型         |  
 |-----------|------------|------------|-------------------------------------------|  
 | emotion   | ★★★★       | ★★★☆       | "軽量"で正確｜オリジナル型         |  
-| emovoid   | ★★☆        | ★★★★★      | "最軽量"で正確｜オリジナル型         |  
+| emovoid   | ★★☆        | ★★★★★      | "最軽量･最速"｜オリジナル型         |  
 
 [効率性] 危険抑止更新：過学習や収束の停滞に先回りし無駄な更新を排除します  
 [機能性] 軽量で高機能：停止合図や自律した分散学習等でユーザー体験を向上させます  
@@ -73,7 +75,7 @@ emo-series v3.8 (Standard / Moment-Free) Features
 | emocats | ★★★☆          | ★★★☆        | Light & Accurate｜Lion-type          |  
 |---------|---------------|------------|--------------------------------------|  
 | emotion | ★★★★          | ★★★☆        | “Light” & Accurate｜Original-type    |  
-| emovoid | ★★☆           | ★★★★★      | “Lightest” & Accurate｜Original-type |  
+| emovoid | ★★☆           | ★★★★★      | “Lightest & Fastest”｜Original-type |  
 
 [Efficiency] Risk-Aware Updates: Proactively prevents overfitting and convergence stagnation while eliminating redundant updates.  
 [Functionality] Lightweight and High-Performance: Enhances user experience through automatic stop signals and support for fully autonomous distributed learning.  
@@ -211,7 +213,7 @@ EmoSens v3.8 and later Option Settings Guide</summary>
 
 |||オプション指定方法|||  
 ●FFT-mode (オンにする)：  
-fftmode=True
+fftmode=True  
 ●shadow (オフにする)：  
 use_shadow=False  
 ●eps(0除算防止)：  
@@ -219,7 +221,7 @@ eps=1e-8
 
 |||Usage examples|||  
 ●FFT-mode on：  
-fftmode=True
+fftmode=True  
 ●Shadow off:  
 use_shadow=False  
 ●eps(Division by zero prevention)：  
@@ -361,10 +363,5 @@ emo-based is an “emotion-driven” approach not found in existing optimizers. 
 ---
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
-
-
-
-
-
 
 
