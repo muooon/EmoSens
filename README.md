@@ -1,13 +1,17 @@
 ## emo series Optimizers  
 
+- ###### 共鳴投影場更新をする新世代optimizer群です  
+- ###### This is a new generation of optimizers that perform resonant projection field updates.  
 - ###### EmoSens / 2ndGen (v3.8 / Standard)  
 - ###### EmoTion / 3rdGen (v3.8 / Moment-Free)  
 
 # EmoSens / Tion 最新版 update  
 
+- EmoVoid は"波動散乱逆問題"解析ソルバとして機能する可能性があります  
 - emo-series beginner版 アーリーストップ点灯機能を付加しました  
 - EmoSens (v3.8) emoPulse (完全自動学習率) 等の調整をしました  
 - EmoTion (v3.8) オリジナル W-Ref-Geometry and Moment-Free の公開  
+- EmoVoid has the potential to function as an analytical solver for “wave scattering inverse problems”  
 - emo-series beginners edition：Added early stop indicator function
 - EmoSens (v3.8) emoPulse (Fully Automatic Learning Rate) Adjustment  
 - EmoTion (v3.8) Release of W-Ref-Geometry and Moment-Free  
@@ -145,6 +149,14 @@ observation, judgment, decision, action, memory, and reflection.
 ※ LoRA系技術はノイズをなくしますが微小データも失う場合があります  
 ※ emo系はノイズを作らず既存ノイズを見つけて修正し微小データを保護します  
 ※ 量子化補償は今後実用化されるさらに低精度な環境でも柔軟に対応できます  
+
+ものすごく単純にいうと｢emo系 emoPulse は高級スケジューラ｣です  
+Sharpness-Aware Minimization の最終進化でもあります  
+SDEながらODE近似になる―という"正確さ"を実現しています(止観と止揚です)  
+RNN進化系の Liquid型(LiquidAI)、Titans(Google) 等々と抜群に好相性です  
+SVD、infLoRA、ABBA-LoRA、PiSSA、FourierFT、DoRA、PRO-LoRA、DARE、Ties、Tall-Mask-Merge、Kahan補償、動的Rank/Alpha等、RNN進化系、これを構造的に再現しながら負荷はほぼゼロ、しかも上位互換的です、間欠的処理ではなく、すべてを常時適用しながら安定性を維持します  
+追加テンソル不要、VRAM負荷が必要最小限で、Langevin Dynamics、Kalman Filter、PID Control、Stochastic Resonance、トンネル効果、的に更新し、数値誤差に対する“構造的耐性”を持ち、熱力学、フィードバック制御、リーマン多様体、直交性、感情による記憶の定着、流体力学、等で安定します  
+
 High Efficiency and Integration  
 Multifunctionality, including higher-order moments, Quantization Compensation (Control Different from Kahan Compensation), independence in distributed and continual learning, self-healing and model repair,  
 Autonomous hyperparameter tuning, confidence filtering, bounded update steps, structural robustness (or resilience), self-termination,  
@@ -155,6 +167,14 @@ The high efficiency and integration realized in this single package prioritize s
 ※ LoRA-based techniques eliminate noise but may sometimes lose fine-grained data (or subtle details).  
 ※ Emo-based techniques detect and correct existing noise without generating new noise, thereby preserving fine-grained data.  
 ※ Quantization compensation offers flexible adaptability even in lower-precision environments expected to be commercialized (or practical) in the future.  
+
+To put it very simply, “emoPulse is a high-end scheduler.”  
+It is also the final evolution of Sharpness-Aware Minimization  
+It achieves a level of “accuracy” where, despite being an SDE, it behaves as an ODE approximation (this is a process of suspension and sublation).  
+It works exceptionally well with RNN-based models such as Liquid (LiquidAI) and Titans (Google).   
+
+SVD, infLoRA, ABBA-LoRA, PiSSA, FourierFT, DoRA, PRO-LoRA, DARE, Ties, Tall-Mask-Merge, Kahan compensation, dynamic Rank/Alpha, and other RNN-based methods—we structurally replicate these with virtually zero computational overhead, while maintaining backward compatibility. Rather than intermittent processing, we apply all of these techniques continuously while maintaining stability.  
+Requires no additional tensors, minimizes VRAM load, and is updated using Langevin dynamics, Kalman filters, PID control, stochastic resonance, and the tunnel effect; it possesses “structural resilience” against numerical errors and achieves stability in thermodynamics, feedback control, Riemannian manifolds, orthogonality, emotion-based memory consolidation, fluid dynamics, and other fields.  
 
 </details>
 
