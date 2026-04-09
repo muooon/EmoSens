@@ -3,9 +3,10 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoVoid v3.8.6 (260220) Moment-Free Edition FFT適応統合版(CPU-GPUデータ転送対応)
-shadow-system v3.1 -moment v3.1 emoPulse v3.8 FFT-Swap-Aware
+EmoVoid v3.8.6+ (260404) Moment-Free Edition 全統合版(CPU-GPUデータ転送対応含む)
+shadow-system v3.1 -moment v3.1 emoPulse v3.8 FFT-Swap-Aware dNR-converge
 これまでの emo系 のすべてを継承し、独自更新式の特徴を受け継ぐ完全オリジナル最適化器
+Early Stop 判定通知の動的最適化、dNRをSNR比として活用し分解能と定義することで収束点を明確化
 The “geometric relationship” between "W"eight and "G"radient Method
 幾何学的最適化アルゴリズム Approx W-Ref Geometry 近似アシスト更新に変更し負荷低減
 完全1次2次モーメント廃止、さまざまなコストを極限まで低減、正確性と軽量性と快適性を向上
@@ -20,27 +21,64 @@ class EmoVoid(Optimizer):
                  betas=(0.9, 0.995),
                  weight_decay=0.01,
                  use_shadow:bool=False,
-                 fftmode:bool=False):
+                 fftmode:bool=False,
+                 notify:bool=True):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
         self._init_lr = lr
+        self.notify = notify         # 収束･安定の通知切替
         self.should_stop = False     # 停止フラグの初期化
-        self.fftmode = fftmode       # FFT切替 フルファインチューニングモード
+        self.fftmode = fftmode       # FFT切替 フルファインチューンモード
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
         self.emoScope = lr           # 動的学習率の調和とリズム
         self.dNR_hist = 1.0          # emoPulse hist 初期化
         self.noise_est = 1.0         # emoPulse nest 初期化
         self.d_est = 0.02            # emoPulse dest 初期化
 
+        # shadow は solver 等の特殊用途時に必要かもしれない (optimizerとしては通常不要)
         # use_shadow 緊急時モデル保護：通常 False (将来の特殊アーキテクチャへの保護機能)
         # fftmode 学習モード切替え：通常 False (学習スケールをFFTとそれ以外で適正化)
+        # notify 収束判定の切替え：通常 True (通知不要な場合は False にできる)
 
         if self.fftmode:
             self.base_scale, self.max_lim, self.min_lim = 1e-5, 3e-4, 1e-8
-            self.stop_scalar,self.stop_dNRsub = 5e-7, 5e-8
+            self.stop_scale = self.emoScope * self.base_scale
+            self.stop_scalar,self.stop_dNRsub = self.stop_scale, self.stop_scale
         else:
             self.base_scale, self.max_lim, self.min_lim = 1e-4, 3e-3, 1e-6
-            self.stop_scalar,self.stop_dNRsub = 5e-6, 5e-7
+            self.stop_scale = self.emoScope * self.base_scale
+            self.stop_scalar,self.stop_dNRsub = self.stop_scale, self.stop_scale
+
+    def state_dict(self):
+        state_dict = super().state_dict()
+        state_dict['emo_internal'] = {
+            'prev_gl1': getattr(self, "prev_gl1", None),
+            '_step_count': getattr(self, '_step_count', 0),
+            'emoScope': self.emoScope,
+            'noise_est': self.noise_est,
+            'd_est': self.d_est,
+            'dNR_hist': self.dNR_hist,
+            'should_stop': self.should_stop,
+            'stop_scalar': self.stop_scalar,
+            'stop_dNRsub': self.stop_dNRsub,
+        }
+        return state_dict
+
+    def load_state_dict(self, state_dict):
+        emo_internal = state_dict.pop('emo_internal', None)
+        if emo_internal:
+            self.prev_gl1 = emo_internal.get('prev_gl1', None)
+            self._step_count = emo_internal.get('_step_count', 0)
+            self.emoScope = emo_internal.get('emoScope', self._init_lr)
+            self.noise_est = emo_internal.get('noise_est', 1.0)
+            self.d_est = emo_internal.get('d_est', 0.02)
+            self.dNR_hist = emo_internal.get('dNR_hist', 1.0)
+            self.should_stop = emo_internal.get('should_stop', False)
+            self.stop_scalar = emo_internal.get('stop_scalar', self.stop_scale)
+            self.stop_dNRsub = emo_internal.get('stop_dNRsub', self.stop_scale)
+        super().load_state_dict(state_dict)
+
+        # 学習の引き継ぎ可能(状態保存対応)／収束を深めたい場合に役立つ
 
     # 感情EMA更新(緊張と安静)／３次４次５次モーメント近似相当(感覚神経系)
     def _update_ema(self, state, loss_val):
@@ -130,6 +168,12 @@ class EmoVoid(Optimizer):
             prev = getattr(self, "prev_gl1", None)
             curr_step = getattr(self, '_step_count', 0)
             self._step_count = curr_step + 1
+
+            # デバイスが違いがあれば計算の瞬間に自動で合わせる
+            if torch.is_tensor(prev) and prev.device != point_gl1.device:
+                prev = prev.to(point_gl1.device)
+                self.prev_gl1 = prev # デバイスを合わせて保持し直す
+
             # ウォームアップ期間中のみ、前回のノルムと比較して「一括修正」
             if prev is not None and curr_step < 55:
                 # 前回のエネルギーを維持するための比率(スライス的な全層一律係数)
@@ -168,9 +212,10 @@ class EmoVoid(Optimizer):
 
                 # --- Start Gradient Update Logic ---
                 # --- EmoVoid (Approx W-Ref Geometry) ---
-                # FFT版と通常版を統合する分岐(デバイス状態判定)
+                # FFT版と通常版を統合した分岐(デバイス状態判定へ更新)
+                # device 一致の場合のみ sign_() を使い高速化
                 if p.device != grad.device:
-                    # FFTモード：予め符号化し1/32軽量化で｢行列保持｣の重圧を解放
+                    # 節約モード：予め符号化し1/32軽量化で｢行列保持｣の重圧を解放
                     update = grad.sign().to(p.device)
                 else:
                     # 通常モード：インプレースで最速処理
@@ -189,11 +234,14 @@ class EmoVoid(Optimizer):
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
         if abs(scalar) <= self.stop_scalar and abs(Noise_base - d_base) <= self.stop_dNRsub:
             if not self.should_stop:
-                self.emoScope = 1.0   # ユーザー意思を目的の収束へ整える
-                self._step_count = 0  # 幾何学的再調整の再始動
-            self.should_stop = True   # 💡 外部からこれを見て判断可
+                self.emoScope *= 0.1      # ユーザー意思を目的の収束へ整える
+                self._step_count = 0      # 幾何学的調整の再始動
+            self.should_stop = True       # 💡 外部からこれを見て判断可
+            if self.notify:               # 💡 収束・安定の「お知らせ」
+                print(f"✨[READY TO STOP]✨")
         else:
-            self.should_stop = False  # 💡 誤判定などの取り消し
+            self.emoScope = self._init_lr # 誤判定はユーザー意思を再反映する
+            self.should_stop = False      # 💡 誤判定などの取り消し
 
         return
 

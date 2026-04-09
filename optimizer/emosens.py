@@ -3,9 +3,10 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoSens v3.8.6 (260220) Standard Edition FFT適応統合版(CPU-GPUデータ転送対応)
-shadow-system v3.1 -moment v3.1 emoPulse v3.8 FFT-Swap-Aware
+EmoSens v3.8.6+ (260404) Standard Edition 全統合版(CPU-GPUデータ転送対応含む)
+shadow-system v3.1 -moment v3.1 emoPulse v3.8 FFT-Swap-Aware dNR-converge
 これまでの emo系 のすべて、emo系 v3.7 を継承し、早期停止関連の効率化やコード修正等を実施
+Early Stop 判定通知の動的最適化、dNRをSNR比として活用し分解能と定義することで収束点を明確化
 EmoSens v3.8.1 (260201) shadow-system v3.1 -moment v3.1 emoPulse v3.7
 emoPulse 機構により完全自動化を目指す(ユーザーによる emoScope 調整可／改善度反映率)
 emoScorp、emoPulse、についてアグレッシブな更新にも耐えられるように調整し安全性を向上
@@ -20,10 +21,12 @@ class EmoSens(Optimizer):
                  betas=(0.9, 0.995),
                  weight_decay=0.01,
                  use_shadow:bool=False,
-                 fftmode:bool=False):
+                 fftmode:bool=False,
+                 notify:bool=True):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
         self._init_lr = lr
+        self.notify = notify         # 収束･安定の通知切替
         self.should_stop = False     # 停止フラグの初期化
         self.fftmode = fftmode       # FFT切替 フルファインチューニングモード
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
@@ -32,15 +35,46 @@ class EmoSens(Optimizer):
         self.noise_est = 1.0         # emoPulse nest 初期化
         self.d_est = 0.02            # emoPulse dest 初期化
 
+        # shadow は solver 等の特殊用途時に必要かもしれない (optimizerとしては通常不要)
         # use_shadow 緊急時モデル保護：通常 False (将来の特殊アーキテクチャへの保護機能)
         # fftmode 学習モード切替え：通常 False (学習スケールをFFTとそれ以外で適正化)
+        # notify 収束判定の切替え：通常 True (通知不要な場合は False にできる)
 
         if self.fftmode:
             self.base_scale, self.max_lim, self.min_lim = 1e-5, 3e-4, 1e-8
-            self.stop_scalar,self.stop_dNRsub = 5e-7, 5e-8
+            self.stop_scale = self.emoScope * self.base_scale
+            self.stop_scalar,self.stop_dNRsub = self.stop_scale, self.stop_scale
         else:
             self.base_scale, self.max_lim, self.min_lim = 1e-4, 3e-3, 1e-6
-            self.stop_scalar,self.stop_dNRsub = 5e-6, 5e-7
+            self.stop_scale = self.emoScope * self.base_scale
+            self.stop_scalar,self.stop_dNRsub = self.stop_scale, self.stop_scale
+
+    def state_dict(self):
+        state_dict = super().state_dict()
+        state_dict['emo_internal'] = {
+            'emoScope': self.emoScope,
+            'noise_est': self.noise_est,
+            'd_est': self.d_est,
+            'dNR_hist': self.dNR_hist,
+            'should_stop': self.should_stop,
+            'stop_scalar': self.stop_scalar,
+            'stop_dNRsub': self.stop_dNRsub,
+        }
+        return state_dict
+
+    def load_state_dict(self, state_dict):
+        emo_internal = state_dict.pop('emo_internal', None)
+        if emo_internal:
+            self.emoScope = emo_internal.get('emoScope', self._init_lr)
+            self.noise_est = emo_internal.get('noise_est', 1.0)
+            self.d_est = emo_internal.get('d_est', 0.02)
+            self.dNR_hist = emo_internal.get('dNR_hist', 1.0)
+            self.should_stop = emo_internal.get('should_stop', False)
+            self.stop_scalar = emo_internal.get('stop_scalar', self.stop_scale)
+            self.stop_dNRsub = emo_internal.get('stop_dNRsub', self.stop_scale)
+        super().load_state_dict(state_dict)
+
+        # 学習の引き継ぎ可能(状態保存対応)／収束を深めたい場合に役立つ
 
     # 感情EMA更新(緊張と安静)／３次４次５次モーメント近似相当(感覚神経系)
     def _update_ema(self, state, loss_val):
@@ -157,9 +191,10 @@ class EmoSens(Optimizer):
 
                 denom = exp_avg_sq.sqrt().add_(group['eps'])
 
-                # FFT版と通常版を統合する分岐(デバイス状態判定)
+                # FFT版と通常版を統合した分岐(デバイス状態判定へ更新)
+                # device 一致の場合のみ sign_() を使い高速化
                 if p.device != exp_avg.device:
-                    # FFTモード：デバイス間の計算を同じ場所へ統一
+                    # 節約モード：デバイス間の計算を同じ場所へ統一
                     update = exp_avg.to(p.device)
                 else:
                     # 通常モード：同じ場所の場合は負荷軽減
@@ -179,10 +214,13 @@ class EmoSens(Optimizer):
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
         if abs(scalar) <= self.stop_scalar and abs(Noise_base - d_base) <= self.stop_dNRsub:
             if not self.should_stop:
-                self.emoScope = 1.0   # ユーザー意思を目的の収束へ整える
-            self.should_stop = True   # 💡 外部からこれを見て判断可
+                self.emoScope *= 0.1      # ユーザー意思を目的の収束へ整える
+            self.should_stop = True       # 💡 外部からこれを見て判断可
+            if self.notify:               # 💡 収束・安定の「お知らせ」
+                print(f"✨[READY TO STOP]✨")
         else:
-            self.should_stop = False  # 💡 誤判定などの取り消し
+            self.emoScope = self._init_lr # 誤判定はユーザー意思を再反映する
+            self.should_stop = False      # 💡 誤判定などの取り消し
 
         return
 
