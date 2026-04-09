@@ -8,11 +8,11 @@
 # EmoSens / Tion 最新版 update  
 
 - EmoVoid は"波動散乱逆問題"解析ソルバとして機能する可能性があります  
-- emo-series beginner版 アーリーストップ点灯機能を付加しました  
+- アーリーストップ通知機能を正確化、学習引き継ぎ対応、beginners版との統合(260404)  
 - EmoSens (v3.8) emoPulse (完全自動学習率) 等の調整をしました  
 - EmoTion (v3.8) オリジナル W-Ref-Geometry and Moment-Free の公開  
 - EmoVoid has the potential to function as an analytical solver for “wave scattering inverse problems”  
-- emo-series beginners edition：Added early stop indicator function
+- Improved accuracy of the early stop notification feature, support for learning transfer, and integration with the Beginners Edition (260404)  
 - EmoSens (v3.8) emoPulse (Fully Automatic Learning Rate) Adjustment  
 - EmoTion (v3.8) Release of W-Ref-Geometry and Moment-Free  
 
@@ -236,6 +236,8 @@ EmoSens v3.8 and later Option Settings Guide</summary>
 fftmode=True  
 ●shadow (オフにする)：  
 use_shadow=False  
+●収束通知 (オフにする)：  
+notify:bool=False  
 ●eps(0除算防止)：  
 eps=1e-8  
 
@@ -244,6 +246,8 @@ eps=1e-8
 fftmode=True  
 ●Shadow off:  
 use_shadow=False  
+●notify off:  
+notify:bool=False  
 ●eps(Division by zero prevention)：  
 eps=1e-8  
 
