@@ -3,7 +3,7 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoSens v3.8.6+ (260404) Standard Edition 全統合版(CPU-GPUデータ転送対応含む)
+EmoSens v3.8.6+ (260410) Standard Edition 全統合版(CPU-GPUデータ転送対応含む)
 shadow-system v3.1 -moment v3.1 emoPulse v3.8 FFT-Swap-Aware dNR-converge
 これまでの emo系 のすべて、emo系 v3.7 を継承し、早期停止関連の効率化やコード修正等を実施
 Early Stop 判定通知の動的最適化、dNRをSNR比として活用し分解能と定義することで収束点を明確化
@@ -20,6 +20,7 @@ class EmoSens(Optimizer):
                  eps=1e-8,
                  betas=(0.9, 0.995),
                  weight_decay=0.01,
+                 stopcoef=0.3,
                  use_shadow:bool=False,
                  fftmode:bool=False,
                  notify:bool=True):
@@ -28,7 +29,8 @@ class EmoSens(Optimizer):
         self._init_lr = lr
         self.notify = notify         # 収束･安定の通知切替
         self.should_stop = False     # 停止フラグの初期化
-        self.fftmode = fftmode       # FFT切替 フルファインチューニングモード
+        self.stopcoef = stopcoef     # 収束目標値の係数(ユーザー指定可)
+        self.fftmode = fftmode       # FFT切替 フルファインチューンモード
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
         self.emoScope = lr           # 動的学習率の調和とリズム
         self.dNR_hist = 1.0          # emoPulse hist 初期化
@@ -38,16 +40,19 @@ class EmoSens(Optimizer):
         # shadow は solver 等の特殊用途時に必要かもしれない (optimizerとしては通常不要)
         # use_shadow 緊急時モデル保護：通常 False (将来の特殊アーキテクチャへの保護機能)
         # fftmode 学習モード切替え：通常 False (学習スケールをFFTとそれ以外で適正化)
-        # notify 収束判定の切替え：通常 True (通知不要な場合は False にできる)
+        # notify 収束通知の切替え：通常 True (通知不要な場合は False にできる)
+        # stopcoef 収束目標値係数：ヒューリスティック (ユーザーの好みで仕上げる)
 
         if self.fftmode:
             self.base_scale, self.max_lim, self.min_lim = 1e-5, 3e-4, 1e-8
-            self.stop_scale = self.emoScope * self.base_scale
-            self.stop_scalar,self.stop_dNRsub = self.stop_scale, self.stop_scale
+            self.stop_scale = self.min_lim * self.stopcoef
+            self.stop_scalar = self.stop_scale
+            self.stop_dNRsub = self.stop_scale
         else:
-            self.base_scale, self.max_lim, self.min_lim = 1e-4, 3e-3, 1e-6
-            self.stop_scale = self.emoScope * self.base_scale
-            self.stop_scalar,self.stop_dNRsub = self.stop_scale, self.stop_scale
+            self.base_scale, self.max_lim, self.min_lim = 1e-4, 3e-3, 1e-7
+            self.stop_scale = self.min_lim * self.stopcoef
+            self.stop_scalar = self.stop_scale
+            self.stop_dNRsub = self.stop_scale
 
     def state_dict(self):
         state_dict = super().state_dict()
@@ -59,6 +64,7 @@ class EmoSens(Optimizer):
             'should_stop': self.should_stop,
             'stop_scalar': self.stop_scalar,
             'stop_dNRsub': self.stop_dNRsub,
+            'stopcoef': self.stopcoef,
         }
         return state_dict
 
@@ -72,6 +78,7 @@ class EmoSens(Optimizer):
             self.should_stop = emo_internal.get('should_stop', False)
             self.stop_scalar = emo_internal.get('stop_scalar', self.stop_scale)
             self.stop_dNRsub = emo_internal.get('stop_dNRsub', self.stop_scale)
+            self.stopcoef =  emo_internal.get('stopcoef', self.stopcoef)
         super().load_state_dict(state_dict)
 
         # 学習の引き継ぎ可能(状態保存対応)／収束を深めたい場合に役立つ
