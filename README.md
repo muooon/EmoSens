@@ -1,7 +1,7 @@
 ## emo series Optimizers  
 
-- ###### 共鳴投影場更新をする新世代optimizer群です  
-- ###### This is a new generation of optimizers that perform resonant projection field updates.  
+- ###### 共鳴投影場更新(共鳴収縮法)をする新世代optimizer群です／勾配降下法ではない  
+- ###### This is a new generation of optimizers that perform resonant projection field updates (resonant contraction method) / It is not a gradient descent method  
 - ###### EmoSens / 2ndGen (v3.8 / Standard)  
 - ###### EmoTion / 3rdGen (v3.8 / Moment-Free)  
 
@@ -43,6 +43,38 @@ Expected value convergence for non-convex functions
 #### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v38-paper(JPN).txt)  
 
 #### [DOI取得版/DOI-Acquired Version](https://huggingface.co/muooon/EmoTion-Optimizer)  
+
+---
+
+<details>
+
+<summary> resonant contraction method </summary>
+
+共鳴収縮法の基本定理(概要)  
+
+1. 状態の定義：三要素の共鳴  
+パラメータ w の更新は、以下の3つの独立した次元の相乗効果（共鳴）によって決定される  
+    時間軸（ηt​：emoPulse）: システム内部の「信頼度（SNR）」から自律生成される歩幅  
+    空間軸（Rt​：W-Ref Geometry）: 現在の重みと勾配の「直交性」から計算される新規性ゲイン  
+    方向軸（ut​：Pure Will）: 勾配の大きさを捨て、時間的に純化された「符号（sign）」のみの意志  
+
+2. 更新の基本方程式  
+勾配を g としたとき、伝統的な Δw=−ηg を破棄し、以下の式を適用する  
+Δwt​=−ηt​⋅Rt​⋅sign(mt​)  
+これにより、「勾配の大きさ」という外力への依存が完全に消滅し、システムは内部状態に基づいた自律的な移動へと移行する  
+
+定理が保証する3つの性質  
+① 自律的収縮（Contraction Property）  
+システムのエネルギー（Loss）が低下するにつれ、ηt​ が「自律的なブレーキ」として機能する  
+    結果: 外部からのスケジュール調整なしに、システムは指数関数的に一点（解の多様体）へ収縮し、安定する  
+② 幾何学的最短路（Geodesic Path）  
+Rt​ が「既知の方向（重みと平行な成分）」を抑制し、「未知の方向（直交する成分）」を加速させる  
+    結果: パラメータ空間という球面（多様体）の上を、無駄な蛇行をせず、最短距離で滑るように移動する  
+③ 情報の純化（Information Bottleneck）  
+sign 関数による方向の抽出が、勾配に含まれる微細なノイズを遮断するフィルターとして機能する  
+    結果: 複雑すぎる解（過学習）を避け、最もシンプルで汎用性の高い「平坦な解（Flat Minima）」に定着する  
+
+</details>
 
 ---
 
