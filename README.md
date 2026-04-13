@@ -61,7 +61,7 @@ Expected value convergence for non-convex functions
 2. 更新の基本方程式  
     勾配を g としたとき、伝統的な Δw=−ηg を破棄し、以下の式を適用する  
     離散時間：  
-	Δwt = −ηt ⋅ Rt ⋅ sign(mt) 
+	Δwt = −ηt ⋅ Rt ⋅ sign(mt)  
 	連続時間：  
 	\frac{dw}{dt} = - λ ⋅ η(t) ⋅ w(t) - η(t) ⋅ R(t) ⋅ u(t)  
     これにより、｢勾配の大きさ｣という外力への依存が完全に消滅し、システムは内部状態に基づいた自律的な移動へと移行する  
