@@ -1,7 +1,7 @@
 ## emo series Optimizers  
 
-- ###### 共鳴投影場更新(共鳴収縮法)をする新世代optimizer群です／勾配降下法ではない  
-- ###### This is a new generation of optimizers that perform resonant projection field updates (resonant contraction method) / It is not a gradient descent method  
+- ###### 共鳴収縮法(共鳴投影場)をする新世代optimizer群です／勾配降下法ではない  
+- ###### This is a new generation of optimizers that use the Resonant Contraction Method (Resonant Projection Field) / It is not a Gradient Descent Method  
 - ###### EmoSens / 2ndGen (v3.8 / Standard)  
 - ###### EmoTion / 3rdGen (v3.8 / Moment-Free)  
 
@@ -48,31 +48,67 @@ Expected value convergence for non-convex functions
 
 <details>
 
-<summary> resonant contraction method </summary>
+<summary> 共鳴収縮法の基本定理 / resonant contraction method </summary>
 
 共鳴収縮法の基本定理(概要)  
 
 1. 状態の定義：三要素の共鳴  
-パラメータ w の更新は、以下の3つの独立した次元の相乗効果（共鳴）によって決定される  
-    時間軸（ηt​：emoPulse）: システム内部の「信頼度（SNR）」から自律生成される歩幅  
-    空間軸（Rt​：W-Ref Geometry）: 現在の重みと勾配の「直交性」から計算される新規性ゲイン  
-    方向軸（ut​：Pure Will）: 勾配の大きさを捨て、時間的に純化された「符号（sign）」のみの意志  
+    パラメータ w の更新は、以下の3つの独立した次元の相乗効果(共鳴)によって決定される  
+    時間軸(ηt：emoPulse)：システム内部の｢信頼度｣(SNR)から自律生成される歩幅  
+    空間軸(Rt：W-Ref Geometry)：現在の重みと勾配の｢直交性｣から計算される新規性ゲイン  
+    方向軸(ut：Pure Will)：勾配の大きさを捨て、時間的に純化された｢符号｣(sign)のみの意志  
 
 2. 更新の基本方程式  
-勾配を g としたとき、伝統的な Δw=−ηg を破棄し、以下の式を適用する  
-Δwt​=−ηt​⋅Rt​⋅sign(mt​)  
-これにより、「勾配の大きさ」という外力への依存が完全に消滅し、システムは内部状態に基づいた自律的な移動へと移行する  
+    勾配を g としたとき、伝統的な Δw=−ηg を破棄し、以下の式を適用する  
+    離散時間：  
+	Δwt = −ηt ⋅ Rt ⋅ sign(mt) 
+	連続時間：  
+	\frac{dw}{dt} = - λ ⋅ η(t) ⋅ w(t) - η(t) ⋅ R(t) ⋅ u(t)  
+    これにより、｢勾配の大きさ｣という外力への依存が完全に消滅し、システムは内部状態に基づいた自律的な移動へと移行する  
 
-定理が保証する3つの性質  
-① 自律的収縮（Contraction Property）  
-システムのエネルギー（Loss）が低下するにつれ、ηt​ が「自律的なブレーキ」として機能する  
-    結果: 外部からのスケジュール調整なしに、システムは指数関数的に一点（解の多様体）へ収縮し、安定する  
-② 幾何学的最短路（Geodesic Path）  
-Rt​ が「既知の方向（重みと平行な成分）」を抑制し、「未知の方向（直交する成分）」を加速させる  
-    結果: パラメータ空間という球面（多様体）の上を、無駄な蛇行をせず、最短距離で滑るように移動する  
-③ 情報の純化（Information Bottleneck）  
-sign 関数による方向の抽出が、勾配に含まれる微細なノイズを遮断するフィルターとして機能する  
-    結果: 複雑すぎる解（過学習）を避け、最もシンプルで汎用性の高い「平坦な解（Flat Minima）」に定着する  
+3. 定理が保証する3つの性質  
+a. 自律的収縮(Contraction Property)  
+    システムのエネルギー(Loss)が低下するにつれ ηt が｢自律的なブレーキ｣として機能する  
+    結果: 外部からのスケジュール調整なしに、システムは指数関数的に一点(解の多様体)へ収縮し安定する  
+b. 幾何学的最短路(Geodesic Path)  
+    Rt が｢既知の方向｣(重みと平行な成分)を抑制し、｢未知の方向｣(直交する成分)を加速させる  
+    結果: パラメータ空間という球面(多様体）の上を、無駄な蛇行をせず最短距離で滑るように移動する  
+c. 情報の純化(Information Bottleneck)  
+    sign 関数による方向の抽出が、勾配に含まれる微細なノイズを遮断するフィルターとして機能する  
+    結果: 複雑すぎる解(過学習)を避け、最もシンプルで汎用性の高い｢平坦な解｣(Flat Minima)に定着する  
+
+※ (mt)：時間的に安定化された方向ベクトル(momentではない)  
+    (mt) は、勾配 gt の大きさを無視し、時間的平滑化を施した方向成分で ut = sign(mt) を通じて Pure Will (方向軸) を形成する  
+
+Fundamental Theorem of the Resonance Contraction Method (Overview)  
+
+1. Definition of the State: Resonance of the Three Elements  
+    The update of parameter w is determined by the synergistic effects (resonance) of the following three independent dimensions  
+    Time axis (ηt: emoPulse): Step size autonomously generated from the system's internal “reliability” (SNR)  
+    Spatial axis (Rt: W-Ref Geometry): Novelty gain calculated based on the “orthogonality” of the current weights and gradients  
+    Directional axis (ut: Pure Will): Will consisting solely of a “sign” purified over time, with the magnitude of the gradient discarded  
+
+2. The Basic Equation for Updates  
+    When the gradient is denoted by g, we abandon the traditional Δw = −ηg and apply the following equation:  
+	Discrete-time representation:  
+    Δwt = −ηt ⋅ Rt ⋅ sign(mt)  
+	Continuous-time representation:  
+	\frac{dw}{dt} = - λ ⋅ η(t) ⋅ w(t) - η(t) ⋅ R(t) ⋅ u(t)  
+    As a result, the system’s dependence on external forces—specifically the “magnitude of the gradient”—is completely eliminated, and it transitions to autonomous movement based on its internal state.  
+
+3. The Three Properties Guaranteed by the Theorem  
+a. Autonomous contraction (Contraction Property)  
+    As the system's energy (loss) decreases, ηt functions as an “autonomous brake”  
+    Result: Without any external schedule adjustments, the system contracts exponentially toward a single point (the solution manifold) and stabilizes.  
+b. Geodesic Path  
+    Rt suppresses the “known direction” (the component parallel to the weight) and accelerates the “unknown direction” (the orthogonal component)  
+    Result: Moving along the spherical surface (manifold) known as the parameter space in the shortest possible path, without any unnecessary detours  
+c. Information Bottleneck  
+    Extracting direction using the sign function acts as a filter that blocks out the fine noise contained in the gradient  
+    Result: The algorithm avoids overly complex solutions (overfitting) and converges to the simplest and most general-purpose “flat minima.”  
+
+※ (mt): Time-averaged direction vector (not a moment)
+    (mt) ignores the magnitude of the gradient gt and forms the Pure Will (directional axis) using the temporally smoothed directional component via ut = sign(mt)
 
 </details>
 
@@ -252,7 +288,7 @@ emoPulse：(d_base/noise_base)^2 算出表
 分母(noise_base)：abs(scalar - trust) が 0 に近づくほど(つまり感情スカラーと信頼度が一致するほど)、分母が最小値 0.1 に近づき2乗の結果は跳ね上がります。  
 +側：dNR_now_val が高く、trust も高ければ、履歴(dNR_hist)を 最大1.50倍 ずつ成長させます。  
 -側：たとえ dNR_now_val が 25.00 と計算されても、trust が低い(-0.5〜0.5の範囲)ため、履歴は 0.80倍 で削られブレーキがかかります。  
-エントロピーの抑制：この表の数値(dNR_now_val)そのまま学習率にせず、これを dNR_hist(履歴)に入れ、最終的に emoScope × 1e-4 として極めて小さな安全な学習率(1e-6 〜 3e-3)へと変換されます。  
+エントロピーの抑制：この表の数値(dNR_now_val)そのまま学習率にせず、これを dNR_hist(履歴)に入れ、最終的に emoScope × 1e-4･1e-5 として極めて小さな安全な学習率(1e-8 〜 3e-3)へと変換されます。  
 
 </details>
 
@@ -360,7 +396,10 @@ For updates prior to this, please refer to the v2.0 repository update history.
 
 ## グラフで見る emo系 の進行状況 Progress of emo-type as shown in the graph (v3.7 and later)  
 <img width="2218" height="1153" alt="emov376-003-tile" src="https://github.com/user-attachments/assets/a1c5891b-a842-4ed1-a147-d4658e1ca16b" />  
-このように 動的学習率 として機能します ／ 下降しつづけるのは"元モデルの修正"の差分も学習しているかも？ <br>   
+このように 動的学習率 として機能します ／ 下降しつづけるのは"元モデルの修正"の差分も学習しているかも？ <br> 
+※ 収束通知判定によるLR減衰をしない場合は停滞せず下降しつづけます <br> 
+※ If LR decay based on convergence detection is not applied, the curve will continue to decline without plateauing. <br> 
+
 It functions as a dynamic learning rate. ／ Could the continuous decline be due to also learning the differences in “original model corrections”? <br> 
 データセット状況(左)：全て実写画像10枚, 10batch, 300epoch(3000step), 全層LoRA, Rank16/Alpha16, e-pred, ZtSNR, <br>   
 Dataset Status LEFT: Primarily 10 Photo images, 10 batch, 300 epochs (3000 steps), full-layer LoRA, Rank16/Alpha16, e-pred, ZtSNR,  <br>  
@@ -373,6 +412,8 @@ es = EmoSens(Red/Green)、ea = EmoAiry(Blue/Gray)、ec = EmoCats(Yellow/Orange) 
 紫色：EmoSens、水色：EmoAiry、赤色：EmoCat、灰色：EmoTion、黄色：EmoVoid <br> 
 EmoTion は、LR：1.0 を少し下げると良いだろうと思います 橙色：EmoTion/LR:0.5 <br>
 経過時間にも注目してください <br>  
+※ 収束通知判定によるLR減衰をしない場合は停滞せず下降しつづけます <br> 
+※ If LR decay based on convergence detection is not applied, the curve will continue to decline without plateauing. <br> 
 
 ---
 
