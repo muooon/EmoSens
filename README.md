@@ -79,9 +79,10 @@ c. 情報の純化(Information Bottleneck)
 
 ※ (mt)：時間的に安定化された方向ベクトル(momentではない)  
     (mt) は、勾配 gt の大きさを無視し、時間的平滑化を施した方向成分で ut = sign(mt) を通じて Pure Will (方向軸) を形成する  
-※ Rt (空間軸)は、高精度の2次モーメント計算によっても代替可能である(2次モーメント：｢過去｣の統計から推論)
-※ ut (方向軸)も、１次momentなどの既存の手法で代替可能です
-※ ηt (時間軸)は、Temporal axis として機能するものがあれば代替可能だろうと思います
+※ Rt (空間軸)は、高精度の2次モーメント計算によっても代替可能である(2次モーメント：｢過去｣の統計から推論)  
+※ ut (方向軸)も、１次momentなどの既存の手法で代替可能です  
+※ ηt (時間軸)は、Temporal axis として機能するものがあれば代替可能だろうと思います  
+
 
 Fundamental Theorem of the Resonance Contraction Method (Overview)  
 
