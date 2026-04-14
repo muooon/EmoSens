@@ -83,8 +83,8 @@ c. 情報の純化(Information Bottleneck)
 ※ ut (方向軸)も、１次momentなどの既存の手法で代替可能です  
 ※ ηt (時間軸)は、Temporal axis として機能するものがあれば代替可能だろうと思います  
 
-結論：共鳴収縮法とはなにか？
-    emoPulse のような動的な｢高級スケジューラ｣は、確率的勾配降下法を"共鳴収縮法"(共鳴投影場)へ upgrade する、自律した機構を持つことで最適化は頑健性と正確性を得て高度に進化する
+結論：共鳴収縮法とはなにか？  
+    emoPulse のような動的な｢高級スケジューラ｣は、確率的勾配降下法を"共鳴収縮法"(共鳴投影場)へ upgrade する、自律した機構を持つことで最適化は頑健性と正確性を得て高度に進化する  
 
 
 Fundamental Theorem of the Resonance Contraction Method (Overview)  
