@@ -110,11 +110,11 @@ c. Information Bottleneck
     Extracting direction using the sign function acts as a filter that blocks out the fine noise contained in the gradient  
     Result: The algorithm avoids overly complex solutions (overfitting) and converges to the simplest and most general-purpose “flat minima.”  
 
-※ (mt): Time-averaged direction vector (not a moment)
-    mt(Directional Vector): This is a temporally stabilized direction vector, not a traditional moment. It ignores the magnitude of the gradient gt and forms the "Pure Will" through ut = sign(mt).
-※ Rt(Spatial Axis): While this axis is implemented via W-Ref Geometry for efficiency, it can be substituted with high-precision second-moment estimations (which infer from statistical history).
-※ ut(Directional Axis): Similarly, this can be substituted with existing methods such as first-order moments.
-※ ηt(Temporal axis): The core mechanism for resonance; theoretically, any component functioning as a Temporal axis could serve as a substitute, though emoPulse is the primary implementation proposed here.
+※ (mt): Time-averaged direction vector (not a moment)  
+    mt(Directional Vector): This is a temporally stabilized direction vector, not a traditional moment. It ignores the magnitude of the gradient gt and forms the "Pure Will" through ut = sign(mt).  
+※ Rt(Spatial Axis): While this axis is implemented via W-Ref Geometry for efficiency, it can be substituted with high-precision second-moment estimations (which infer from statistical history).  
+※ ut(Directional Axis): Similarly, this can be substituted with existing methods such as first-order moments.  
+※ ηt(Temporal axis): The core mechanism for resonance; theoretically, any component functioning as a Temporal axis could serve as a substitute, though emoPulse is the primary implementation proposed here.  
 
 
 </details>
