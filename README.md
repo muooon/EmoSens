@@ -38,9 +38,9 @@ Expected value convergence for non-convex functions
 (also guarantees adaptability to flow matching)  
 (Providing a direct path to Flat Minima without the necessity of Grokking.)  
 
-#### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v38-paper(ENG).txt)  
+#### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(ENG).txt)  
 
-#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v38-paper(JPN).txt)  
+#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(JPN).txt)  
 
 #### [DOI取得版/DOI-Acquired Version](https://huggingface.co/muooon/EmoTion-Optimizer)  
 
@@ -64,7 +64,7 @@ Expected value convergence for non-convex functions
 	Δwt = −ηt ⋅ Rt ⋅ sign(mt)  
 	連続時間：  
 	\frac{dw}{dt} = - λ ⋅ η(t) ⋅ w(t) - η(t) ⋅ R(t) ⋅ u(t)  
-    これにより、｢勾配の大きさ｣という外力への依存が完全に消滅し、システムは内部状態に基づいた自律的な移動へと移行する  
+    これにより｢勾配の大きさ｣という外力への依存が完全に消滅し、システムは内部状態に基づいた自律的な移動へと移行する  
 
 3. 定理が保証する3つの性質  
 a. 自律的収縮(Contraction Property)  
@@ -79,6 +79,9 @@ c. 情報の純化(Information Bottleneck)
 
 ※ (mt)：時間的に安定化された方向ベクトル(momentではない)  
     (mt) は、勾配 gt の大きさを無視し、時間的平滑化を施した方向成分で ut = sign(mt) を通じて Pure Will (方向軸) を形成する  
+※ Rt (空間軸)は、高精度の2次モーメント計算によっても代替可能である(2次モーメント：｢過去｣の統計から推論)
+※ ut (方向軸)も、１次momentなどの既存の手法で代替可能です
+※ ηt (時間軸)は、Temporal axis として機能するものがあれば代替可能だろうと思います
 
 Fundamental Theorem of the Resonance Contraction Method (Overview)  
 
@@ -108,7 +111,11 @@ c. Information Bottleneck
     Result: The algorithm avoids overly complex solutions (overfitting) and converges to the simplest and most general-purpose “flat minima.”  
 
 ※ (mt): Time-averaged direction vector (not a moment)
-    (mt) ignores the magnitude of the gradient gt and forms the Pure Will (directional axis) using the temporally smoothed directional component via ut = sign(mt)
+    mt(Directional Vector): This is a temporally stabilized direction vector, not a traditional moment. It ignores the magnitude of the gradient gt and forms the "Pure Will" through ut = sign(mt).
+※ Rt(Spatial Axis): While this axis is implemented via W-Ref Geometry for efficiency, it can be substituted with high-precision second-moment estimations (which infer from statistical history).
+※ ut(Directional Axis): Similarly, this can be substituted with existing methods such as first-order moments.
+※ ηt(Temporal axis): The core mechanism for resonance; theoretically, any component functioning as a Temporal axis could serve as a substitute, though emoPulse is the primary implementation proposed here.
+
 
 </details>
 
@@ -449,7 +456,7 @@ Official Code:
 https://github.com/muooon/EmoSens  
 
 paper:  
-https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v38-paper(ENG).txt  
+https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(ENG).txt  
 DOI取得版/DOI-Acquired Version  
 https://huggingface.co/muooon/EmoTion-Optimizer  
 
