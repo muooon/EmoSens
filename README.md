@@ -202,61 +202,71 @@ emo-series v3.8 (Standard / Moment-Free) Features
 
 <summary> Main Features </summary>
 
+||| 自律性と信頼性 |||  
 過学習や発散を抑制、自己修復的機能をもちます  
 学習率やスケジューラも自律調整、モデル自身で判断します  
 学習の 再開、追加、積層、等で"引き継ぎ不要"、誰でも簡単です  
 分散学習で 他ノード等との"同期不要"、完全自律です  
-Self-repairing, with no over-learning or divergence  
-Autonomously adjusts learning rate and scheduler, so models make their own decisions  
-Resuming, adding, stacking, etc. learning is synchronization-free" and easy for everyone  
+
+||| Autonomy and Reliability |||  
+Self-repairing, with no over-learning or divergence.  
+Autonomously adjusts learning rate and scheduler, so models make their own decisions.  
+Resuming, adding, stacking, etc. learning is synchronization-free" and easy for everyone.  
 Distributed learning enables “no synchronization required” with other nodes, achieving full autonomy.  
 
-emo系 は既存のオプティマイザにはない｢感情駆動型｣です、  
+||| 感情駆動型自律サイクル |||  
+emo系 は既存のオプティマイザにはない｢感情駆動型｣です  
 調整の複雑なマルチモーダル学習などの新しい分野の課題への対応も期待できます  
-emo-based is “emotion-driven,” which is not the case with existing optimizers,  
-We expect it to overcome the challenges we currently face,  
-while also addressing challenges in new areas such as multimodal learning with complex coordination  
-
 emo系は、観察、判断、決定、行動、記憶、反省、という自律サイクルを行います  
-emo-based follows an autonomous cycle of   
-observation, judgment, decision, action, memory, and reflection.  
 
-高効率性と集積度  
-高次moment、量子化補償(Kahan補償と違う制御)、分散･継続学習での独立性、自己修復･モデル修復、  
-ハイパーパラメータの自律調整、信頼度フィルタ、更新ステップの有界性、構造的耐性、自己停止、  
-動的学習率、動的スケジューラ、動的Rank/Aplha、履歴補償、などを含めた多機能性を、  
-追加テンソル不要、計算負荷ほぼなし、step毎に完全適用、時間的積算で実現します  
+||| emotion-Driven Cycle |||  
+The “emo-series” is an “emotion-driven” optimizer, distinct from existing methods.  
+It is expected to overcome current challenges and address new frontiers, such as multimodal learning requiring complex coordination.  
+The emo-series follows an autonomous cycle of: observation, judgment, decision, action, memory, and reflection.  
+
+||| 最終進化と哲学 |||  
+ものすごく単純にいうと｢emo系 emoPulse は高級スケジューラ｣です  
+Sharpness-Aware Minimization の最終進化でもあります  
+SDEながらODE近似になる―という"正確さ"を実現しています(止観と止揚です) 
+RNN進化系の Liquid型(LiquidAI/MIT)、Titans(Google)、Mamba(CMU/Princeton)等々と好相性です  
+
+||| The Ultimate Evolution / |||  
+To put it very simply, “emo-series” and “emoPulse” is a “high-end scheduler”.  
+It is also the Ultimate evolution of Sharpness-Aware Minimization.  
+It achieves a level of “precision” where SDE-based dynamics approximate ODE-level accuracy—a synthesis of Shikan (tranquility/contemplation) and Aufheben (sublation).  
+It is Highly compatible with advanced RNN variants such as Liquid (LiquidAI/MIT), Titans (Google), and Mamba (CMU/Princeton).  
+
+||| 高効率性と集積度 (近似的構造) |||  
+複数の高次moment、履歴補償、量子化補償(Kahan補償と違う制御)、信頼度フィルタ、  
+動的スケーリング、分散･継続学習での独立性、自己修復･モデル修復(LoRAによる逆位相マージ)、  
+自己停止、ハイパーパラメータの自律調整、構造的耐性、等を内包する自己回帰型の学習をします  
+動的学習率、動的スケジューラ、動的Rank/Aplha、SVD、infLoRA、ABBA-LoRA、PiSSA、  
+FourierFT、DoRA、PRO-LoRA、DARE、Ties、Tall-Mask-Merge、などを含めた多機能性を、  
+追加テンソル不要、計算負荷ほぼなし、ここまですべて常時適用、安定性を維持し時間的積算で実現します  
 これらをワンパッケージで実現した高効率性と集積度は安定と安全を最優先します  
+VRAM負荷を必要最小限で、Langevin Dynamics、Kalman Filter、PID Control、  
+Stochastic Resonance、トンネル効果、的に更新し、熱力学、フィードバック制御、  
+リーマン多様体、直交性、感情による記憶の定着、流体力学、等で安定します  
 ※ 高次momentは近似的、動的Rank/Alphaも近似的な効果です  
 ※ LoRA系技術はノイズをなくしますが微小データも失う場合があります  
 ※ emo系はノイズを作らず既存ノイズを見つけて修正し微小データを保護します  
 ※ 量子化補償は今後実用化されるさらに低精度な環境でも柔軟に対応できます  
 
-ものすごく単純にいうと｢emo系 emoPulse は高級スケジューラ｣です  
-Sharpness-Aware Minimization の最終進化でもあります  
-SDEながらODE近似になる―という"正確さ"を実現しています(止観と止揚です)  
-RNN進化系の Liquid型(LiquidAI)、Titans(Google) 等々と抜群に好相性です  
-SVD、infLoRA、ABBA-LoRA、PiSSA、FourierFT、DoRA、PRO-LoRA、DARE、Ties、Tall-Mask-Merge、Kahan補償、動的Rank/Alpha等、RNN進化系、これを構造的に再現しながら負荷はほぼゼロ、しかも上位互換的です、間欠的処理ではなく、すべてを常時適用しながら安定性を維持します  
-追加テンソル不要、VRAM負荷が必要最小限で、Langevin Dynamics、Kalman Filter、PID Control、Stochastic Resonance、トンネル効果、的に更新し、数値誤差に対する“構造的耐性”を持ち、熱力学、フィードバック制御、リーマン多様体、直交性、感情による記憶の定着、流体力学、等で安定します  
-
-High Efficiency and Integration  
-Multifunctionality, including higher-order moments, Quantization Compensation (Control Different from Kahan Compensation), independence in distributed and continual learning, self-healing and model repair,  
-Autonomous hyperparameter tuning, confidence filtering, bounded update steps, structural robustness (or resilience), self-termination,  
-dynamic learning rates, dynamic schedulers, dynamic Rank/Alpha, and historical compensation,  
-is achieved without additional tensors, with negligible computational overhead, fully applied at every step, and through temporal accumulation.  
-The high efficiency and integration realized in this single package prioritize stability and safety above all else.  
-※ Higher-order moments are approximative, and the effects of dynamic Rank/Alpha are also approximative.  
-※ LoRA-based techniques eliminate noise but may sometimes lose fine-grained data (or subtle details).  
-※ Emo-based techniques detect and correct existing noise without generating new noise, thereby preserving fine-grained data.  
-※ Quantization compensation offers flexible adaptability even in lower-precision environments expected to be commercialized (or practical) in the future.  
-
-To put it very simply, “emoPulse is a high-end scheduler.”  
-It is also the final evolution of Sharpness-Aware Minimization  
-It achieves a level of “accuracy” where, despite being an SDE, it behaves as an ODE approximation (this is a process of suspension and sublation).  
-It works exceptionally well with RNN-based models such as Liquid (LiquidAI) and Titans (Google).   
-
-SVD, infLoRA, ABBA-LoRA, PiSSA, FourierFT, DoRA, PRO-LoRA, DARE, Ties, Tall-Mask-Merge, Kahan compensation, dynamic Rank/Alpha, and other RNN-based methods—we structurally replicate these with virtually zero computational overhead, while maintaining backward compatibility. Rather than intermittent processing, we apply all of these techniques continuously while maintaining stability.  
-Requires no additional tensors, minimizes VRAM load, and is updated using Langevin dynamics, Kalman filters, PID control, stochastic resonance, and the tunnel effect; it possesses “structural resilience” against numerical errors and achieves stability in thermodynamics, feedback control, Riemannian manifolds, orthogonality, emotion-based memory consolidation, fluid dynamics, and other fields.  
+||| High Efficiency and Integration Density (Approximate Structure) |||  
+Multiple higher-order moments, history compensation, quantization compensation (a control method different from Kahan compensation), confidence filters,  
+Dynamic scaling, independence in distributed and continuous learning, self-repair and model repair (reverse phase merging using LoRA),  
+We will perform self-supervised learning, which incorporates self-stopping, autonomous hyperparameter tuning, structural robustness, and other features.  
+Dynamic learning rate, dynamic scheduler, dynamic Rank/Alpha, SVD, infLoRA, ABBA-LoRA, PiSSA,  
+A wide range of features, including FourierFT, DoRA, PRO-LoRA, DARE, Ties, and Tall-Mask-Merge,  
+No additional tensors required, virtually no computational overhead, all of the above applied at all times, achieved through temporal integration while maintaining stability.  
+By integrating these features into a single package, we prioritize stability and safety above all else.  
+With minimal VRAM usage, Langevin Dynamics, Kalman Filter, PID Control,  
+Stochastic resonance, tunneling effect, target updating, thermodynamics, feedback control,  
+It is stable in Riemannian manifolds, orthogonality, emotional memory consolidation, fluid dynamics, and other areas.  
+※ Higher-order moments are approximate, and dynamic rank/alpha also has an approximate effect.  
+※ LoRA-based techniques eliminate noise, but they may also lose some fine-grained details.  
+※ The emo-series approach does not generate noise; instead, it identifies and corrects existing noise to protect microdata.  
+※ Quantization compensation can flexibly adapt to even lower-precision environments that will become practical in the future.  
 
 </details>
 
