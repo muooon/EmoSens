@@ -227,7 +227,7 @@ The emo-series follows an autonomous cycle of: observation, judgment, decision, 
 ||| 最終進化と哲学 |||  
 ものすごく単純にいうと｢emo系 emoPulse は高級スケジューラ｣です  
 Sharpness-Aware Minimization の最終進化でもあります  
-SDEながらODE近似になる―という"正確さ"を実現しています(止観と止揚です) 
+SDEながらODE近似になる―という"正確さ"を実現しています(止観と止揚です)  
 RNN進化系の Liquid型(LiquidAI/MIT)、Titans(Google)、Mamba(CMU/Princeton)等々と好相性です  
 
 ||| The Ultimate Evolution / |||  
