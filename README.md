@@ -5,6 +5,16 @@
 - ###### EmoSens / 2ndGen (v3.8 / Standard)  
 - ###### EmoTion / 3rdGen (v3.8 / Moment-Free)  
 
+---
+
+#### 共鳴収縮法によるアーキテクチャの進化  
+こちらにて Transformer の進化型を紹介しています  
+https://github.com/muooon/DRNA  
+#### Architectural Evolution via Resonant Contraction  
+We introduce an evolved version of the Transformer here  
+
+---
+
 # EmoSens / Tion 最新版 update  
 
 - EmoVoid は"波動散乱逆問題"解析ソルバとして機能する可能性があります  
@@ -54,9 +64,12 @@ Expected value convergence for non-convex functions
 
 1. 状態の定義：三要素の共鳴  
     パラメータ w の更新は、以下の3つの独立した次元の相乗効果(共鳴)によって決定される  
-    時間軸(ηt：emoPulse)：システム内部の｢信頼度｣(SNR)から自律生成される歩幅  
-    空間軸(Rt：W-Ref Geometry)：現在の重みと勾配の｢直交性｣から計算される新規性ゲイン  
-    方向軸(ut：Pure Will)：勾配の大きさを捨て、時間的に純化された｢符号｣(sign)のみの意志  
+    時間軸 (ηt)：emoPulse：システム内部の｢信頼度｣(SNR)から自律生成される歩幅  
+    空間軸 (Rt)：W-Ref Geometry：現在の重みと勾配の｢直交性｣から計算される新規性ゲイン  
+    方向軸 (ut)：Pure Will：勾配の大きさを捨て、時間的に純化された｢符号｣(sign)のみの意志  
+※ ηt (時間軸)：高精度の動的スケジューラとして機能するものがあれば代替可能  
+※ Rt (空間軸)：高精度の２次モーメントでも代替可能(同等の類するもの可)  
+※ ut (方向軸)：高精度の１次モーメントでも代替可能(同等の類するもの可)  
 
 2. 更新の基本方程式  
     勾配を g としたとき、伝統的な Δw=−ηg を破棄し、以下の式を適用する  
@@ -65,35 +78,34 @@ Expected value convergence for non-convex functions
 	連続時間：  
 	\frac{dw}{dt} = - λ ⋅ η(t) ⋅ w(t) - η(t) ⋅ R(t) ⋅ u(t)  
     これにより｢勾配の大きさ｣という外力への依存が完全に消滅し、システムは内部状態に基づいた自律的な移動へと移行する  
+※ (mt)：時間的に安定化された方向ベクトル(mt = moment ではない)  
+    (mt) は、勾配 gt の大きさを無視し、時間的平滑化を施した方向成分で｢累積的な確信度｣を保持し ut = sign(mt) を通じて Pure Will (方向軸) を形成する (つまり大きさを時間軸に委ねる)  
 
 3. 定理が保証する3つの性質  
 a. 自律的収縮(Contraction Property)  
     システムのエネルギー(Loss)が低下するにつれ ηt が｢自律的なブレーキ｣として機能する  
-    結果: 外部からのスケジュール調整なしに、システムは指数関数的に一点(解の多様体)へ収縮し安定する  
+    結果：外部からのスケジュール調整なしに、システムは指数関数的に一点(解の多様体)へ収縮し安定する  
 b. 幾何学的最短路(Geodesic Path)  
     Rt が｢既知の方向｣(重みと平行な成分)を抑制し、｢未知の方向｣(直交する成分)を加速させる  
-    結果: パラメータ空間という球面(多様体）の上を、無駄な蛇行をせず最短距離で滑るように移動する  
+    結果：パラメータ空間という球面(多様体）の上を、無駄な蛇行をせず最短距離で滑るように移動する  
 c. 情報の純化(Information Bottleneck)  
     sign 関数による方向の抽出が、勾配に含まれる微細なノイズを遮断するフィルターとして機能する  
-    結果: 複雑すぎる解(過学習)を避け、最もシンプルで汎用性の高い｢平坦な解｣(Flat Minima)に定着する  
-
-※ (mt)：時間的に安定化された方向ベクトル(momentではない)  
-    (mt) は、勾配 gt の大きさを無視し、時間的平滑化を施した方向成分で ut = sign(mt) を通じて Pure Will (方向軸) を形成する  
-※ Rt (空間軸)は、高精度の2次モーメント計算によっても代替可能である(2次モーメント：｢過去｣の統計から推論)  
-※ ut (方向軸)も、１次momentなどの既存の手法で代替可能です  
-※ ηt (時間軸)は、Temporal axis として機能するものがあれば代替可能だろうと思います  
+    結果：複雑すぎる解(過学習)を避け、最もシンプルで汎用性の高い｢平坦な解｣(Flat Minima)に定着する  
 
 結論：共鳴収縮法とはなにか？  
-    emoPulse のような動的な｢高級スケジューラ｣は、確率的勾配降下法を"共鳴収縮法"(共鳴投影場)へ upgrade する、自律した機構を持つことで最適化は頑健性と正確性を得て高度に進化する  
+    emoPulse のような｢動的スケジューラ｣(自律的)は、確率的勾配降下法(受動的)を、システムの内部状態に基づく"共鳴収縮法"(共鳴投影場)へ upgrade する。 こうした自律した機構を持つことはSDE-DDE-ODE縮約近似を果たし、この最適化は頑健性と正確性を得て高度な収縮プロセスへと進化する  
 
 
 Fundamental Theorem of the Resonance Contraction Method (Overview)  
 
 1. Definition of the State: Resonance of the Three Elements  
-    The update of parameter w is determined by the synergistic effects (resonance) of the following three independent dimensions  
-    Time axis (ηt: emoPulse): Step size autonomously generated from the system's internal “reliability” (SNR)  
-    Spatial axis (Rt: W-Ref Geometry): Novelty gain calculated based on the “orthogonality” of the current weights and gradients  
-    Directional axis (ut: Pure Will): Will consisting solely of a “sign” purified over time, with the magnitude of the gradient discarded  
+    The update of parameter w is determined by the synergistic effects (resonance) of the following three independent dimensions.  
+    Time axis (ηt: emoPulse): Step size autonomously generated from the system's internal “reliability” (SNR).  
+    Spatial axis (Rt: W-Ref Geometry): Novelty gain calculated based on the “orthogonality” of the current weights and gradients.  
+    Directional axis (ut: Pure Will): Will consisting solely of a “sign” purified over time, with the magnitude of the gradient discarded.  
+※ ηt(Temporal axis): Can be substituted by any component functioning as a high-precision dynamic scheduler.  
+※ Rt(Spatial axis): Can be substituted by high-precision 2nd-order moments or equivalent metrics.  
+※ ut(Directional axis): Can be substituted by high-precision 1st-order moments or equivalent metrics.  
 
 2. The Basic Equation for Updates  
     When the gradient is denoted by g, we abandon the traditional Δw = −ηg and apply the following equation:  
@@ -102,26 +114,22 @@ Fundamental Theorem of the Resonance Contraction Method (Overview)
 	Continuous-time representation:  
 	\frac{dw}{dt} = - λ ⋅ η(t) ⋅ w(t) - η(t) ⋅ R(t) ⋅ u(t)  
     As a result, the system’s dependence on external forces—specifically the “magnitude of the gradient”—is completely eliminated, and it transitions to autonomous movement based on its internal state.  
+※ (mt): A temporally stabilized directional potential (not a "moment" in the traditional sense).  
+    (mt) ignores the magnitude of the gradient gt and maintains "cumulative confidence" through temporal smoothing. It forms the "Pure Will" via ut = sign(mt), delegating the control of amplitude entirely to the temporal axis (ηt).  
 
 3. The Three Properties Guaranteed by the Theorem  
 a. Autonomous contraction (Contraction Property)  
-    As the system's energy (loss) decreases, ηt functions as an “autonomous brake”  
+    As the system's energy (loss) decreases, ηt functions as an “autonomous brake”.  
     Result: Without any external schedule adjustments, the system contracts exponentially toward a single point (the solution manifold) and stabilizes.  
 b. Geodesic Path  
-    Rt suppresses the “known direction” (the component parallel to the weight) and accelerates the “unknown direction” (the orthogonal component)  
-    Result: Moving along the spherical surface (manifold) known as the parameter space in the shortest possible path, without any unnecessary detours  
+    Rt suppresses the “known direction” (the component parallel to the weight) and accelerates the “unknown direction” (the orthogonal component).  
+    Result: Moving along the spherical surface (manifold) known as the parameter space in the shortest possible path, without any unnecessary detours.  
 c. Information Bottleneck  
-    Extracting direction using the sign function acts as a filter that blocks out the fine noise contained in the gradient  
-    Result: The algorithm avoids overly complex solutions (overfitting) and converges to the simplest and most general-purpose “flat minima.”  
+    Extracting direction using the sign function acts as a filter that blocks out the fine noise contained in the gradient.  
+    Result: The algorithm avoids overly complex solutions (overfitting) and converges to the simplest and most general-purpose “flat minima”.  
 
-※ (mt): Time-averaged direction vector (not a moment)  
-    mt(Directional Vector): This is a temporally stabilized direction vector, not a traditional moment. It ignores the magnitude of the gradient gt and forms the "Pure Will" through ut = sign(mt).  
-※ Rt(Spatial Axis): While this axis is implemented via W-Ref Geometry for efficiency, it can be substituted with high-precision second-moment estimations (which infer from statistical history).  
-※ ut(Directional Axis): Similarly, this can be substituted with existing methods such as first-order moments.  
-※ ηt(Temporal axis): The core mechanism for resonance; theoretically, any component functioning as a Temporal axis could serve as a substitute, though emoPulse is the primary implementation proposed here.  
-
-Conclusion: What is the Resonant Contraction Method ?  
-    Dynamic "Advanced Schedulers" like emoPulse upgrade Stochastic Gradient Descent (SGD) into the "Resonant Contraction Method" (Resonant Projection Field). By integrating such autonomous mechanisms, optimization evolves to a higher dimension, achieving unprecedented robustness and precision.  
+Conclusion: What is the Resonance Contraction Method ?  
+    An autonomous "Dynamic Scheduler" like emoPulse upgrades passive Stochastic Gradient Descent (SGD) into the autonomous "Resonance Contraction Method" (Resonance Projection Field) based on the system's internal state. By achieving SDE-DDE-ODE reduction approximation, this optimization evolves into a highly sophisticated contraction process, attaining unparalleled robustness and precision.  
 
 
 </details>
