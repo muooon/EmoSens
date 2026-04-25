@@ -1,100 +1,48 @@
 ## emo series Optimizers  
 
-- ###### 共鳴収縮法(共鳴投影場)をする新世代optimizer群です／勾配降下法ではない  
+⭐ If you like this project, please give it a star ⭐  
+
 - ###### This is a new generation of optimizers that use the Resonant Contraction Method (Resonant Projection Field) / It is not a Gradient Descent Method  
 - ###### EmoSens / 2ndGen (v3.8 / Standard)  
 - ###### EmoTion / 3rdGen (v3.8 / Moment-Free)  
+readme：[English](README.md) | [日本語](README_JA.md)  
 
 ---
 
-#### 共鳴収縮法によるアーキテクチャの進化  
-こちらにて Transformer の進化型を紹介しています  
-https://github.com/muooon/DRNA  
 #### Architectural Evolution via Resonant Contraction  
 We introduce an evolved version of the Transformer here  
+https://github.com/muooon/DRNA  
 
 ---
 
-# EmoSens / Tion 最新版 update  
+# EmoSens / Tion update  
 
-- EmoVoid は"波動散乱逆問題"解析ソルバとして機能する可能性があります  
-- アーリーストップ通知機能を正確化、学習引き継ぎ対応、beginners版との統合(260404)  
-- EmoSens (v3.8) emoPulse (完全自動学習率) 等の調整をしました  
-- EmoTion (v3.8) オリジナル W-Ref-Geometry and Moment-Free の公開  
 - EmoVoid has the potential to function as an analytical solver for “wave scattering inverse problems”  
 - Improved accuracy of the early stop notification feature, support for learning transfer, and integration with the Beginners Edition (260404)  
 - EmoSens (v3.8) emoPulse (Fully Automatic Learning Rate) Adjustment  
 - EmoTion (v3.8) Release of W-Ref-Geometry and Moment-Free  
 
-##### ※ FFT版を統合済み(フルファインチューン) Optionの引数でモード切替可です  
-
 ##### ※ FFT-Aware version integrated,"FFT(full fine-tuning)" Mode switching available via Option arguments
-
-### v3.7以降の特徴  
-- 完全自動学習率：高速化と精緻化を同時に達成しつつ初期LRに悩まなくていい  
-- emoPulse：自律的にLRを増減させ"極低精度･超量子化"も安全安定で進行します  
-- 初期LRは1.0で大丈夫です(データセットの工夫にあなたの時間を割いてください)  
 
 Features in v3.7 and later  
 - Fully Automatic Value Learning Rate: Achieves both acceleration and refinement while eliminating the need to worry about the initial learning rate.  
 - emoPulse： Autonomously adjusts LR levels to safely and stably proceed with “ultra-low precision, ultra-quantization.”  
 - The initial LR can be set to 1.0 (please focus your time on refining the dataset).   
 
-### 解説 ･ Explanation  
-Mathematical Explanation Here (paper) v3.7 and later  
-(非凸関数に対する期待値収束(フローマッチングへの適応なども保証します)  
-(論文ではフラットミニマやグロッキングに対しての挙動も考察しています)  
+### Explanation  
 Expected value convergence for non-convex functions  
 (also guarantees adaptability to flow matching)  
 (Providing a direct path to Flat Minima without the necessity of Grokking.)  
 
 #### [emo-paper(article)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(ENG).txt)  
 
-#### [数学的解説はこちら(論文)](https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(JPN).txt)  
-
-#### [DOI取得版/DOI-Acquired Version](https://huggingface.co/muooon/EmoTion-Optimizer)  
+#### [DOI-Acquired Version](https://huggingface.co/muooon/EmoTion-Optimizer)  
 
 ---
 
 <details>
 
-<summary> 共鳴収縮法の基本定理 / resonant contraction method </summary>
-
-共鳴収縮法の基本定理(概要)  
-
-1. 状態の定義：三要素の共鳴  
-    パラメータ w の更新は、以下の3つの独立した次元の相乗効果(共鳴)によって決定される  
-    時間軸 (ηt)：emoPulse：システム内部の｢信頼度｣(SNR)から自律生成される歩幅  
-    空間軸 (Rt)：W-Ref Geometry：現在の重みと勾配の｢直交性｣から計算される新規性ゲイン  
-    方向軸 (ut)：Pure Will：勾配の大きさを捨て、時間的に純化された｢符号｣(sign)のみの意志  
-※ ηt (時間軸)：高精度の動的スケジューラとして機能するものがあれば代替可能  
-※ Rt (空間軸)：高精度の２次モーメントでも代替可能(同等の類するもの可)  
-※ ut (方向軸)：高精度の１次モーメントでも代替可能(同等の類するもの可)  
-
-2. 更新の基本方程式  
-    勾配を g としたとき、伝統的な Δw=−ηg を破棄し、以下の式を適用する  
-    離散時間：  
-	Δwt = −ηt ⋅ Rt ⋅ sign(mt)  
-	連続時間：  
-	\frac{dw}{dt} = - λ ⋅ η(t) ⋅ w(t) - η(t) ⋅ R(t) ⋅ u(t)  
-    これにより｢勾配の大きさ｣という外力への依存が完全に消滅し、システムは内部状態に基づいた自律的な移動へと移行する  
-※ (mt)：時間的に安定化された方向ベクトル(mt = moment ではない)  
-    (mt) は、勾配 gt の大きさを無視し、時間的平滑化を施した方向成分で｢累積的な確信度｣を保持し ut = sign(mt) を通じて Pure Will (方向軸) を形成する (つまり大きさを時間軸に委ねる)  
-
-3. 定理が保証する3つの性質  
-a. 自律的収縮(Contraction Property)  
-    システムのエネルギー(Loss)が低下するにつれ ηt が｢自律的なブレーキ｣として機能する  
-    結果：外部からのスケジュール調整なしに、システムは指数関数的に一点(解の多様体)へ収縮し安定する  
-b. 幾何学的最短路(Geodesic Path)  
-    Rt が｢既知の方向｣(重みと平行な成分)を抑制し、｢未知の方向｣(直交する成分)を加速させる  
-    結果：パラメータ空間という球面(多様体）の上を、無駄な蛇行をせず最短距離で滑るように移動する  
-c. 情報の純化(Information Bottleneck)  
-    sign 関数による方向の抽出が、勾配に含まれる微細なノイズを遮断するフィルターとして機能する  
-    結果：複雑すぎる解(過学習)を避け、最もシンプルで汎用性の高い｢平坦な解｣(Flat Minima)に定着する  
-
-結論：共鳴収縮法とはなにか？  
-    emoPulse のような｢動的スケジューラ｣(自律的)は、確率的勾配降下法(受動的)を、システムの内部状態に基づく"共鳴収縮法"(共鳴投影場)へ upgrade する。 こうした自律した機構を持つことはSDE-DDE-ODE縮約近似を果たし、この最適化は頑健性と正確性を得て高度な収縮プロセスへと進化する  
-
+<summary> resonant contraction method </summary>
 
 Fundamental Theorem of the Resonance Contraction Method (Overview)  
 
@@ -131,7 +79,6 @@ c. Information Bottleneck
 Conclusion: What is the Resonance Contraction Method ?  
     An autonomous "Dynamic Scheduler" like emoPulse upgrades passive Stochastic Gradient Descent (SGD) into the autonomous "Resonance Contraction Method" (Resonance Projection Field) based on the system's internal state. By achieving SDE-DDE-ODE reduction approximation, this optimization evolves into a highly sophisticated contraction process, attaining unparalleled robustness and precision.  
 
-
 </details>
 
 ---
@@ -141,24 +88,6 @@ Conclusion: What is the Resonance Contraction Method ?
 </div>
 
 ---
-
-emo系 v3.8 (Standard / Moment-Free) の特徴等  
-
-| 名称      | 時間的正確性 | メモリ効率 | 備考                                      |  
-|-----------|------------|------------|-------------------------------------------|  
-| emosens   | ★★★★       | ★★         | 最初に誕生｜正確｜Adam型       |  
-| emoairy   | ★★         | ★★★★       | ２番目に誕生｜軽量｜Adafactor型 |  
-| emocats   | ★★★☆        | ★★★☆        | 軽量＆正確の両立｜Lion型         |  
-|-----------|------------|------------|-------------------------------------------|  
-| emotion   | ★★★★       | ★★★☆       | "軽量"で正確｜オリジナル型         |  
-| emovoid   | ★★☆        | ★★★★★      | "最軽量･最速"｜オリジナル型         |  
-
-[効率性] 危険抑止更新：過学習や収束の停滞に先回りし無駄な更新を排除します  
-[機能性] 軽量で高機能：停止合図や自律した分散学習等でユーザー体験を向上させます  
-[信頼性] 安全優先設計：動的制御で不安定な局面でモデルを保護し安定収束を促します  
-※ 完全自律型のため、積層、再開、非同期、で、自由な学習を自由に組むことが可能です  
-※ EmoTion は、幾何学的直交更新と２次モーメント排除で正確性と効率性を向上します  
-※ EmoVoid は、幾何学的直交更新と１次２次モーメント排除でVRAM効率を向上します
 
 emo-series v3.8 (Standard / Moment-Free) Features  
 
@@ -180,19 +109,10 @@ emo-series v3.8 (Standard / Moment-Free) Features
 
 ---  
 
-#### Loss あるかぎり emoPulse(鼓動) はやまない ――  
-##### Grokking を経ずに フラットミニマ へ到達できるかもしれない選択肢  
-
 ##### “As long as there is loss, emoPulse(Heartbeat) will never stop —”  
 ###### An option that might allow reaching Flat Minima without Grokking  
 
 ---  
-
-### 学習の情報、そのすべては Loss値 に集約されている  
-##### Loss値はモデルのshadowである、  
-##### Loss値にすべてが集約されている、  
-##### 学習状況もモデル状況もLoss値が教えてくれる、  
-##### Lossを感じろ、 Lossこそオリジン(原点)だ、  
 
 #### Learning Information, Everything is consolidated into the Loss value.  
 ###### The loss value is the model's shadow.  
@@ -202,7 +122,7 @@ emo-series v3.8 (Standard / Moment-Free) Features
 
 ---  
 
-### EmoSens 主な特徴 / Main Features of EmoSens  
+### Main Features of EmoSens  
 
 ---  
 
@@ -210,55 +130,22 @@ emo-series v3.8 (Standard / Moment-Free) Features
 
 <summary> Main Features </summary>
 
-||| 自律性と信頼性 |||  
-過学習や発散を抑制、自己修復的機能をもちます  
-学習率やスケジューラも自律調整、モデル自身で判断します  
-学習の 再開、追加、積層、等で"引き継ぎ不要"、誰でも簡単です  
-分散学習で 他ノード等との"同期不要"、完全自律です  
-
 ||| Autonomy and Reliability |||  
 Self-repairing, with no over-learning or divergence.  
 Autonomously adjusts learning rate and scheduler, so models make their own decisions.  
 Resuming, adding, stacking, etc. learning is synchronization-free" and easy for everyone.  
 Distributed learning enables “no synchronization required” with other nodes, achieving full autonomy.  
 
-||| 感情駆動型自律サイクル |||  
-emo系 は既存のオプティマイザにはない｢感情駆動型｣です  
-調整の複雑なマルチモーダル学習などの新しい分野の課題への対応も期待できます  
-emo系は、観察、判断、決定、行動、記憶、反省、という自律サイクルを行います  
-
 ||| emotion-Driven Cycle |||  
 The “emo-series” is an “emotion-driven” optimizer, distinct from existing methods.  
 It is expected to overcome current challenges and address new frontiers, such as multimodal learning requiring complex coordination.  
 The emo-series follows an autonomous cycle of: observation, judgment, decision, action, memory, and reflection.  
-
-||| 最終進化と哲学 |||  
-ものすごく単純にいうと｢emo系 emoPulse は高級スケジューラ｣です  
-Sharpness-Aware Minimization の最終進化でもあります  
-SDEながらODE近似になる―という"正確さ"を実現しています(止観と止揚です)  
-RNN進化系の Liquid型(LiquidAI/MIT)、Titans(Google)、Mamba(CMU/Princeton)等々と好相性です  
 
 ||| The Ultimate Evolution / |||  
 To put it very simply, “emo-series” and “emoPulse” is a “high-end scheduler”.  
 It is also the Ultimate evolution of Sharpness-Aware Minimization.  
 It achieves a level of “precision” where SDE-based dynamics approximate ODE-level accuracy—a synthesis of Shikan (tranquility/contemplation) and Aufheben (sublation).  
 It is Highly compatible with advanced RNN variants such as Liquid (LiquidAI/MIT), Titans (Google), and Mamba (CMU/Princeton).  
-
-||| 高効率性と集積度 (近似的構造) |||  
-複数の高次moment、履歴補償、量子化補償(Kahan補償と違う制御)、信頼度フィルタ、  
-動的スケーリング、分散･継続学習での独立性、自己修復･モデル修復(LoRAによる逆位相マージ)、  
-自己停止、ハイパーパラメータの自律調整、構造的耐性、等を内包する自己回帰型の学習をします  
-動的学習率、動的スケジューラ、動的Rank/Aplha、SVD、infLoRA、ABBA-LoRA、PiSSA、  
-FourierFT、DoRA、PRO-LoRA、DARE、Ties、Tall-Mask-Merge、などを含めた多機能性を、  
-追加テンソル不要、計算負荷ほぼなし、ここまですべて常時適用、安定性を維持し時間的積算で実現します  
-これらをワンパッケージで実現した高効率性と集積度は安定と安全を最優先します  
-VRAM負荷を必要最小限で、Langevin Dynamics、Kalman Filter、PID Control、  
-Stochastic Resonance、トンネル効果、的に更新し、熱力学、フィードバック制御、  
-リーマン多様体、直交性、感情による記憶の定着、流体力学、等で安定します  
-※ 高次momentは近似的、動的Rank/Alphaも近似的な効果です  
-※ LoRA系技術はノイズをなくしますが微小データも失う場合があります  
-※ emo系はノイズを作らず既存ノイズを見つけて修正し微小データを保護します  
-※ 量子化補償は今後実用化されるさらに低精度な環境でも柔軟に対応できます  
 
 ||| High Efficiency and Integration Density (Approximate Structure) |||  
 Multiple higher-order moments, history compensation, quantization compensation (a control method different from Kahan compensation), confidence filters,  
@@ -285,7 +172,7 @@ It is stable in Riemannian manifolds, orthogonality, emotional memory consolidat
 <summary> emoPulse mechanism </summary>
 
 ---
-emoPulse：(d_base/noise_base)^2 算出表  
+emoPulse：(d_base/noise_base)^2 Calculation   
 
 | d \ N base |  0.1   |  0.5   |  0.7   |  
 |------------|--------|--------|--------|  
@@ -293,34 +180,34 @@ emoPulse：(d_base/noise_base)^2 算出表
 |     0.5    | 25.00  |  1.00  |  0.5102|  
 |     0.7    | 49.00  |  1.96  |  1.00  |  
 
-・どれだけ d/N が高くても 1ステップで増えるのは最大 +50％  
-・しかも “ 前より良い ＆ 信頼できる ” ときだけ成長を許可  
- (上限に近づくには (連続で) (高値 d/N) (高値 trust) 状態を積み重ねる必要がある  
+・No matter how high the d/N ratio is, the maximum increase in a single step is +50%.  
+・And growth is only allowed when it’s “better than before and reliable”  
+  To approach the upper limit, you need to accumulate (consecutive) instances of the (high d/N) and (high trust) states.  
 
-・｢怪しい｣と判断した瞬間に 即 0.80 倍で削る  
-・減速は条件が緩い(抑制の方が発生しやすい)  
- (信頼を得るのは難しいが失うのは簡単／簡単に上げないが簡単に下げる)  
+・The moment you judge it to be “suspicious,” immediately reduce it by 0.80x  
+・Deceleration occurs under less stringent conditions (braking is more likely to occur)  
+ (Trust is hard to earn but easy to lose / It’s hard to raise but easy to lower)  
 
-※ 本当に信頼できるときだけ上限値を成長させる仕組みです  
+※ This system only increases the upper limit when it is truly trustworthy.  
 
 ---
 
-分子(d_base)：履歴の差(仮に 0.7−0.3+0.1=0.5 固定)  
-分母(noise_base)：瞬間的な感情の乖離 ∣ scalar−trust ∣ + 0.1  
+Numerator(d_base)：Difference in History (Assuming 0.7 − 0.3 + 0.1 = 0.5)  
+denominator(noise_base)：Momentary Discrepancy in Emotions ∣ scalar−trust ∣ + 0.1  
 
-| 側   | 状態         | scalar | trust | noise_base | dNR_now_val(2乗) | emoPulse への影響        |
+| side   | status         | scalar | trust | noise_base | dNR_now_val(^2) | Impact on emoPulse       |
 |------|--------------|--------|-------|------------|-------------------|---------------------------|
-| +側  | 一致（最大） |  0.50  | 0.50  |   0.10     |      25.00        | 最大加速(1.5倍成長)      |
-| +側  | 理想的調和   |  0.45  | 0.55  |   0.20     |       6.25        | 加速(1.5倍成長)          |
-| +側  | 安定・改善   |  0.20  | 0.80  |   0.70     |       0.51        | 維持(様子見)              |
-| -側  | 軽い不一致   | -0.20  | -0.80 |   0.70     |       0.51        | 維持(様子見)              |
-| -側  | 強い違和感   | -0.45  | -0.55 |   0.20     |       6.25        | 減速(0.8倍)              |
-| -側  | 逆転一致     | -0.50  | -0.50 |   0.10     |      25.00        | 最大減速(0.8倍)          |
+| +side  | Match (Maximum) |  0.50  | 0.50  |   0.10     |      25.00        | Maximum Acceleration (1.5x)     |
+| +side  | Ideal Harmony |  0.45  | 0.55  |   0.20     |       6.25        | Acceleration (1.5x)         |
+| +side  | Improvement |  0.20  | 0.80  |   0.70     |       0.51        | Maintain (Wait and See)              |
+| -side  | ++ Discrepancy | -0.20  | -0.80 |   0.70     |       0.51        | Maintain (Wait and See)              |
+| -side  | +++ Discomfort | -0.45  | -0.55 |   0.20     |       6.25        | Deceleration (0.8x)         |
+| -side  | Reverse Match | -0.50  | -0.50 |   0.10     |      25.00        | Maximum Deceleration (0.8x)     |
 
-分母(noise_base)：abs(scalar - trust) が 0 に近づくほど(つまり感情スカラーと信頼度が一致するほど)、分母が最小値 0.1 に近づき2乗の結果は跳ね上がります。  
-+側：dNR_now_val が高く、trust も高ければ、履歴(dNR_hist)を 最大1.50倍 ずつ成長させます。  
--側：たとえ dNR_now_val が 25.00 と計算されても、trust が低い(-0.5〜0.5の範囲)ため、履歴は 0.80倍 で削られブレーキがかかります。  
-エントロピーの抑制：この表の数値(dNR_now_val)そのまま学習率にせず、これを dNR_hist(履歴)に入れ、最終的に emoScope × 1e-4･1e-5 として極めて小さな安全な学習率(1e-8 〜 3e-3)へと変換されます。  
+denominator(noise_base): As abs(scalar - trust) approaches 0 (i.e., as the emotion scalar and the confidence level align), the denominator approaches its minimum value of 0.1, causing the squared result to spike.  
++side: If dNR_now_val is high and trust is also high, the history (dNR_hist) is increased by up to 1.50 times.  
+-Side: Even if dNR_now_val is calculated to be 25.00, because the trust value is low (within the range of -0.5 to 0.5), the history is reduced by a factor of 0.80, causing the system to apply the brakes.  
+Entropy Suppression: The values in this table (dNR_now_val) are not used directly as the learning rate; instead, they are incorporated into dNR_hist (history) and ultimately converted to an extremely small, safe learning rate (1e-8 to 3e-3) using the formula emoScope × 1e-4·1e-5.    
 
 </details>
 
@@ -328,18 +215,7 @@ emoPulse：(d_base/noise_base)^2 算出表
 
 <details>
 
-<summary>EmoSens v3.8 以降 オプション指定方法<br>
-EmoSens v3.8 and later Option Settings Guide</summary>  
-
-|||オプション指定方法|||  
-●FFT-mode (オンにする)：  
-fftmode=True  
-●shadow (オフにする)：  
-use_shadow=False  
-●収束通知 (オフにする)：  
-notify:bool=False  
-●eps(0除算防止)：  
-eps=1e-8  
+<summary>EmoSens v3.8 and later Option Settings Guide</summary>  
 
 |||Usage examples|||  
 ●FFT-mode on：  
@@ -360,11 +236,6 @@ eps=1e-8
  
 <summary> emotional moment </summary>  
 
-"emo系 第二世代 v1.x"にて解明した shadow-system の根幹から抽出しました  
-動的学習率による非線形アプローチは時間的な高次momentを形成します  
-単stepでは高次momentにはなれませんが、複数stepを経ると機能します  
-３次４次５次momentについて厳密な数学的な高負荷計算を回避しつつ  
-勾配分布の歪みや鋭さや非対称性変化を捉える核心的な効果を近似しています  
 I invented the emotional moment.  
 I extracted it from the core of the shadow-system, which was elucidated in the "emo-style second generation v1.x."  
 The nonlinear approach with a dynamic learning rate forms a temporal higher-order moment.  
@@ -373,20 +244,12 @@ It approximates the core effect of capturing changes in gradient distribution's 
 
 ---
 
-### あなたの望む最適化 EmoSens が叶えます  
 #### The optimization you seek — EmoSens makes it possible  
----
-###### これは、単なる最適化アルゴリズムではありません──  
-###### **感情で学習をナビゲートする｢感情型オプティマイザ｣** です  
-###### 変革と感情学習の成果は"ニューロンスパイクの再発明"でした  
 ---
 ###### This is not just another optimizer —  
 ###### **It’s an “Emotional Optimizer” that navigates learning through feeling.**  
 ###### A result of transformative emotional learning: the reinvention of the neural spike.  
-
----
-#### 自動収束･自己制御･自律型 オプティマイザです  
-##### EmoSens を中心に、EmoAiry、EmoCats、もあります   
+--- 
 #### Auto-convergence, self-control, autonomous optimizer  
 ###### It primarily features EmoSens, along with EmoAiry and EmoCats.  
 
@@ -396,68 +259,52 @@ It approximates the core effect of capturing changes in gradient distribution's 
 
 <details>
 
-<summary> 更新履歴 / History </summary>  
+<summary> History </summary>  
 
-|★| EmoTion世代 v3.8 (260204) W-Ref-Geometry and MomentFree 順次公開  
 |★| EmoTion Generation v3.8 (260204) Release of W-Ref-Geometry and MomentFree, etc.  
 
-|★| EmoSens世代 v3.8 (260130) emoPulse 機構等の調整  
 |★| EmoSens Generation v3.8 (260130) Adjustments to emoPulse Mechanism, etc.   
 
-|★| EmoSens、Airy、Cats、v3.7 (260101) Navi v3.6 を継承し完全自動高値学習率を実現しました(追加テンソルなし)、emoPulse 機構により劇的な進化を遂げました  
 |★| EmoSens, Airy, Cats, v3.7 (260101) Building upon Navi v3.6, we have achieved fully automatic high-value learning rate optimization (without additional tensors), and through the emoPulse mechanism, we have achieved dramatic evolution.  
 
-|★| EmoNavi、Fact、Lynx、v3.6 (251220) v3.1 を継承し高値自動学習率を実現しました(追加テンソルなし)、emoDrive 機構により劇的な進化を遂げました、開発終了とします  
 |★| EmoNavi, Fact, Lynx, v3.6 (251220) Inherits v3.1 and achieves high-value automatic learning rate (no additional tensors), has undergone dramatic evolution through the emoDrive mechanism, development is now complete.  
 
-|★| EmoNavi、Fact、Lynx、v3.3 (251204) v3.1 を継承し完全自動学習率を実現しました(追加テンソルなし)、感情機構の調整等でさらに安定するよう進化しました  
 |★| EmoNavi, Fact, Lynx, v3.3 (251204) Inherits v3.1 and achieves fully automatic learning rate adjustment (without additional tensors), further evolving for greater stability through adjustments to the sentiment mechanism and other enhancements.  
 
-|★| EmoNavi、Fact、Lynx、v3.1 (251201) v3.0 を継承しつつ効率化を進めました。感情機構のスケール調整等で広範なモデルで安定するよう進化しました  
 |★| EmoNavi, Fact, Lynx, v3.1 (251201) We built upon v3.0 while enhancing efficiency. Through adjustments like scaling the emotion mechanism, we evolved the model for broader stability across diverse models.  
 
-|★| EmoNavi、Fact、Lynx、Clan、Zeal、Neco、v3.0 (250825) emosens(第２世代)で解明した"高次moment"(近似)のフィードバックを適用(更新) 全て "shadow=False" です  
 |★| EmoNavi, Fact, Lynx, Clan, Zeal, Neco, updated to v3.0 (250825), Incorporates (updates) feedback on “higher moments” (approximations) clarified by emosens (2nd generation). All are “shadow=False”  
 
-これ以前は v2.0 レポジトリの更新履歴をご覧ください  
 For updates prior to this, please refer to the v2.0 repository update history.  
 
 </details>
 
 ---  
 
-## グラフで見る emo系 の進行状況 Progress of emo-type as shown in the graph (v3.7 and later)  
+## Progress of emo-type as shown in the graph (v3.7 and later)  
 <img width="2218" height="1153" alt="emov376-003-tile" src="https://github.com/user-attachments/assets/a1c5891b-a842-4ed1-a147-d4658e1ca16b" />  
-このように 動的学習率 として機能します ／ 下降しつづけるのは"元モデルの修正"の差分も学習しているかも？ <br> 
-※ 収束通知判定によるLR減衰をしない場合は停滞せず下降しつづけます <br> 
+In this way, it functions as a dynamic learning rate. / Could the fact that it continues to decline mean that it is also learning the differences in the “modifications to the original model”? <br> 
 ※ If LR decay based on convergence detection is not applied, the curve will continue to decline without plateauing. <br> 
 
 It functions as a dynamic learning rate. ／ Could the continuous decline be due to also learning the differences in “original model corrections”? <br> 
-データセット状況(左)：全て実写画像10枚, 10batch, 300epoch(3000step), 全層LoRA, Rank16/Alpha16, e-pred, ZtSNR, <br>   
 Dataset Status LEFT: Primarily 10 Photo images, 10 batch, 300 epochs (3000 steps), full-layer LoRA, Rank16/Alpha16, e-pred, ZtSNR,  <br>  
-データセット状況(右)：主に白黒画像11枚, 1batch, 300epoch(3300step), 全層LoRA, Rank16/Alpha16, e-pred, ZtSNR, <br>   
 Dataset Status RIGHT: Primarily 11 black-and-white images, 1 batch, 300 epochs (3300 steps), full-layer LoRA, Rank16/Alpha16, e-pred, ZtSNR,  <br>  
 es = EmoSens(Red/Green)、ea = EmoAiry(Blue/Gray)、ec = EmoCats(Yellow/Orange) <br> 
  <br> 
 <img width="1166" height="644" alt="スクリーンショット 2026-03-01 094343" src="https://github.com/user-attachments/assets/c667e792-e668-40b1-a07f-6cf2ceb6a686" />  
-こちらは Anima-Preview にて 画像20枚、512px、LR:1.0、での FFT(Full-Fine-Tuning) の学習状態です <br> 
-紫色：EmoSens、水色：EmoAiry、赤色：EmoCat、灰色：EmoTion、黄色：EmoVoid <br> 
-EmoTion は、LR：1.0 を少し下げると良いだろうと思います 橙色：EmoTion/LR:0.5 <br>
-経過時間にも注目してください <br>  
-※ 収束通知判定によるLR減衰をしない場合は停滞せず下降しつづけます <br> 
+This shows the training status of the FFT (Full-Fine-Tuning) model on Anima-Preview, using 20 images at 512px with an LR of 1.0. <br> 
+Purple: EmoSens, Light Blue: EmoAiry, Red: EmoCat, Gray: EmoTion, Yellow: EmoVoid <br> 
+I think it would be best to lower the LR value for EmoTion slightly. Orange:EmoTion/LR:0.5 <br>
+Please also note the elapsed time <br>  
 ※ If LR decay based on convergence detection is not applied, the curve will continue to decline without plateauing. <br> 
 
 ---
 
-emo系 は 生物的反応で進化し続けます  
-感覚神経系(multi-EMA)、内分泌系(tanh(scalar))、免疫系(shadow-system)、循環器系(emoPulse)、平衡感覚器系(W-Ref-Geo)、これらの統合により中枢神経系と自律神経系を形成し、高度な判断と決定を行うという自然的に自律した機構として存在します  
+The emo series continues to evolve through biological reactions.  
+The sensory nervous system (multi-EMA), endocrine system (tanh(scalar)), immune system (shadow-system), circulatory system (emoPulse), and vestibular system (W-Ref-Geo) integrate to form the central nervous system and the autonomic nervous system, functioning as a naturally self-regulating mechanism capable of advanced judgment and decision-making.  
 
 ---  
 
-emoシリーズは、Adam、Adafactor、Lion、Tiger、等から多くを学びました  
-これらの後継ではなく独自の思想や設計による"感情機構"というアプローチにより構築されています  
-汎用性・自律性・適応性を重視し新たな最適化や効率化や簡易化を追求しています  
-この開発において先人たちの知見に深く感謝しつつ今後も新しい可能性を探究します  
 The emo series has learned much from Adam, Adafactor, Lion, and Tiger.  
 Rather than being their successors, it is built upon a unique philosophy and design approach centered on "emotional mechanisms".  
 It prioritizes generality, autonomy, and adaptability in pursuit of new paths for optimization, efficiency, and simplicity.  
@@ -465,16 +312,14 @@ In its development, we deeply appreciate the insights of those who came before u
 
 ---
 
-### ライセンス Apache License 2.0 — 詳細は LICENSE をご覧ください  
 ### License Apache License 2.0 — see LICENSE for details.  
 
 ---
 
-### 引用について / About citations  
+### About citations  
 
 ---
 
-このオプテイマイザについて引用をなさる場合は、以下をご紹介ください  
 When citing this optimizer, please refer to the following sources:  
 
 Official Code:  
@@ -482,15 +327,11 @@ https://github.com/muooon/EmoSens
 
 paper:  
 https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(ENG).txt  
-DOI取得版/DOI-Acquired Version  
+DOI-Acquired Version:  
 https://huggingface.co/muooon/EmoTion-Optimizer  
 
 ---
 
 emo-based is an “emotion-driven” approach not found in existing optimizers. By building each sensor around an “emotion mechanism” that differentiates multi-EMA and scalarizes it via nonlinear transformation (tanh), we enhanced overall learning stability and ensured accuracy. This performs an autonomous cycle of “observation, judgment, decision, action, memory, and reflection,” akin to a biological central nervous system. (Please take a look at the paper.)  
-
----
-
-emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
 
 
