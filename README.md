@@ -44,10 +44,10 @@ Expected value convergence for non-convex functions
 
 <summary> resonant contraction method </summary>
 
-Fundamental Theorem of the Resonance Contraction Method (Overview)  
+Fundamental Theorem of the Resonant Contraction Method (Overview)  
 
-1. Definition of the State: Resonance of the Three Elements  
-    The update of parameter w is determined by the synergistic effects (resonance) of the following three independent dimensions.  
+1. Definition of the State: Resonante of the Three Elements  
+    The update of parameter w is determined by the synergistic effects (resonant) of the following three independent dimensions.  
     Time axis (ηt: emoPulse): Step size autonomously generated from the system's internal “reliability” (SNR).  
     Spatial axis (Rt: W-Ref Geometry): Novelty gain calculated based on the “orthogonality” of the current weights and gradients.  
     Directional axis (ut: Pure Will): Will consisting solely of a “sign” purified over time, with the magnitude of the gradient discarded.  
