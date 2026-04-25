@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software or architecture design, please cite it as below."
+authors:
+  - family-names: "muooon"
+title: "emo series Optimizers:An emotion-driven optimizer that feels loss and navigates accordingly"
+version: 3.8.6+
+date-released: 2026-04-10
+doi: "10.57967/hf/7738"
+url: "https://huggingface.co/muooon/EmoTion-Optimizer"
+repository-code: "https://github.com/muooon/EmoSens"
+keywords:
+  - optimizer
+  - adaptive-algorithms
+  - neural-architecture
+  - deep-learning
+  - resonant-contraction
+  - resonant-projection-field 
+license: Apache-2.0
+abstract: >-
+ "Emotion accelerates convergence."
+ The EmoSens series utilizes the emoPulse mechanism to generate the optimal learning rate in real-time by analyzing fluctuations in loss values.
+ Through the "Resonant Contraction Method" (Resonant Projection Field), this algorithm shrinks the parameter search space into an optimized projection field at the exact moment the gradient waveform resonates with the curvature of the optimal solution. 
+ This approach ensures that the global minimum is never missed, enabling a successful training completion with unprecedented precision.
