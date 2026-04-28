@@ -33,7 +33,7 @@ You can utilize each optimizer by simply specifying one of the above.
 
 ---
     Early Stop indicator ensures no one misses the “learning stop” timing
-    The above code displays “✨[READY TO STOP]✨” during learning
+    The following code displays “✨[READY TO STOP]✨” during learning
     This measures the reliability of the loss signal when the emotion scalar reaches its minimum value and the dNR base also hits its minimum
     Once displayed, it signals that all learnable information has been absorbed—you can stop learning anytime
     Don't rush to stop immediately; instead, try using the saved data from just before and after the light came on (the data closest to the moment the light came on) as your top priority.
