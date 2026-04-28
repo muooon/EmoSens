@@ -223,7 +223,9 @@ fftmode=True
 ●Shadow off:  
 use_shadow=False  
 ●notify off:  
-notify:bool=False  
+notify=False  
+●stopcoef (default：0.3):  
+stopcoef=0.3  
 ●eps(Division by zero prevention)：  
 eps=1e-8  
 

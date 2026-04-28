@@ -1,0 +1,79 @@
+Kohya-sd-script での使用法   v260430
+
+これら emoシリーズ を Kohya-sd-script で簡単につかうには、
+このフォルダをこのまま Kohya-sd-script の "sd-script" フォルダに配置してください
+
+sd-script/optimizer
+
+この配置にした場合
+
+    --optimizer_type=optimizer.emosens.EmoSens
+    --optimizer_type=optimizer.emoairy.EmoAiry
+    --optimizer_type=optimizer.emocats.EmoCats
+    --optimizer_type=optimizer.emotion.EmoTion
+    --optimizer_type=optimizer.emovoid.EmoVoid
+
+このように指定するだけで各Optimizerを利用できます(いずれかひとつを指定してください)
+
+|||オプション指定方法|||
+    ●FFT-mode (オンにする)：  
+    fftmode=True  
+    ●shadow (オフにする)：  
+    use_shadow=False  
+    ●収束通知 (オフにする)：  
+    notify=False  
+    ●収束目標値 (デフォルト：0.3):  
+    stopcoef=0.3  
+    ●eps(0除算防止)：  
+    eps=1e-8 
+
+|||オプション参考例|||
+    shadow-system:(オンにする) (option)
+    --optimizer_args "use_shadow=True"
+
+---
+
+    アーリーストップ点灯で誰でも"学習停止"のタイミングを逃しません
+    以下のコードにより "✨[READY TO STOP]✨" が学習中に表示されます
+    これは感情scalarが極小値になり、かつdNRベースも極小値というLoss信号の信頼度を計測しています
+    これが表示された後は学習できるものを吸収し終えたという合図です、いつでも学習停止可能の合図です
+    焦ってすぐに止めずに、点灯の直前直後の保存(点灯に最接近したもの)を優先候補として試してください
+
+        if abs(scalar) <= self.stop_scalar and abs(Noise_base - d_base) <= self.stop_dNRsub:
+            if not self.should_stop:
+                self.emoScope *= 0.1      # ユーザー意思を目的の収束へ整える
+            self.should_stop = True       # 💡 外部からこれを見て判断可
+            if self.notify:               # 💡 収束・安定の「お知らせ」
+                print(f"✨[READY TO STOP]✨")
+        else:
+            self.emoScope = self._init_lr # 誤判定はユーザー意思を再反映する
+            self.should_stop = False      # 💡 誤判定などの取り消し
+
+
+    この収束通知は通常ONですが不要な場合はOFFにもできます／引数を"False"にすれば通知を無くせます
+        notify=True     →   notify=False
+
+---
+
+Kohya-sd-script の柔軟な構成により、これらをすぐ試せます
+Kohya-sd-script の開発者と協力者の皆さまに深く感謝します
+
+    Kohya-sd-script: https://github.com/kohya-ss/sd-scripts
+
+emoシリーズは、Adam、Adafactor、Lion、Tiger、等から多くを学びました。  
+これらの後継ではなく独自の思想や設計による"感情機構"というアプローチにより構築されています。  
+汎用性・自律性・適応性を重視し新たな最適化や効率化や簡易化を追求しています。  
+この開発において先人たちの知見に深く感謝しつつ今後も新しい可能性を探究します。 
+
+
+引用について
+
+このオプテイマイザについて引用をなさる場合は、以下をご紹介ください
+
+Official Code:
+https://github.com/muooon/EmoSens
+
+paper:
+https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(JPN).txt
+DOI取得版/DOI-Acquired Version
+https://huggingface.co/muooon/EmoTion-Optimizer

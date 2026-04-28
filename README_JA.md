@@ -226,7 +226,9 @@ fftmode=True
 ●shadow (オフにする)：  
 use_shadow=False  
 ●収束通知 (オフにする)：  
-notify:bool=False  
+notify=False  
+●収束目標値 (デフォルト：0.3):  
+stopcoef=0.3  
 ●eps(0除算防止)：  
 eps=1e-8  
 
