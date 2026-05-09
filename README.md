@@ -1,6 +1,25 @@
 ## emo series Optimizers  
 
-⭐ If you like this project, please give it a star ⭐  
+
+## ！ Apology to All (Important Notice) ！  
+
+First of all, I would like to offer my sincere apologies to everyone who has viewed this repository.  
+Regarding the "experimental results" and "theoretical claims" related to the emo‑series optimizers published in this repository,  
+my own subsequent verification has revealed that they are highly likely not to hold.  
+In particular, it was found that the claims regarding emoPulse were based on a design that assumes the use of a closure,  
+yet the implementation did not apply a closure.  
+As a result, I have confirmed that the consistency between the theory and the implementation has collapsed.  
+The descriptions written at that time were based on my understanding at that moment,  
+and from the current perspective they should be regarded as "unverified / draft content containing errors."  
+To everyone who trusted those descriptions,  
+I deeply apologize for having caused misunderstandings.  
+
+
+## The following content is entirely "hypothesis", "unverified", and "draft"  
+※ The theoretical interpretation may have been incorrect  
+※ It cannot be considered reliable evidence  
+
+---  
 
 - ###### This is a new generation of optimizers that use the Resonant Contraction Method (Resonant Projection Field) / It is not a Gradient Descent Method  
 - ###### EmoSens / 2ndGen (v3.8 / Standard)  
