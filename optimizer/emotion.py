@@ -3,7 +3,7 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoTion v3.8.6+ (260410) Moment-Free Edition 全統合版(CPU-GPUデータ転送対応含む)
+EmoTion v3.9.0 (260510) Moment-Free Edition ECC版(CPU-GPUデータ転送対応含む)
 shadow-system v3.1 -moment v3.1 emoPulse v3.8 FFT-Swap-Aware dNR-converge
 これまでの emo系 のすべてを継承し、独自更新式の特徴を受け継ぐ完全オリジナル最適化器
 Early Stop 判定通知の動的最適化、dNRをSNR比として活用し分解能と定義することで収束点を明確化
@@ -13,14 +13,29 @@ The “geometric relationship” between "W"eight and "G"radient Method
 ### FFT適応 cuDNN 等で厳格なデータ配置を求める仕様により中間テンソル(コピー)生じる ###
 """
 
-class EmoTion(Optimizer):
-    # クラス定義＆初期化
+# ECC - emo closure capture
+if not hasattr(torch.optim.Optimizer, "_manual_loss"):
+    torch.optim.Optimizer._manual_loss = 0.0
+
+    # backward-cap (一度だけ実行されるようにする)
+    _old_backward = torch.Tensor.backward
+    def _new_backward(self, *args, **kwargs):
+        if self.ndim == 0:
+            try:
+                torch.optim.Optimizer._manual_loss = self.item()
+            except:
+                pass
+        return _old_backward(self, *args, **kwargs)
+    torch.Tensor.backward = _new_backward
+    print("🚩 emo-optim success ecc system ...")
+
+class EmoTion(Optimizer):    # クラス定義＆初期化
     def __init__(self, params,
                  lr=1.0,
                  eps=1e-8,
                  betas=(0.9, 0.995),
                  weight_decay=0.01,
-                 stopcoef=0.3,
+                 stopcoef=0.6,
                  use_shadow:bool=False,
                  fftmode:bool=False,
                  notify:bool=True):
@@ -41,32 +56,23 @@ class EmoTion(Optimizer):
         # use_shadow 緊急時モデル保護：通常 False (将来の特殊アーキテクチャへの保護機能)
         # fftmode 学習モード切替え：通常 False (学習スケールをFFTとそれ以外で適正化)
         # notify 収束通知の切替え：通常 True (通知不要な場合は False にできる)
-        # stopcoef 収束目標値係数：ヒューリスティック (ユーザーの好みで仕上げる)
+        # stopcoef 収束目標値係数：通常 0.6[SD系] (ユーザーの好みで仕上げる)
 
         if self.fftmode:
             self.base_scale, self.max_lim, self.min_lim = 1e-5, 3e-4, 1e-8
-            self.stop_scale = self.min_lim * self.stopcoef
-            self.stop_scalar = self.stop_scale
-            self.stop_dNRsub = self.stop_scale
         else:
             self.base_scale, self.max_lim, self.min_lim = 1e-4, 3e-3, 1e-7
-            self.stop_scale = self.min_lim * self.stopcoef
-            self.stop_scalar = self.stop_scale
-            self.stop_dNRsub = self.stop_scale
 
+    # 学習の引き継ぎ可能(状態保存対応)／収束を深めたい場合に役立つ
     def state_dict(self):
         state_dict = super().state_dict()
         state_dict['emo_internal'] = {
             'prev_gl1': getattr(self, "prev_gl1", None),
             'g_freshness': getattr(self, 'g_freshness', 1.0),
             'emoScope': self.emoScope,
+            'dNR_hist': self.dNR_hist,
             'noise_est': self.noise_est,
             'd_est': self.d_est,
-            'dNR_hist': self.dNR_hist,
-            'should_stop': self.should_stop,
-            'stop_scalar': self.stop_scalar,
-            'stop_dNRsub': self.stop_dNRsub,
-            'stopcoef': self.stopcoef,
         }
         return state_dict
 
@@ -76,16 +82,10 @@ class EmoTion(Optimizer):
             self.prev_gl1 = emo_internal.get('prev_gl1', None)
             self.g_freshness = emo_internal.get('g_freshness', 1.0)
             self.emoScope = emo_internal.get('emoScope', self._init_lr)
+            self.dNR_hist = emo_internal.get('dNR_hist', 1.0)
             self.noise_est = emo_internal.get('noise_est', 1.0)
             self.d_est = emo_internal.get('d_est', 0.02)
-            self.dNR_hist = emo_internal.get('dNR_hist', 1.0)
-            self.should_stop = emo_internal.get('should_stop', False)
-            self.stop_scalar = emo_internal.get('stop_scalar', self.stop_scale)
-            self.stop_dNRsub = emo_internal.get('stop_dNRsub', self.stop_scale)
-            self.stopcoef =  emo_internal.get('stopcoef', self.stopcoef)
         super().load_state_dict(state_dict)
-
-        # 学習の引き継ぎ可能(状態保存対応)／収束を深めたい場合に役立つ
 
     # 感情EMA更新(緊張と安静)／３次４次５次モーメント近似相当(感覚神経系)
     def _update_ema(self, state, loss_val):
@@ -129,10 +129,12 @@ class EmoTion(Optimizer):
             return 0.0  # return<0 の場合は leap 専用(書き戻しはしないが履歴更新のみ)
 
     # 損失取得(損失値 loss_val を数値化、感情判定に使用、存在しないパラメータ(更新不要)はスキップ)
+    # loss.backward() と optimizer.step() の間に 
+    # optimizer._manual_loss = loss.item() を記述する
     @torch.no_grad()
     def step(self, closure=None):
         loss = torch.enable_grad()(closure)() if closure is not None else None
-        loss_val = loss.item() if loss is not None else 0.0
+        loss_val = loss.item() if loss is not None else getattr(self, '_manual_loss', 0.0)
 
         # EMA更新・スカラー生成(EMA差分からスカラーを生成しスパイク比率等を決定)
         ema = self._update_ema(self.state, loss_val)
@@ -256,15 +258,14 @@ class EmoTion(Optimizer):
         # 感情機構の穏やかさ"安定状態"を外部伝達する(自動停止ではない)
         # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
-        if abs(scalar) <= self.stop_scalar and abs(Noise_base - d_base) <= self.stop_dNRsub:
-            if not self.should_stop:
-                self.emoScope *= 0.1      # ユーザー意思を目的の収束へ整える
+        if self.d_est >= self.stopcoef and abs(trust - self.d_est) <= 1.5e-2:
             self.should_stop = True       # 💡 外部からこれを見て判断可
             if self.notify:               # 💡 収束・安定の「お知らせ」
                 print(f"✨[READY TO STOP]✨")
         else:
-            self.emoScope = self._init_lr # 誤判定はユーザー意思を再反映する
             self.should_stop = False      # 💡 誤判定などの取り消し
+
+        #print(f"Loss: {loss_val:.5f} | Pulse: {emoPulse:.8f}")
 
         return
 

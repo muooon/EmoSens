@@ -1,7 +1,12 @@
 ## emo series Optimizers  
 
+ Closure support is now complete.  
+ It works correctly with the correct loss function.  
+- ###### EmoSens / 2ndGen (v3.9 / Standard-ECC)  
+- ###### EmoTion / 3rdGen (v3.9 / Moment-Free-ECC)  
+- ###### emo closure capture (ECC-System)  
 
-## ！ Apology to All (Important Notice) ！  
+##### ！ Apology to All (Important Notice) ！  
 
 First of all, I would like to offer my sincere apologies to everyone who has viewed this repository.  
 Regarding the "experimental results" and "theoretical claims" related to the emo‑series optimizers published in this repository,  
@@ -15,7 +20,7 @@ To everyone who trusted those descriptions,
 I deeply apologize for having caused misunderstandings.  
 
 
-## The following content is entirely "hypothesis", "unverified", and "draft"  
+##### The following content is entirely "hypothesis", "unverified", and "draft"  
 ※ The theoretical interpretation may have been incorrect  
 ※ It cannot be considered reliable evidence  
 

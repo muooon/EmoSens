@@ -1,4 +1,4 @@
-Usage with Kohya-sd-script   v260430
+Usage with Kohya-sd-script   v260510
 
 To easily use these Emo series with Kohya-sd-script,
 simply place this folder as-is into the "sd-scripts" folder within your Kohya-sd-script installation:
@@ -32,20 +32,17 @@ You can utilize each optimizer by simply specifying one of the above.
     --optimizer_args "use_shadow=True"
 
 ---
-    Early Stop indicator ensures no one misses the “learning stop” timing
-    The following code displays “✨[READY TO STOP]✨” during learning
-    This measures the reliability of the loss signal when the emotion scalar reaches its minimum value and the dNR base also hits its minimum
-    Once displayed, it signals that all learnable information has been absorbed—you can stop learning anytime
-    Don't rush to stop immediately; instead, try using the saved data from just before and after the light came on (the data closest to the moment the light came on) as your top priority.
+    With the Early Stop indicator, no one will ever miss the perfect timing to stop training.
+    The following code will display "✨[READY TO STOP]✨" during training (by measuring the reliability of the Loss).
+    Once this signal appears frequently, it is a sign that the model has absorbed most of what it can learn (signaling that you can stop training).
+    Do not rush to stop immediately; instead, prioritize testing the checkpoints saved just before and after the indicator lights up (the ones closest to the notification).
+    (It is fairly accurate for SD models; for DiT models, due to the fluctuations in Flow-Matching, please treat the checkpoints around a dense cluster of notifications as your top candidates.)
 
-        if abs(scalar) <= self.stop_scalar and abs(Noise_base - d_base) <= self.stop_dNRsub:
-            if not self.should_stop:
-                self.emoScope *= 0.1      # ユーザー意思を目的の収束へ整える
+        if self.d_est >= self.stopcoef and abs(trust - self.d_est) <= 1.5e-2:
             self.should_stop = True       # 💡 外部からこれを見て判断可
             if self.notify:               # 💡 収束・安定の「お知らせ」
                 print(f"✨[READY TO STOP]✨")
         else:
-            self.emoScope = self._init_lr # 誤判定はユーザー意思を再反映する
             self.should_stop = False      # 💡 誤判定などの取り消し
 
     This notification is normally enabled, but you can disable it if you don't need it. 
