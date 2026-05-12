@@ -36,7 +36,7 @@ You can utilize each optimizer by simply specifying one of the above.
     The following code will display "✨[READY TO STOP]✨" during training (by measuring the reliability of the Loss).
     Once this signal appears frequently, it is a sign that the model has absorbed most of what it can learn (signaling that you can stop training).
     Do not rush to stop immediately; instead, prioritize testing the checkpoints saved just before and after the indicator lights up (the ones closest to the notification).
-    (It is fairly accurate for SD models; for DiT models, due to the fluctuations in Flow-Matching, please treat the checkpoints around a dense cluster of notifications as your top candidates.)
+    (DiT models, due to the fluctuations in Flow-Matching, please treat the checkpoints around a dense cluster of notifications as your top candidates.)
 
         if self.stop_base >= 0.3 and scale_base_m <= self.stopcoef:
             self.should_stop = True       # 💡 外部からこれを見て判断可
@@ -49,6 +49,12 @@ You can utilize each optimizer by simply specifying one of the above.
     You can turn off the notification by setting the argument to “False”.
 
         notify=True     →   notify=False
+
+    The default value for this coefficient is 0.02, but you can adjust the loss value that indicates convergence (notification) to suit your preferences.
+        self.stopcoef
+    You can adjust the convergence point to suit your needs, such as creating character LoRAs, creating art style LoRAs, or performing lighter training.
+    This feature allows the optimizer to suggest an appropriate step based on the assessment that the loss has stabilized to a certain extent and there is a significant difference between the doubt and confidence levels.
+    Please try using the periods before and after the spike in notifications as potential timeframes.
 
 ---
 
