@@ -22,8 +22,8 @@ sd-script/optimizer
     use_shadow=False  
     ●収束通知 (オフにする)：  
     notify=False  
-    ●収束目標値 (デフォルト：0.3):  
-    stopcoef=0.3  
+    ●収束目標値 (デフォルト：0.02):  
+    stopcoef=0.02  
     ●eps(0除算防止)：  
     eps=1e-8 
 
@@ -39,7 +39,7 @@ sd-script/optimizer
     焦ってすぐに止めずに、点灯の直前直後の保存(点灯に最接近したもの)を優先候補として試してください
     (SD系はまぁまぁ正確です、DiT系ではFM系の揺れのため密集した通知の前後を最優先候補にしてください)
 
-        if self.d_est >= self.stopcoef and abs(trust - self.d_est) <= 1.5e-2:
+        if self.stop_base >= 0.3 and scale_base_m <= self.stopcoef:
             self.should_stop = True       # 💡 外部からこれを見て判断可
             if self.notify:               # 💡 収束・安定の「お知らせ」
                 print(f"✨[READY TO STOP]✨")

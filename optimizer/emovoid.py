@@ -35,7 +35,7 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
                  eps=1e-8,
                  betas=(0.9, 0.995),
                  weight_decay=0.01,
-                 stopcoef=0.6,
+                 stopcoef=0.02,
                  use_shadow:bool=False,
                  fftmode:bool=False,
                  notify:bool=True):
@@ -56,7 +56,7 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
         # use_shadow 緊急時モデル保護：通常 False (将来の特殊アーキテクチャへの保護機能)
         # fftmode 学習モード切替え：通常 False (学習スケールをFFTとそれ以外で適正化)
         # notify 収束通知の切替え：通常 True (通知不要な場合は False にできる)
-        # stopcoef 収束目標値係数：通常 0.6[SD系] (ユーザーの好みで仕上げる)
+        # stopcoef 収束目標Loss：通常 0.02[予兆] (ユーザーの好みで仕上げる)
 
         if self.fftmode:
             self.base_scale, self.max_lim, self.min_lim = 1e-5, 3e-4, 1e-8
@@ -73,6 +73,8 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
             'dNR_hist': self.dNR_hist,
             'noise_est': self.noise_est,
             'd_est': self.d_est,
+            'should_stop': self.should_stop,
+            'stopcoef': self.stopcoef,
         }
         return state_dict
 
@@ -85,6 +87,8 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
             self.dNR_hist = emo_internal.get('dNR_hist', 1.0)
             self.noise_est = emo_internal.get('noise_est', 1.0)
             self.d_est = emo_internal.get('d_est', 0.02)
+            self.should_stop = emo_internal.get('should_stop', False)
+            self.stopcoef =  emo_internal.get('stopcoef', self.stopcoef)
         super().load_state_dict(state_dict)
 
     # 感情EMA更新(緊張と安静)／３次４次５次モーメント近似相当(感覚神経系)
@@ -108,12 +112,14 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
         diff_m = diff_base / scale_base_m
         # longが十分静かなら、常にlongを優先
         if abs(diff_l) < 0.05:
-            return math.tanh(diff_l)
+            res_scalar = math.tanh(diff_l)
         # longが静かでない時のみ、mediumの静けさを条件付きで採用
-        if abs(diff_m) * scale_base_m < abs(diff_l) * scale_base_l:
-            return math.tanh(diff_m)
+        elif abs(diff_m) * scale_base_m < abs(diff_l) * scale_base_l:
+            res_scalar = math.tanh(diff_m)
         else:
-            return math.tanh(diff_l)
+            res_scalar = math.tanh(diff_l)
+        # scalar と scale_base_m をタプルで返す
+        return res_scalar, scale_base_m
 
     # (重要)現在は shadow-effect を参考に得た動的フィルタ効果の近似により use_shadow=False です
     # しかし全機能は shadow なしで全て成立します／通常のVRAM負荷は shadow を考慮外として無視してください
@@ -138,7 +144,7 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
 
         # EMA更新・スカラー生成(EMA差分からスカラーを生成しスパイク比率等を決定)
         ema = self._update_ema(self.state, loss_val)
-        scalar = self._compute_scalar(ema)
+        scalar, scale_base_m = self._compute_scalar(ema)
         ratio = self._decide_ratio(scalar)
         trust = math.copysign((1.0 - abs(scalar)), scalar)
 
@@ -184,7 +190,7 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
                 self.prev_gl1 = prev # デバイスを合わせて保持し直す
 
             # ウォームアップ期間中のみ、前回のノルムと比較して「一括修正」
-            if prev is not None and curr_step < 55:
+            if prev is not None and curr_step <= 55:
                 # 前回のエネルギーを維持するための比率(スライス的な全層一律係数)
                 gratio = (prev / (point_gl1 + 1e-8)).item()
                 # 全層の重みを一撃でスケーリング(中間テンソル作成なし、最速)
@@ -208,8 +214,8 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
                 # 混合比率：スカラーが閾値を超える場合にのみ計算される(信頼できる感情信号かどうかの選別)
                 # 急変時は感情機構による shadow 混合で強く抑制する(急制動による安定性の確保)
-                # 新 shadow-system は動的学習率と信頼度で協調し選択的スパース性も発揮する
                 # emoPulse機構はODE近似相当のためshadowは未知のアーキテクチャへの保険(免疫系)
+                # 機械学習optimizerとしては不要／物理solver的な用途でつかえるかもしれない
                 if self.use_shadow :
                     if 'shadow' not in state: # 🔸shadow = False (デフォルト)
                         state['shadow'] = p.clone()
@@ -241,14 +247,17 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
         # 感情機構の穏やかさ"安定状態"を外部伝達する(自動停止ではない)
         # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
         # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
-        if self.d_est >= self.stopcoef and abs(trust - self.d_est) <= 1.5e-2:
+        self.stop_base = self.d_est - self.noise_est
+        if self.stop_base >= 0.3 and scale_base_m <= self.stopcoef:
+            if not self.should_stop:                
+                self._step_count = 55     # 幾何学的調整の再始動
             self.should_stop = True       # 💡 外部からこれを見て判断可
             if self.notify:               # 💡 収束・安定の「お知らせ」
                 print(f"✨[READY TO STOP]✨")
         else:
             self.should_stop = False      # 💡 誤判定などの取り消し
 
-        #print(f"Loss: {loss_val:.4f} | Pulse: {emoPulse:.6f}")
+        #print(f"Loss: {loss_val:.4f} | Pulse: {emoPulse:.4e}")
         
         return
 

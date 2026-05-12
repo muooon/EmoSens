@@ -6,6 +6,13 @@
 - ###### EmoTion / 3rdGen (v3.9 / Moment-Free-ECC)  
 - ###### emo closure capture (ECC-System)  
 
+<img width="800" height="400" alt="Screenshot 2026-05-12 at 17-10-55 TensorBoard" src="https://github.com/user-attachments/assets/b478967a-ff15-4fb5-83f4-3588332a5784" />  
+
+yellow:Void, purple:Tion, skyblue:Cats, orange:Airy, gray:Sens,  
+SDXL:LoRA, Resolution:512, Rank:8, Alpha1, LR:1.0,  
+
+---
+
 ##### ！ Apology to All (Important Notice) ！  
 
 First of all, I would like to offer my sincere apologies to everyone who has viewed this repository.  

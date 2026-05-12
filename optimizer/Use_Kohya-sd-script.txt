@@ -22,8 +22,8 @@ You can utilize each optimizer by simply specifying one of the above.
     use_shadow=False
     ●notify off:
     notify=False
-    ●stopcoef (default：0.3):  
-    stopcoef=0.3 
+    ●stopcoef (default：0.02):  
+    stopcoef=0.02 
     ●eps(Division by zero prevention)：
     eps=1e-8
 
@@ -38,7 +38,7 @@ You can utilize each optimizer by simply specifying one of the above.
     Do not rush to stop immediately; instead, prioritize testing the checkpoints saved just before and after the indicator lights up (the ones closest to the notification).
     (It is fairly accurate for SD models; for DiT models, due to the fluctuations in Flow-Matching, please treat the checkpoints around a dense cluster of notifications as your top candidates.)
 
-        if self.d_est >= self.stopcoef and abs(trust - self.d_est) <= 1.5e-2:
+        if self.stop_base >= 0.3 and scale_base_m <= self.stopcoef:
             self.should_stop = True       # 💡 外部からこれを見て判断可
             if self.notify:               # 💡 収束・安定の「お知らせ」
                 print(f"✨[READY TO STOP]✨")
