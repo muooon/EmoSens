@@ -18,19 +18,20 @@ SDXL:LoRA, Resolution:512, Rank:8, Alpha1, LR:1.0,
 
 <summary> EmoSens Full-log </summary>
 
-Cosine scheduler LR with a fixed value of “1.0 × 10^-4” is used as the baseline.  
+Using the case of the Cosine scheduler with LR "1.0 × 10^-4" as the baseline  
 
-Analysis results of the learning rate (LR)  
+Analysis results of LR (learning rate)  
 Maximum LR: 7.5309 × 10^-4 (compared to the baseline 1e-4, it momentarily outputs about 7.5 times higher)  
-Average LR: 1.9590 × 10^-4 (throughout the entire period, it keeps learning at about twice the strength of the baseline)  
+Average LR: 2.0752 × 10^-4 (throughout the entire period, it continues learning at about twice the strength of the baseline)  
 
-When comparing the area (total learning amount) using “1.0 × 10^-4 Cosine” as the baseline, the results are as follows:  
-Total area of Pulse: 0.07836  
-Total area of Cosine (1e-4): 0.02000  
-Comparison ratio: 391.8%  
+When using "1.0 × 10^-4 Cosine" as the comparison baseline for area (total amount of learning), the results are as follows  
+Total area of emoPulse: 0.0830083  
+Total area of Cosine (1e-4): 0.0254647  
+Comparison ratio: 325.97%  
 
-The fact that the average LR is 1.95e-4 means that during the later phase, when it stagnated around “2.92e-4” (after READY TO STOP), it was outputting nearly three times the baseline.  
-Within a short span of 400 steps, it effectively completed the equivalent of about 1500–2000 steps of “maturation” under normal conditions.  
+During the latter half, the period where it stagnated around "2.92e-4" (after READY TO STOP) had nearly three times the output of the baseline  
+Within a short span of 400 steps, it effectively progressed through the equivalent of about 1200–1300 steps of "learning"  
+
 
 ```prompt
 
