@@ -49,10 +49,13 @@ steps:  2%| | 8/400 [00:29<24:26, 3.74s/it, Average key norm=0.0258, Keys Scaled
 steps:  2%| | 9/400 [00:31<22:46, 3.49s/it, Average key norm=0.0295, Keys Scaled=0, Loss: 0.1033 | Pulse: 1.0000e-04
 steps:  2%| | 10/400 [00:33<21:27, 3.30s/it, Average key norm=0.0329, Keys Scaled=0, Loss: 0.0952 | Pulse: 1.0000e-04
 
+```
+
 <details>
 
 <summary> Full-log </summary>
 
+```prompt
 steps:  3%| | 11/400 [00:34<20:19, 3.13s/it, Average key norm=0.0363, Keys Scaled=0, Loss: 0.0904 | Pulse: 1.0000e-04
 steps:  3%| | 12/400 [00:36<19:24, 3.00s/it, Average key norm=0.0399, Keys Scaled=0, Loss: 0.0918 | Pulse: 1.0000e-04
 steps:  3%| | 13/400 [00:37<18:37, 2.89s/it, Average key norm=0.0434, Keys Scaled=0, Loss: 0.0819 | Pulse: 1.0000e-04
@@ -545,8 +548,11 @@ steps: 97%|▉| 389/400 [10:01<00:17, 1.55s/it, Average key norm=0.317, Keys Sca
 , Loss: 0.0181 | Pulse: 2.9285e-04
 steps: 98%|▉| 390/400 [10:02<00:15, 1.55s/it, Average key norm=0.318, Keys Scaled=4✨[READY TO STOP]✨
 
+```
+
 </details>
 
+```prompt
 , Loss: 0.0167 | Pulse: 2.9285e-04
 steps: 98%|▉| 391/400 [10:04<00:13, 1.55s/it, Average key norm=0.318, Keys Scaled=4✨[READY TO STOP]✨
 , Loss: 0.0180 | Pulse: 2.9285e-04
