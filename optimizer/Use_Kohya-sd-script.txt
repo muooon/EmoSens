@@ -22,8 +22,8 @@ You can utilize each optimizer by simply specifying one of the above.
     use_shadow=False
     ●notify off:
     notify=False
-    ●stopcoef (default：0.02):  
-    stopcoef=0.02 
+    ●stopcoef (default：0.04):  
+    stopcoef=0.04 
     ●eps(Division by zero prevention)：
     eps=1e-8
 
@@ -50,8 +50,8 @@ You can utilize each optimizer by simply specifying one of the above.
 
         notify=True     →   notify=False
 
-    The default value for this coefficient is 0.02, but you can adjust the loss value that indicates convergence (notification) to suit your preferences.
-        self.stopcoef
+    The default value for this coefficient is 0.04, but you can adjust the loss value that indicates convergence (notification) to suit your preferences.
+        stopcoef
     You can adjust the convergence point to suit your needs, such as creating character LoRAs, creating art style LoRAs, or performing lighter training.
     This feature allows the optimizer to suggest an appropriate step based on the assessment that the loss has stabilized to a certain extent and there is a significant difference between the doubt and confidence levels.
     Please try using the periods before and after the spike in notifications as potential timeframes.

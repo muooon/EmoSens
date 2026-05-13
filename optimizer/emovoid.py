@@ -13,7 +13,7 @@ The “geometric relationship” between "W"eight and "G"radient Method
 ### FFT適応 cuDNN 等で厳格なデータ配置を求める仕様により中間テンソル(コピー)生じる ###
 """
 
-# ECC - emo closure capture
+# ECC - emo closure capture (Loss-Bypass)
 if not hasattr(torch.optim.Optimizer, "_manual_loss"):
     torch.optim.Optimizer._manual_loss = 0.0
 
@@ -35,7 +35,7 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
                  eps=1e-8,
                  betas=(0.9, 0.995),
                  weight_decay=0.01,
-                 stopcoef=0.02,
+                 stopcoef=0.04,
                  use_shadow:bool=False,
                  fftmode:bool=False,
                  notify:bool=True):
@@ -56,7 +56,7 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
         # use_shadow 緊急時モデル保護：通常 False (将来の特殊アーキテクチャへの保護機能)
         # fftmode 学習モード切替え：通常 False (学習スケールをFFTとそれ以外で適正化)
         # notify 収束通知の切替え：通常 True (通知不要な場合は False にできる)
-        # stopcoef 収束目標Loss：通常 0.02[予兆] (ユーザーの好みで仕上げる)
+        # stopcoef 収束目標Loss：通常 0.04[予兆] (ユーザーの好みで仕上げる)
 
         if self.fftmode:
             self.base_scale, self.max_lim, self.min_lim = 1e-5, 3e-4, 1e-8
@@ -100,10 +100,8 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
         return ema
 
     # 感情スカラー値生成(EMA差分、滑らかな非線形スカラー、tanh(diff) は ±1.0 で有界性)(内分泌系)
-    # 係数"1"：ema差分 のスケール調整処理に活用(感度調節係数)／通常は1(タスクに応じ調整可(非推奨))
     # scale_base：Loss値とema値の乖離を修正(分母 ema(long) ｢改善率｣共通化/loss種に非依存)
     # 1e-5(デフォルト)／1e-6(感度向上)／1e-4(安定性向上)：分母を０にせず安定させる
-    # トラウマ的反応や慣れによる鈍化で安定性向上(ema-medium 安定と急変を信頼度で感知)
     def _compute_scalar(self, ema):
         scale_base_l = max(ema['long'], 1e-5)
         scale_base_m = max(ema['medium'], 1e-5)
@@ -121,8 +119,7 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
         # scalar と scale_base_m をタプルで返す
         return res_scalar, scale_base_m
 
-    # (重要)現在は shadow-effect を参考に得た動的フィルタ効果の近似により use_shadow=False です
-    # しかし全機能は shadow なしで全て成立します／通常のVRAM負荷は shadow を考慮外として無視してください
+    # (重要)全機能は use_shadow=False で成立／通常VRAM負荷は shadow を考慮外(無視できる)
     # emoPulse機構によるLR推定はWt打ち消しODE近似相当のためshadowは未知のアーキテクチャへの保険(免疫系)
     # Shadow混合比 ３段階構成 タスクに応じ調整可、以下を参考に 開始値・範囲量･変化幅を調整
     # return 開始値 + ((scalar) - 閾値) / 範囲量 * 変化幅 も可能(特殊用途向け)
@@ -135,8 +132,8 @@ class EmoVoid(Optimizer):    # クラス定義＆初期化
             return 0.0  # return<0 の場合は leap 専用(書き戻しはしないが履歴更新のみ)
 
     # 損失取得(損失値 loss_val を数値化、感情判定に使用、存在しないパラメータ(更新不要)はスキップ)
-    # loss.backward() と optimizer.step() の間に 
-    # optimizer._manual_loss = loss.item() を記述する
+    # closure への対応は loss.backward() と optimizer.step() の間に 
+    # optimizer._manual_loss = loss.item() を記述する (通常は ECC に任せる)
     @torch.no_grad()
     def step(self, closure=None):
         loss = torch.enable_grad()(closure)() if closure is not None else None
