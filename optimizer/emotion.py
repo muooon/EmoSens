@@ -3,7 +3,7 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoTion v3.9.0 (260510) Moment-Free Edition ECC版(CPU-GPUデータ転送対応含む)
+EmoTion v3.9.0+ (260512) Moment-Free Edition ECC版(CPU-GPUデータ転送対応含む)
 shadow-system v3.1 -moment v3.1 emoPulse v3.8 FFT-Swap-Aware dNR-converge
 これまでの emo系 のすべてを継承し、独自更新式の特徴を受け継ぐ完全オリジナル最適化器
 Early Stop 判定通知の動的最適化、dNRをSNR比として活用し分解能と定義することで収束点を明確化
@@ -41,10 +41,10 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
                  notify:bool=True):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
-        self._init_lr = lr
+        self._init_lr = lr; self.beta3 = 1.0 - betas[0]
         self.notify = notify         # 収束･安定の通知切替
         self.should_stop = False     # 停止フラグの初期化
-        self.stopcoef = stopcoef     # 収束目標値の係数(ユーザー指定可)
+        self.stopcoef = stopcoef     # 収束目標値(ユーザー指定可)
         self.fftmode = fftmode       # FFT切替 フルファインチューンモード
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
         self.emoScope = lr           # 動的学習率の調和とリズム
@@ -59,9 +59,9 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
         # stopcoef 収束目標Loss：通常 0.04[予兆] (ユーザーの好みで仕上げる)
 
         if self.fftmode:
-            self.base_scale, self.max_lim, self.min_lim = 1e-5, 3e-4, 1e-8
+            self.base_scale, self.max_lim, self.min_lim = 1e-6, 3e-5, 1e-8
         else:
-            self.base_scale, self.max_lim, self.min_lim = 1e-4, 3e-3, 1e-7
+            self.base_scale, self.max_lim, self.min_lim = 1e-4, 3e-3, 1e-6
 
     # 学習の引き継ぎ可能(状態保存対応)／収束を深めたい場合に役立つ
     def state_dict(self):
@@ -190,7 +190,7 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
                 gratio = (abs(point_gl1 - prev) / (prev + 1e-8)).item()
                 # freshness: 全域の動きが激しいほど 1.0 に近づく(係数0.05前後で安定)
                 # 0.05以上でほぼ1.0(全信頼)になる加速曲線／0.03：tanh(1.0) ≒ 0.76
-                self.g_freshness = math.tanh(gratio / 0.03)
+                self.g_freshness = max(math.tanh(gratio / 0.03), self.beta3)
                 # 現在の修正したノルムを復元(近似)スケール調整で打ち消し
                 point_gl1 *= gratio
             else:
@@ -213,7 +213,6 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
                 # shadow：必要時のみ(スパイクp部分に現在値を最大10%追従させる動的履歴更新)
                 # 混合比率：スカラーが閾値を超える場合にのみ計算される(信頼できる感情信号かどうかの選別)
                 # 急変時は感情機構による shadow 混合で強く抑制する(急制動による安定性の確保)
-                # emoPulse機構はODE近似相当のためshadowは未知のアーキテクチャへの保険(免疫系)
                 # 機械学習optimizerとしては不要／物理solver的な用途でつかえるかもしれない
                 if self.use_shadow :
                     if 'shadow' not in state: # 🔸shadow = False (デフォルト)
@@ -233,14 +232,13 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
                 exp_avg = state['exp_avg']
 
                 # exp_avg = beta1 * exp_avg + (1 - beta1) * grad の｢幾何学的拡張｣
-                # 慣性と現時点の勾配を、直交性に基づいて混ぜ合わせる
-                # freshness が 0 のときは alpha=0 となり、exp_avg は減衰せず 100% 維持される
+                # 慣性と勾配の直交性で混ぜる (freshness は 0 にならず/beta3下限値で膠着回避)
                 g_alpha = (1.0 - beta1) * self.g_freshness
                 exp_avg.mul_(1.0 - g_alpha).add_(grad.to(p.device), alpha=g_alpha)
 
                 # 重みの更新 (emoPulse = 絶対歩幅)
-                if group['weight_decay'] != 0:
-                    p.mul_(1.0 - group['weight_decay'] * emoPulse)
+                #if group['weight_decay'] != 0:
+                #    p.mul_(1.0 - group['weight_decay'] * emoPulse)
 
                 # FFT版と通常版を統合した分岐(デバイス状態判定へ更新)
                 # device 一致の場合のみ sign_() を使い高速化
@@ -259,8 +257,7 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
             group['lr'] = emoPulse
 
         # 感情機構の穏やかさ"安定状態"を外部伝達する(自動停止ではない)
-        # Early Stop：瞬間値と33step分の履歴の差分で True にするだけ
-        # 誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
+        # Early Stop：誤判定防止をしないのは点灯頻度で停止準備(予兆)にするため
         self.stop_base = self.d_est - self.noise_est
         if self.stop_base >= 0.3 and scale_base_m <= self.stopcoef:
             self.should_stop = True       # 💡 外部からこれを見て判断可
