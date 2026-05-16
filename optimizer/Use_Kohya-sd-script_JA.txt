@@ -1,7 +1,9 @@
-Kohya-sd-script での使用法   v260510
+Kohya-sd-script での使用法   v260515
 
 これら emoシリーズ を Kohya-sd-script で簡単につかうには、
 このフォルダをこのまま Kohya-sd-script の "sd-script" フォルダに配置してください
+
+|学習率推奨値| LoRA:1.0 |FFT/Full-Fine-Tuneing| Transformer:0.01, UNET:0.1, etc...
 
 sd-script/optimizer
 
@@ -13,11 +15,9 @@ sd-script/optimizer
     --optimizer_type=optimizer.emotion.EmoTion
     --optimizer_type=optimizer.emovoid.EmoVoid
 
-このように指定するだけで各Optimizerを利用できます(いずれかひとつを指定してください)
+このように指定するだけで各Optimizerを利用できます(いずれかひとつを指定してください)  
 
-|||オプション指定方法|||
-    ●FFT-mode (オンにする)：  
-    fftmode=True  
+|||オプション指定方法|||  fftmode廃止(LR値で調整可のため)
     ●shadow (オフにする)：  
     use_shadow=False  
     ●収束通知 (オフにする)：  
@@ -25,11 +25,11 @@ sd-script/optimizer
     ●収束目標値 (デフォルト：0.04):  
     stopcoef=0.04  
     ●eps(0除算防止)：  
-    eps=1e-8 
+    eps=1e-8  
 
-|||オプション参考例|||
-    shadow-system:(オンにする) (option)
-    --optimizer_args "use_shadow=True"
+|||オプション参考例|||  
+    (option) shadow-system:(オンにする), 収束通知:(オフにする),  
+    --optimizer_args "use_shadow=True" "notify=False"  
 
 ---
 

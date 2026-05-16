@@ -3,8 +3,9 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoSens v3.9.0+ (260512) Standard Edition ECC版(CPU-GPUデータ転送対応含む)
-shadow-system v3.1 -moment v3.1 emoPulse v3.8 FFT-Swap-Aware dNR-converge
+EmoSens v3.9.1 (260515) Standard Edition ECC版(CPU-GPUデータ転送対応含む)
+shadow-system v3.1 -moment v3.1 emoPulse v3.9 FFT-Swap-Aware dNR-converge
+|学習率推奨値| LoRA:1.0 |FFT/Full-Fine-Tuneing| Transformer:0.01, UNET:0.1, etc...
 これまでの emo系 のすべて、emo系 v3.7 を継承し、早期停止関連の効率化やコード修正等を実施
 Early Stop 判定通知の動的最適化、dNRをSNR比として活用し分解能と定義することで収束点を明確化
 EmoSens v3.8.1 (260201) shadow-system v3.1 -moment v3.1 emoPulse v3.7
@@ -37,7 +38,6 @@ class EmoSens(Optimizer):    # クラス定義＆初期化
                  weight_decay=0.01,
                  stopcoef=0.04,
                  use_shadow:bool=False,
-                 fftmode:bool=False,
                  notify:bool=True):
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
@@ -45,23 +45,16 @@ class EmoSens(Optimizer):    # クラス定義＆初期化
         self.notify = notify         # 収束･安定の通知切替
         self.should_stop = False     # 停止フラグの初期化
         self.stopcoef = stopcoef     # 収束目標値(ユーザー指定可)
-        self.fftmode = fftmode       # FFT切替 フルファインチューンモード
         self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
         self.emoScope = lr           # 動的学習率の調和とリズム
-        self.dNR_hist = 1.0          # emoPulse hist 初期化
-        self.noise_est = 1.0         # emoPulse nest 初期化
-        self.d_est = 0.02            # emoPulse dest 初期化
 
         # shadow は solver 等の特殊用途時に必要かもしれない (optimizerとしては通常不要)
         # use_shadow 緊急時モデル保護：通常 False (将来の特殊アーキテクチャへの保護機能)
-        # fftmode 学習モード切替え：通常 False (学習スケールをFFTとそれ以外で適正化)
         # notify 収束通知の切替え：通常 True (通知不要な場合は False にできる)
         # stopcoef 収束目標Loss：通常 0.04[予兆] (ユーザーの好みで仕上げる)
 
-        if self.fftmode:
-            self.base_scale, self.max_lim, self.min_lim = 1e-6, 3e-5, 1e-8
-        else:
-            self.base_scale, self.max_lim, self.min_lim = 1e-4, 3e-3, 1e-6
+        self.base_scale, self.max_lim, self.min_lim = 1e-4, 3e-3, 1e-8
+        self.dNR_hist, self.noise_est, self.d_est, self.c_est = 1.0, 1.0, 0.02, 0.0
             
     # 学習の引き継ぎ可能(状態保存対応)／収束を深めたい場合に役立つ
     def state_dict(self):
@@ -71,6 +64,7 @@ class EmoSens(Optimizer):    # クラス定義＆初期化
             'dNR_hist': self.dNR_hist,
             'noise_est': self.noise_est,
             'd_est': self.d_est,
+            'c_est': self.c_est,
             'should_stop': self.should_stop,
             'stopcoef': self.stopcoef,
         }
@@ -83,6 +77,7 @@ class EmoSens(Optimizer):    # クラス定義＆初期化
             self.dNR_hist = emo_internal.get('dNR_hist', 1.0)
             self.noise_est = emo_internal.get('noise_est', 1.0)
             self.d_est = emo_internal.get('d_est', 0.02)
+            self.c_est = emo_internal.get('c_est', 0.0)
             self.should_stop = emo_internal.get('should_stop', False)
             self.stopcoef =  emo_internal.get('stopcoef', self.stopcoef)
         super().load_state_dict(state_dict)
@@ -146,6 +141,7 @@ class EmoSens(Optimizer):    # クラス定義＆初期化
         # d / N 履歴 (時間的D推定)／d / N 履歴差分は６次モーメント近似相当
         self.noise_est = 0.97 * self.noise_est + 0.03 * abs(scalar)
         self.d_est = 0.97 * self.d_est + 0.03 * abs(trust)
+        self.c_est = 0.7 * self.c_est + 0.3 * scalar
         noise = max(self.noise_est, 1e-10) # max:1e-12程度(変更後：要アーリーストップ見直し)
         d = self.d_est
         # scalar、trust、の差分(瞬間的D推定)と各時間軸の確度推定(疑念と信頼の綱引き)
@@ -160,9 +156,12 @@ class EmoSens(Optimizer):    # クラス定義＆初期化
         elif -0.5 <= trust <= 0.5:
             # 減速：怪しい時は即座に比率を下げる(確実に信頼できない場合に下げ圧力を溜める)
             self.dNR_hist = dNR_now_val * 0.80
+        # 最終倍率 100^c_est (-1.0 ～ 1.0) max() で 1e-2以下を無視 (100～0.01変動)
+        # 0.0：100^0 = 1.0倍, 1.0：100^1 = 100.0倍, -1.0：100^-1 = 0.01倍
+        emoChain = self.emoScope * max((100.0 ** self.c_est), 1e-2)
         # emoPulse 最終決定： emoScorp によるユーザー意思の反映と安全値による制限
-        emoPulse = float(max(min(self.dNR_hist * (self.emoScope * self.base_scale),
-                                 self.max_lim), self.min_lim))
+        emoPulse = float(max(min(self.dNR_hist * (emoChain * self.base_scale),
+                                 self.emoScope * self.max_lim), self.min_lim))
         # --- End emoPulse (完全自動LR生成) ---
 
         for group in self.param_groups:

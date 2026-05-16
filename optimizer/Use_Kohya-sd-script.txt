@@ -1,7 +1,10 @@
-Usage with Kohya-sd-script   v260510
+Usage with Kohya-sd-script   v260515
 
 To easily use these Emo series with Kohya-sd-script,
 simply place this folder as-is into the "sd-scripts" folder within your Kohya-sd-script installation:
+
+|Recommended learning rate| 
+LoRA:1.0 |FFT/Full-Fine-Tuneing| Transformer:0.01, UNET:0.1, etc...
 
 sd-script/optimizer
 
@@ -15,9 +18,8 @@ With this setup,
     
 You can utilize each optimizer by simply specifying one of the above.
 
-|||Usage options|||
-    ●FFT-mode on：
-    fftmode=True
+|||Usage options|||  
+ -- fftmode has been deprecated (since adjustments can be made using LR values) --
     ●Shadow off:
     use_shadow=False
     ●notify off:
@@ -28,8 +30,8 @@ You can utilize each optimizer by simply specifying one of the above.
     eps=1e-8
 
 |||Usage examples|||
-    shadow-system: on (option)
-    --optimizer_args "use_shadow=True"
+    (option) shadow-system: on, notify: off,
+    --optimizer_args "use_shadow=True" "notify=False"  
 
 ---
     With the Early Stop indicator, no one will ever miss the perfect timing to stop training.
