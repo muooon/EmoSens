@@ -21,7 +21,7 @@ SDXL:LoRA, Resolution:512, Rank:8, Alpha4, LR:1.0,
 Cosine scheduler LR “1e-4” is used as the baseline  
 
 Analysis results of the learning rate (LR)  
-Maximum LR: 3.0000 × 1e-3 (This represents an instantaneous output approximately 300.0 times higher than the standard value of 1e-4.)  
+Maximum LR: 3.0000 × 1e-3 (This represents an instantaneous output approximately 30.0 times higher than the standard value of 1e-4.)  
 Average LR: 9.2418 × 1e-4 (It continues to learn at a rate approximately 90.0 times stronger than the baseline throughout the entire training period)  
 Minimum LR: 6.1434 × 1e-5 (The value reached 1e-5 only a few times over the entire period, and these instances were not sustained (they were concentrated in the first half))  
 
