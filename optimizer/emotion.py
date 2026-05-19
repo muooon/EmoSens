@@ -3,15 +3,13 @@ from torch.optim import Optimizer
 import math
 
 """
-EmoTion v3.9.1 (260515) Moment-Free Edition ECC版(CPU-GPUデータ転送対応含む)
+EmoTion v3.9.1 (260520) Moment-Free Edition ECC版(CPU-GPUデータ転送対応含む)
 shadow-system v3.1 -moment v3.1 emoPulse v3.9 FFT-Swap-Aware dNR-converge
-|学習率推奨値| LoRA:1.0 |FFT/Full-Fine-Tuneing| Transformer:0.01, UNET:0.1, etc...
-これまでの emo系 のすべてを継承し、独自更新式の特徴を受け継ぐ完全オリジナル最適化器
-Early Stop 判定通知の動的最適化、dNRをSNR比として活用し分解能と定義することで収束点を明確化
-The “geometric relationship” between "W"eight and "G"radient Method
-幾何学的最適化アルゴリズム Approx W-Ref Geometry 近似アシスト更新に変更し負荷低減
-過去の慣性と現在の勾配を動的にブレンドする、1次モーメント単一保持型の幾何学的最適化アルゴリズム
-### FFT適応 cuDNN 等で厳格なデータ配置を求める仕様により中間テンソル(コピー)生じる ###
+|学習率推奨値| LoRA:1.0 |FFT/Full-Fine-Tuning| Transformer:0.01, UNET:0.1, etc...
+全層同一LRのため Transformer 等では発散しやすい(FFTは難しい) 事前学習やLoRA等が望ましいです
+これまでの emo系 v3.7～3.8 継承、早期停止関連の効率化やコード修正やコメント最適化等を実施
+Early Stop 判定通知の動的最適化、dNR活用で収束点をユーザー任意で明確化できる(stopcoef)
+### FFT適応 cuDNN 等でデータ配置を求める仕様により中間テンソル(コピー)生じる(VRAM負荷増) ###
 """
 
 # ECC - emo closure capture (Loss-Bypass)
@@ -45,7 +43,7 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
         self.notify = notify         # 収束･安定の通知切替
         self.should_stop = False     # 停止フラグの初期化
         self.stopcoef = stopcoef     # 収束目標値(ユーザー指定可)
-        self.use_shadow = use_shadow # 🔸shadow 使用フラグを保存
+        self.use_shadow = use_shadow # 🔸shadow(通常 False)
         self.emoScope = lr           # 動的学習率の調和とリズム
 
         # shadow は solver 等の特殊用途時に必要かもしれない (optimizerとしては通常不要)
@@ -87,6 +85,7 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
         super().load_state_dict(state_dict)
 
     # 感情EMA更新(緊張と安静)／３次４次５次モーメント近似相当(感覚神経系)
+    # MLにおいて勾配emaを１次２次相当とするならlossは３次相当以上とみなせる
     def _update_ema(self, state, loss_val):
         ema = state.setdefault('ema', {})
         ema['short'] = 0.3 * loss_val + 0.7 * ema.get('short', loss_val)
@@ -95,8 +94,8 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
         return ema
 
     # 感情スカラー値生成(EMA差分、滑らかな非線形スカラー、tanh(diff) は ±1.0 で有界性)(内分泌系)
-    # scale_base：Loss値とema値の乖離を修正(分母 ema(long) ｢改善率｣共通化/loss種に非依存)
-    # 1e-5(デフォルト)／1e-6(感度向上)／1e-4(安定性向上)：分母を０にせず安定させる
+    # scale_base：Loss値とema値の乖離を修正(分母 ema(long)「改善率」共通化/アーキ非依存)
+    # 1e-5(デフォルト)／1e-6(感度向上)／1e-4(安定性向上)：分母を０にせず安定(６次近似相当)
     def _compute_scalar(self, ema):
         scale_base_l = max(ema['long'], 1e-5)
         scale_base_m = max(ema['medium'], 1e-5)
@@ -115,7 +114,7 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
         return res_scalar, scale_base_m
 
     # (重要)全機能は use_shadow=False で成立／通常VRAM負荷は shadow を考慮外(無視できる)
-    # emoPulse機構によるLR推定はWt打ち消しODE近似相当のためshadowは未知のアーキテクチャへの保険(免疫系)
+    # emoPulse機構によるダンパー制動はODE縮約を助けるのでshadowは未知のアーキテクチャへの保険(免疫系)
     # Shadow混合比 ３段階構成 タスクに応じ調整可、以下を参考に 開始値・範囲量･変化幅を調整
     # return 開始値 + ((scalar) - 閾値) / 範囲量 * 変化幅 も可能(特殊用途向け)
     def _decide_ratio(self, scalar):
@@ -141,28 +140,28 @@ class EmoTion(Optimizer):    # クラス定義＆初期化
         trust = math.copysign((1.0 - abs(scalar)), scalar)
 
         # --- Start emoPulse (完全自動LR生成) ---
-        # emoPulse (loss 時系列から D / Noise を推定し完全自動LRを生成)(循環器系)
-        # d / N 履歴 (時間的D推定)／d / N 履歴差分は６次モーメント近似相当
+        # emoPulse (loss 時系列から制振ダンパーとしてLRを生成)(循環器系)
+        # 時間的D推定：loss-LR-lossの閉循環／ML的にこの差分は６次近似相当とみなせる
         self.noise_est = 0.97 * self.noise_est + 0.03 * abs(scalar)
         self.d_est = 0.97 * self.d_est + 0.03 * abs(trust)
         self.c_est = 0.7 * self.c_est + 0.3 * scalar
         noise = max(self.noise_est, 1e-10) # max:1e-12程度(変更後：要アーリーストップ見直し)
         d = self.d_est
-        # scalar、trust、の差分(瞬間的D推定)と各時間軸の確度推定(疑念と信頼の綱引き)
+        # 瞬間的D推定：(scalar、trust、差分)各時間軸の確度推定(疑念と信頼の綱引き)
         Noise_base = abs(scalar - trust) + 0.1
         d_base = abs(noise - d) + 0.1
-        # SNRにより異なる時間的確度比率から更新力を導出し２乗で出力最大化(心拍)７次近似相当
+        # 異なる時間的確度比率から更新力を導出し２乗で出力最大化(心拍)７次近似相当
         dNR_now_val = (d_base / Noise_base) ** 2
-        # db / Nb dNR(SNR) 履歴化と最大値の成長率の増減
+        # 最大値の成長率の増減と履歴化でLRの微調整を担う(非対称性により減衰側を優勢とする
         if dNR_now_val >= self.dNR_hist and trust >= 0.5:
             # 加速：どんなに SNR が高くても、1.50倍という｢歩幅｣の成長制限
             self.dNR_hist = min(dNR_now_val, self.dNR_hist * 1.50)
         elif -0.5 <= trust <= 0.5:
             # 減速：怪しい時は即座に比率を下げる(確実に信頼できない場合に下げ圧力を溜める)
             self.dNR_hist = dNR_now_val * 0.80
-        # 最終倍率 100^c_est (-1.0 ～ 1.0) max() で 1e-2以下を無視 (100～0.01変動)
-        # 0.0：100^0 = 1.0倍, 1.0：100^1 = 100.0倍, -1.0：100^-1 = 0.01倍
-        emoChain = self.emoScope * max((100.0 ** self.c_est), 1e-2)
+        # 基礎倍率 100^c_est (-1.0 ～ 1.0) max() で 1e-3以下を無視 (100～0.001変動)
+        # 0.0：100^0 = 1.0倍, 1.0：100^1 = 100.0倍, -1.0：100^-1 = 0.001倍
+        emoChain = self.emoScope * max((100.0 ** self.c_est), 1e-3)
         # emoPulse 最終決定： emoScorp によるユーザー意思の反映と安全値による制限
         emoPulse = float(max(min(self.dNR_hist * (emoChain * self.base_scale),
                                  self.emoScope * self.max_lim), self.min_lim))

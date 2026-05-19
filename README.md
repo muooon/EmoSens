@@ -7,10 +7,10 @@
 
 readme：[English](README.md) | [日本語](README_JA.md)  
 
-<img width="800" height="400" alt="Screenshot 2026-05-12 at 17-10-55 TensorBoard" src="https://github.com/user-attachments/assets/b478967a-ff15-4fb5-83f4-3588332a5784" />  
+<img width="800" height="600" alt="Screenshot 2026-05-19 at 18-57-11 TensorBoard" src="https://github.com/user-attachments/assets/8f3d16b5-8597-49d4-a529-4065435960bb" />  
 
-yellow:Void, purple:Tion, skyblue:Cats, orange:Airy, gray:Sens,  
-SDXL:LoRA, Resolution:512, Rank:8, Alpha1, LR:1.0,  
+gray:Void, skyblue:Tion, red:Cats, orange:Airy, violet:Sens,  
+SDXL:LoRA, Resolution:512, Rank:8, Alpha4, LR:1.0,  
 
 ---
 
@@ -21,33 +21,48 @@ SDXL:LoRA, Resolution:512, Rank:8, Alpha1, LR:1.0,
 Cosine scheduler LR “1e-4” is used as the baseline  
 
 Analysis results of the learning rate (LR)  
-Maximum LR: 7.5309 × 1e-4 (compared to the baseline 1e-4, it momentarily outputs about 7.5 times higher)  
-Average LR: 2.0752 × 1e-4 (throughout the entire period, it continues learning at about twice the strength of the baseline)  
-Minimum LR: 6.2770 × 1e-6 (the number of times it reached 1e-6 during the entire period was only a few, and it did not sustain it (concentrated in the early phase))  
+Maximum LR: 3.0000 × 1e-3 (This represents an instantaneous output approximately 300.0 times higher than the standard value of 1e-4.)  
+Average LR: 9.2418 × 1e-4 (It continues to learn at a rate approximately 90.0 times stronger than the baseline throughout the entire training period)  
+Minimum LR: 6.1434 × 1e-5 (The value reached 1e-5 only a few times over the entire period, and these instances were not sustained (they were concentrated in the first half))  
 
 When comparing the area (total learning amount) using “1e-4 Cosine” as the baseline, the results are as follows  
-Total area of emoPulse: 0.0830083  
-Total area of Cosine (1e-4): 0.0254647  
-Comparison ratio: 325.97%  
+Total area of emoPulse: 0.222728  
+Total area of Cosine (1e-4): 0.012050  
+Efficiency Comparison: 18.48 times  
 
-The period in the latter half where it stagnated around “2.92e-4” (after READY TO STOP) corresponds to nearly three times the baseline output  
-Within a short span of 400 steps, it progressed through the equivalent of about 1200–1300 steps of “learning” under normal conditions  
+A short training period of 240 steps is equivalent to approximately 4,400 steps when converted to a fixed cosine pace.   
 
 ```prompt
 
 ----------
 
-steps:  0%|                         | 0/400 [00:00<?, ?it/s] , Loss: 0.1308 | Pulse: 1.0000e-04
-steps:  0%| | 1/400 [00:19<2:12:21, 19.90s/it, Average key norm=0.0022, Keys Scaled, Loss: 0.1306 | Pulse: 1.0000e-04
-steps:  0%| | 2/400 [00:21<1:10:43, 10.66s/it, Average key norm=0.00484, Keys Scaled, Loss: 0.1344 | Pulse: 1.0000e-04
-steps:  1%| | 3/400 [00:22<50:10, 7.58s/it, Average key norm=0.0078, Keys Scaled=0, Loss: 0.1228 | Pulse: 1.0000e-04
-steps:  1%| | 4/400 [00:24<39:55, 6.05s/it, Average key norm=0.0112, Keys Scaled=0, Loss: 0.1237 | Pulse: 1.0000e-04
-steps:  1%| | 5/400 [00:25<33:44, 5.12s/it, Average key norm=0.0148, Keys Scaled=0, Loss: 0.1222 | Pulse: 1.0000e-04
-steps:  2%| | 6/400 [00:27<29:36, 4.51s/it, Average key norm=0.0184, Keys Scaled=0, Loss: 0.1241 | Pulse: 1.0000e-04
-steps:  2%| | 7/400 [00:28<26:39, 4.07s/it, Average key norm=0.0221, Keys Scaled=0, Loss: 0.1132 | Pulse: 1.0000e-04
-steps:  2%| | 8/400 [00:29<24:26, 3.74s/it, Average key norm=0.0258, Keys Scaled=0, Loss: 0.1108 | Pulse: 1.0000e-04
-steps:  2%| | 9/400 [00:31<22:46, 3.49s/it, Average key norm=0.0295, Keys Scaled=0, Loss: 0.1033 | Pulse: 1.0000e-04
-steps:  2%| | 10/400 [00:33<21:27, 3.30s/it, Average key norm=0.0329, Keys Scaled=0, Loss: 0.0952 | Pulse: 1.0000e-04
+🚩 emo-optim success ecc system ...
+override steps. steps for 80 epochs is / 指定エポックまでのステップ数: 240
+enable fp8 training for U-Net.
+enable fp8 training for Text Encoder.
+  total optimization steps / 学習ステップ数: 240
+steps:   0%|                                                 | 0/240 [00:00<?, ?it/s] | Loss: 0.1657 | Pulse: 1.0000e-04
+steps:   0%| | 1/240 [00:24<1:36:20, 24.18s/it, Average key norm=0.00195, Keys Scaled | Loss: 0.1785 | Pulse: 9.6954e-05
+steps:   1%| | 2/240 [00:27<53:34, 13.51s/it, Average key norm=0.00393, Keys Scaled=0 | Loss: 0.1859 | Pulse: 9.1232e-05
+steps:   1%| | 3/240 [00:28<38:08,  9.65s/it, Average key norm=0.00606, Keys Scaled=0 | Loss: 0.1791 | Pulse: 8.6532e-05
+steps:   2%| | 4/240 [00:31<30:40,  7.80s/it, Average key norm=0.0084, Keys Scaled=0 | Loss: 0.1907 | Pulse: 8.0549e-05
+steps:   2%| | 5/240 [00:32<25:47,  6.59s/it, Average key norm=0.0107, Keys Scaled=0 | Loss: 0.1740 | Pulse: 7.7869e-05
+steps:   2%| | 6/240 [00:35<22:51,  5.86s/it, Average key norm=0.013, Keys Scaled=0 | Loss: 0.1825 | Pulse: 7.5540e-05
+steps:   3%| | 7/240 [00:37<20:37,  5.31s/it, Average key norm=0.0154, Keys Scaled=0 | Loss: 0.1614 | Pulse: 7.7179e-05
+steps:   3%| | 8/240 [00:39<18:55,  4.89s/it, Average key norm=0.0179, Keys Scaled=0 | Loss: 0.1674 | Pulse: 7.9668e-05
+steps:   4%| | 9/240 [00:41<17:39,  4.59s/it, Average key norm=0.0206, Keys Scaled=0 | Loss: 0.1685 | Pulse: 8.2202e-05
+steps:   4%| | 10/240 [00:43<16:37,  4.34s/it, Average key norm=0.0234, Keys Scaled=0 | Loss: 0.1559 | Pulse: 8.7181e-05
+steps:   5%| | 11/240 [00:45<15:44,  4.13s/it, Average key norm=0.0265, Keys Scaled=0 | Loss: 0.1775 | Pulse: 8.8466e-05
+steps:   5%| | 12/240 [00:47<14:57,  3.94s/it, Average key norm=0.0296, Keys Scaled=0 | Loss: 0.1569 | Pulse: 9.2219e-05
+steps:   5%| | 13/240 [00:49<14:20,  3.79s/it, Average key norm=0.0329, Keys Scaled=0 | Loss: 0.1378 | Pulse: 1.0160e-04
+steps:   6%| | 14/240 [00:51<13:43,  3.64s/it, Average key norm=0.0364, Keys Scaled=0 | Loss: 0.1479 | Pulse: 1.1120e-04
+steps:   6%| | 15/240 [00:53<13:15,  3.54s/it, Average key norm=0.0402, Keys Scaled=0 | Loss: 0.1283 | Pulse: 1.2608e-04
+steps:   7%| | 16/240 [00:55<12:52,  3.45s/it, Average key norm=0.0447, Keys Scaled=0 | Loss: 0.1339 | Pulse: 1.4176e-04
+steps:   7%| | 17/240 [00:57<12:30,  3.36s/it, Average key norm=0.0496, Keys Scaled=0 | Loss: 0.1316 | Pulse: 1.5863e-04
+steps:   8%| | 18/240 [00:59<12:08,  3.28s/it, Average key norm=0.0551, Keys Scaled=0 | Loss: 0.1259 | Pulse: 1.7743e-04
+steps:   8%| | 19/240 [01:01<11:50,  3.21s/it, Average key norm=0.0611, Keys Scaled=0 | Loss: 0.1234 | Pulse: 1.9549e-04
+steps:   8%| | 20/240 [01:02<11:31,  3.14s/it, Average key norm=0.0675, Keys Scaled=0 | Loss: 0.0972 | Pulse: 2.2643e-04
+
 
 ```
 
@@ -56,523 +71,233 @@ steps:  2%| | 10/400 [00:33<21:27, 3.30s/it, Average key norm=0.0329, Keys Scale
 <summary> Full-log </summary>
 
 ```prompt
-steps:  3%| | 11/400 [00:34<20:19, 3.13s/it, Average key norm=0.0363, Keys Scaled=0, Loss: 0.0904 | Pulse: 1.0000e-04
-steps:  3%| | 12/400 [00:36<19:24, 3.00s/it, Average key norm=0.0399, Keys Scaled=0, Loss: 0.0918 | Pulse: 1.0000e-04
-steps:  3%| | 13/400 [00:37<18:37, 2.89s/it, Average key norm=0.0434, Keys Scaled=0, Loss: 0.0819 | Pulse: 1.0000e-04
-steps:  4%| | 14/400 [00:39<17:58, 2.79s/it, Average key norm=0.0469, Keys Scaled=0, Loss: 0.0746 | Pulse: 1.0000e-04
-steps:  4%| | 15/400 [00:40<17:21, 2.71s/it, Average key norm=0.0503, Keys Scaled=0, Loss: 0.0747 | Pulse: 1.0000e-04
-steps:  4%| | 16/400 [00:42<16:52, 2.64s/it, Average key norm=0.0536, Keys Scaled=0, Loss: 0.0725 | Pulse: 1.0000e-04
-steps:  4%| | 17/400 [00:43<16:24, 2.57s/it, Average key norm=0.0568, Keys Scaled=0, Loss: 0.0646 | Pulse: 1.2466e-04
-steps:  4%| | 18/400 [00:45<16:00, 2.51s/it, Average key norm=0.0607, Keys Scaled=0, Loss: 0.0688 | Pulse: 1.3326e-04
-steps:  5%| | 19/400 [00:46<15:39, 2.47s/it, Average key norm=0.0647, Keys Scaled=0, Loss: 0.0641 | Pulse: 1.5484e-04
-steps:  5%| | 20/400 [00:48<15:20, 2.42s/it, Average key norm=0.0694, Keys Scaled=0, Loss: 0.0609 | Pulse: 2.3227e-04
-
-steps:  5%| | 21/400 [00:50<15:03, 2.38s/it, Average key norm=0.0764, Keys Scaled=0, Loss: 0.0599 | Pulse: 2.3227e-04
-steps:  6%| | 22/400 [00:51<14:45, 2.34s/it, Average key norm=0.0833, Keys Scaled=0, Loss: 0.0563 | Pulse: 2.8809e-04
-steps:  6%| | 23/400 [00:53<14:30, 2.31s/it, Average key norm=0.0914, Keys Scaled=0, Loss: 0.0585 | Pulse: 3.0983e-04
-steps:  6%| | 24/400 [00:54<14:16, 2.28s/it, Average key norm=0.1, Keys Scaled=0, Loss: 0.0525 | Pulse: 4.2403e-04
-steps:  6%| | 25/400 [00:56<14:03, 2.25s/it, Average key norm=0.112, Keys Scaled=0, Loss: 0.0548 | Pulse: 4.7203e-04
-steps:  6%| | 26/400 [00:57<13:50, 2.22s/it, Average key norm=0.126, Keys Scaled=0, Loss: 0.0525 | Pulse: 5.7090e-04
-steps:  7%| | 27/400 [00:59<13:38, 2.19s/it, Average key norm=0.143, Keys Scaled=0, Loss: 0.0525 | Pulse: 6.4374e-04
-steps:  7%| | 28/400 [01:00<13:26, 2.17s/it, Average key norm=0.161, Keys Scaled=0, Loss: 0.0511 | Pulse: 7.5309e-04
-steps:  7%| | 29/400 [01:02<13:15, 2.14s/it, Average key norm=0.182, Keys Scaled=0, Loss: 0.0504 | Pulse: 5.4298e-04
-steps:  8%| | 30/400 [01:03<13:05, 2.12s/it, Average key norm=0.197, Keys Scaled=1, Loss: 0.0484 | Pulse: 4.1740e-04
-steps:  8%| | 31/400 [01:05<12:55, 2.10s/it, Average key norm=0.208, Keys Scaled=3, Loss: 0.0473 | Pulse: 3.3406e-04
-steps:  8%| | 32/400 [01:06<12:46, 2.08s/it, Average key norm=0.216, Keys Scaled=4, Loss: 0.0446 | Pulse: 2.5402e-04
-steps:  8%| | 33/400 [01:08<12:38, 2.07s/it, Average key norm=0.222, Keys Scaled=4, Loss: 0.0451 | Pulse: 2.2042e-04
-steps:  8%| | 34/400 [01:09<12:29, 2.05s/it, Average key norm=0.227, Keys Scaled=5, Loss: 0.0442 | Pulse: 1.9342e-04
-steps:  9%| | 35/400 [01:11<12:21, 2.03s/it, Average key norm=0.23, Keys Scaled=8, Loss: 0.0442 | Pulse: 1.7845e-04
-steps:  9%| | 36/400 [01:12<12:14, 2.02s/it, Average key norm=0.233, Keys Scaled=13, Loss: 0.0432 | Pulse: 1.6311e-04
-steps:  9%| | 37/400 [01:14<12:08, 2.01s/it, Average key norm=0.236, Keys Scaled=14, Loss: 0.0426 | Pulse: 1.5070e-04
-steps: 10%| | 38/400 [01:15<12:01, 1.99s/it, Average key norm=0.238, Keys Scaled=15, Loss: 0.0433 | Pulse: 1.4781e-04
-steps: 10%| | 39/400 [01:17<11:54, 1.98s/it, Average key norm=0.24, Keys Scaled=17, Loss: 0.0429 | Pulse: 1.4404e-04
-steps: 10%| | 40/400 [01:18<11:47, 1.97s/it, Average key norm=0.242, Keys Scaled=18, Loss: 0.0440 | Pulse: 1.4922e-04
-
-steps: 10%| | 41/400 [01:20<11:41, 1.95s/it, Average key norm=0.243, Keys Scaled=20, Loss: 0.0418 | Pulse: 1.4067e-04
-steps: 10%| | 42/400 [01:21<11:35, 1.94s/it, Average key norm=0.244, Keys Scaled=22, Loss: 0.0420 | Pulse: 1.3704e-04
-steps: 11%| | 43/400 [01:23<11:29, 1.93s/it, Average key norm=0.246, Keys Scaled=22, Loss: 0.0422 | Pulse: 1.3625e-04
-steps: 11%| | 44/400 [01:24<11:24, 1.92s/it, Average key norm=0.247, Keys Scaled=23, Loss: 0.0422 | Pulse: 1.3673e-04
-steps: 11%| | 45/400 [01:26<11:18, 1.91s/it, Average key norm=0.248, Keys Scaled=24, Loss: 0.0396 | Pulse: 1.2406e-04
-steps: 12%| | 46/400 [01:27<11:13, 1.90s/it, Average key norm=0.249, Keys Scaled=25, Loss: 0.0398 | Pulse: 1.1812e-04
-steps: 12%| | 47/400 [01:28<11:07, 1.89s/it, Average key norm=0.249, Keys Scaled=25, Loss: 0.0396 | Pulse: 1.1408e-04
-steps: 12%| | 48/400 [01:30<11:03, 1.88s/it, Average key norm=0.25, Keys Scaled=26, Loss: 0.0394 | Pulse: 1.1134e-04
-steps: 12%| | 49/400 [01:31<10:58, 1.88s/it, Average key norm=0.251, Keys Scaled=26, Loss: 0.0382 | Pulse: 1.0532e-04
-steps: 12%|▏| 50/400 [01:33<10:54, 1.87s/it, Average key norm=0.251, Keys Scaled=26, Loss: 0.0398 | Pulse: 1.0853e-04
-
-steps: 13%|▏| 51/400 [01:34<10:49, 1.86s/it, Average key norm=0.252, Keys Scaled=27, Loss: 0.0398 | Pulse: 1.1166e-04
-steps: 13%|▏| 52/400 [01:36<10:46, 1.86s/it, Average key norm=0.253, Keys Scaled=27, Loss: 0.0390 | Pulse: 1.1074e-04
-steps: 13%|▏| 53/400 [01:38<10:41, 1.85s/it, Average key norm=0.253, Keys Scaled=28, Loss: 0.0380 | Pulse: 1.0688e-04
-steps: 14%|▏| 54/400 [01:39<10:37, 1.84s/it, Average key norm=0.254, Keys Scaled=29, Loss: 0.0374 | Pulse: 1.0263e-04
-steps: 14%|▏| 55/400 [01:40<10:33, 1.84s/it, Average key norm=0.254, Keys Scaled=29, Loss: 0.0375 | Pulse: 1.0099e-04
-steps: 14%|▏| 56/400 [01:42<10:30, 1.83s/it, Average key norm=0.255, Keys Scaled=29, Loss: 0.0376 | Pulse: 1.0090e-04
-steps: 14%|▏| 57/400 [01:44<10:25, 1.82s/it, Average key norm=0.255, Keys Scaled=30, Loss: 0.0382 | Pulse: 1.0396e-04
-steps: 14%|▏| 58/400 [01:45<10:22, 1.82s/it, Average key norm=0.255, Keys Scaled=30, Loss: 0.0382 | Pulse: 1.0709e-04
-steps: 15%|▏| 59/400 [01:46<10:18, 1.81s/it, Average key norm=0.256, Keys Scaled=32, Loss: 0.0372 | Pulse: 1.0577e-04
-steps: 15%|▏| 60/400 [01:48<10:14, 1.81s/it, Average key norm=0.256, Keys Scaled=32, Loss: 0.0370 | Pulse: 1.0467e-04
-
-steps: 15%|▏| 61/400 [01:49<10:10, 1.80s/it, Average key norm=0.257, Keys Scaled=32, Loss: 0.0369 | Pulse: 1.0402e-04
-steps: 16%|▏| 62/400 [01:51<10:07, 1.80s/it, Average key norm=0.257, Keys Scaled=32, Loss: 0.0372 | Pulse: 7.3844e-06
-steps: 16%|▏| 63/400 [01:52<10:03, 1.79s/it, Average key norm=0.257, Keys Scaled=32, Loss: 0.0354 | Pulse: 1.1603e-04
-steps: 16%|▏| 64/400 [01:54<10:00, 1.79s/it, Average key norm=0.257, Keys Scaled=32, Loss: 0.0357 | Pulse: 1.1349e-04
-steps: 16%|▏| 65/400 [01:55<09:56, 1.78s/it, Average key norm=0.258, Keys Scaled=32, Loss: 0.0361 | Pulse: 1.1460e-04
-steps: 16%|▏| 66/400 [01:57<09:53, 1.78s/it, Average key norm=0.258, Keys Scaled=33, Loss: 0.0352 | Pulse: 1.1138e-04
-steps: 17%|▏| 67/400 [01:58<09:50, 1.77s/it, Average key norm=0.258, Keys Scaled=33, Loss: 0.0362 | Pulse: 1.1530e-04
-steps: 17%|▏| 68/400 [02:00<09:47, 1.77s/it, Average key norm=0.259, Keys Scaled=33, Loss: 0.0349 | Pulse: 1.1222e-04
-steps: 17%|▏| 69/400 [02:01<09:44, 1.76s/it, Average key norm=0.259, Keys Scaled=34, Loss: 0.0354 | Pulse: 1.1349e-04
-steps: 18%|▏| 70/400 [02:03<09:40, 1.76s/it, Average key norm=0.26, Keys Scaled=33, Loss: 0.0352 | Pulse: 1.1392e-04
-
-steps: 18%|▏| 71/400 [02:04<09:37, 1.76s/it, Average key norm=0.26, Keys Scaled=33, Loss: 0.0345 | Pulse: 1.1149e-04
-steps: 18%|▏| 72/400 [02:06<09:34, 1.75s/it, Average key norm=0.26, Keys Scaled=34, Loss: 0.0341 | Pulse: 1.0843e-04
-steps: 18%|▏| 73/400 [02:07<09:31, 1.75s/it, Average key norm=0.261, Keys Scaled=34, Loss: 0.0331 | Pulse: 1.0244e-04
-steps: 18%|▏| 74/400 [02:09<09:28, 1.74s/it, Average key norm=0.261, Keys Scaled=34, Loss: 0.0337 | Pulse: 6.9032e-06
-steps: 19%|▏| 75/400 [02:10<09:25, 1.74s/it, Average key norm=0.261, Keys Scaled=34, Loss: 0.0331 | Pulse: 1.1715e-04
-steps: 19%|▏| 76/400 [02:11<09:22, 1.74s/it, Average key norm=0.261, Keys Scaled=34, Loss: 0.0328 | Pulse: 1.1420e-04
-steps: 19%|▏| 77/400 [02:13<09:19, 1.73s/it, Average key norm=0.262, Keys Scaled=34, Loss: 0.0331 | Pulse: 1.1460e-04
-steps: 20%|▏| 78/400 [02:14<09:16, 1.73s/it, Average key norm=0.262, Keys Scaled=34, Loss: 0.0323 | Pulse: 1.1168e-04
-steps: 20%|▏| 79/400 [02:16<09:13, 1.73s/it, Average key norm=0.262, Keys Scaled=35, Loss: 0.0313 | Pulse: 1.0523e-04
-steps: 20%|▏| 80/400 [02:17<09:11, 1.72s/it, Average key norm=0.263, Keys Scaled=35, Loss: 0.0325 | Pulse: 7.2875e-06
-
-steps: 20%|▏| 81/400 [02:19<09:08, 1.72s/it, Average key norm=0.263, Keys Scaled=35, Loss: 0.0329 | Pulse: 1.3032e-04
-steps: 20%|▏| 82/400 [02:20<09:05, 1.72s/it, Average key norm=0.263, Keys Scaled=35, Loss: 0.0318 | Pulse: 8.2303e-06
-steps: 21%|▏| 83/400 [02:22<09:02, 1.71s/it, Average key norm=0.263, Keys Scaled=35, Loss: 0.0326 | Pulse: 1.5203e-04
-steps: 21%|▏| 84/400 [02:23<09:00, 1.71s/it, Average key norm=0.263, Keys Scaled=35, Loss: 0.0309 | Pulse: 1.4329e-04
-steps: 21%|▏| 85/400 [02:25<08:57, 1.71s/it, Average key norm=0.264, Keys Scaled=35, Loss: 0.0319 | Pulse: 1.4548e-04
-steps: 22%|▏| 86/400 [02:26<08:54, 1.70s/it, Average key norm=0.264, Keys Scaled=34, Loss: 0.0316 | Pulse: 1.4570e-04
-steps: 22%|▏| 87/400 [02:27<08:52, 1.70s/it, Average key norm=0.264, Keys Scaled=34, Loss: 0.0320 | Pulse: 8.7724e-06
-steps: 22%|▏| 88/400 [02:29<08:49, 1.70s/it, Average key norm=0.264, Keys Scaled=34, Loss: 0.0324 | Pulse: 1.7942e-04
-steps: 22%|▏| 89/400 [02:30<08:47, 1.70s/it, Average key norm=0.265, Keys Scaled=34, Loss: 0.0306 | Pulse: 9.6754e-06
-steps: 22%|▏| 90/400 [02:32<08:45, 1.69s/it, Average key norm=0.265, Keys Scaled=34, Loss: 0.0302 | Pulse: 1.8236e-04
-
-steps: 23%|▏| 91/400 [02:34<08:43, 1.69s/it, Average key norm=0.265, Keys Scaled=34, Loss: 0.0305 | Pulse: 1.7821e-04
-steps: 23%|▏| 92/400 [02:35<08:41, 1.69s/it, Average key norm=0.266, Keys Scaled=35, Loss: 0.0316 | Pulse: 1.0379e-05
-steps: 23%|▏| 93/400 [02:37<08:38, 1.69s/it, Average key norm=0.266, Keys Scaled=35, Loss: 0.0301 | Pulse: 2.0496e-04
-steps: 24%|▏| 94/400 [02:38<08:36, 1.69s/it, Average key norm=0.266, Keys Scaled=35, Loss: 0.0303 | Pulse: 2.0143e-04
-steps: 24%|▏| 95/400 [02:40<08:34, 1.69s/it, Average key norm=0.267, Keys Scaled=35, Loss: 0.0302 | Pulse: 1.9880e-04
-steps: 24%|▏| 96/400 [02:41<08:32, 1.69s/it, Average key norm=0.267, Keys Scaled=35, Loss: 0.0303 | Pulse: 1.9904e-04
-steps: 24%|▏| 97/400 [02:43<08:30, 1.68s/it, Average key norm=0.268, Keys Scaled=36, Loss: 0.0306 | Pulse: 2.0284e-04
-steps: 24%|▏| 98/400 [02:45<08:28, 1.68s/it, Average key norm=0.268, Keys Scaled=36, Loss: 0.0309 | Pulse: 2.1101e-04
-steps: 25%|▏| 99/400 [02:46<08:26, 1.68s/it, Average key norm=0.268, Keys Scaled=36, Loss: 0.0301 | Pulse: 1.0287e-05
-steps: 25%|▎| 100/400 [02:48<08:24, 1.68s/it, Average key norm=0.268, Keys Scaled=3, Loss: 0.0288 | Pulse: 2.1741e-04
-
-steps: 25%|▎| 101/400 [02:49<08:22, 1.68s/it, Average key norm=0.269, Keys Scaled=3, Loss: 0.0285 | Pulse: 2.0149e-04
-steps: 26%|▎| 102/400 [02:51<08:20, 1.68s/it, Average key norm=0.269, Keys Scaled=3, Loss: 0.0292 | Pulse: 2.0041e-04
-steps: 26%|▎| 103/400 [02:52<08:18, 1.68s/it, Average key norm=0.27, Keys Scaled=34, Loss: 0.0290 | Pulse: 1.9811e-04
-steps: 26%|▎| 104/400 [02:54<08:16, 1.68s/it, Average key norm=0.27, Keys Scaled=35, Loss: 0.0289 | Pulse: 1.9573e-04
-steps: 26%|▎| 105/400 [02:56<08:14, 1.68s/it, Average key norm=0.271, Keys Scaled=3, Loss: 0.0292 | Pulse: 1.9845e-04
-steps: 26%|▎| 106/400 [02:57<08:12, 1.68s/it, Average key norm=0.271, Keys Scaled=3, Loss: 0.0294 | Pulse: 2.0447e-04
-steps: 27%|▎| 107/400 [02:59<08:10, 1.68s/it, Average key norm=0.272, Keys Scaled=3, Loss: 0.0283 | Pulse: 1.9577e-04
-steps: 27%|▎| 108/400 [03:00<08:08, 1.67s/it, Average key norm=0.272, Keys Scaled=3, Loss: 0.0282 | Pulse: 1.9004e-04
-steps: 27%|▎| 109/400 [03:02<08:06, 1.67s/it, Average key norm=0.272, Keys Scaled=3, Loss: 0.0283 | Pulse: 1.8780e-04
-steps: 28%|▎| 110/400 [03:03<08:04, 1.67s/it, Average key norm=0.272, Keys Scaled=3, Loss: 0.0281 | Pulse: 1.8502e-04
-
-steps: 28%|▎| 111/400 [03:05<08:02, 1.67s/it, Average key norm=0.273, Keys Scaled=3, Loss: 0.0278 | Pulse: 1.7988e-04
-steps: 28%|▎| 112/400 [03:06<08:00, 1.67s/it, Average key norm=0.273, Keys Scaled=3, Loss: 0.0269 | Pulse: 1.6769e-04
-steps: 28%|▎| 113/400 [03:08<07:58, 1.67s/it, Average key norm=0.273, Keys Scaled=3, Loss: 0.0266 | Pulse: 1.5764e-04
-steps: 28%|▎| 114/400 [03:09<07:55, 1.66s/it, Average key norm=0.274, Keys Scaled=3, Loss: 0.0271 | Pulse: 1.5719e-04
-steps: 29%|▎| 115/400 [03:11<07:53, 1.66s/it, Average key norm=0.274, Keys Scaled=3, Loss: 0.0283 | Pulse: 1.6985e-04
-steps: 29%|▎| 116/400 [03:12<07:52, 1.66s/it, Average key norm=0.274, Keys Scaled=3, Loss: 0.0270 | Pulse: 8.3102e-06
-steps: 29%|▎| 117/400 [03:14<07:50, 1.66s/it, Average key norm=0.274, Keys Scaled=3, Loss: 0.0277 | Pulse: 2.0052e-04
-steps: 30%|▎| 118/400 [03:15<07:48, 1.66s/it, Average key norm=0.275, Keys Scaled=3, Loss: 0.0257 | Pulse: 1.7965e-04
-steps: 30%|▎| 119/400 [03:17<07:45, 1.66s/it, Average key norm=0.275, Keys Scaled=3, Loss: 0.0264 | Pulse: 8.9779e-06
-steps: 30%|▎| 120/400 [03:18<07:43, 1.66s/it, Average key norm=0.275, Keys Scaled=3, Loss: 0.0261 | Pulse: 1.9589e-04
-
-steps: 30%|▎| 121/400 [03:20<07:42, 1.66s/it, Average key norm=0.275, Keys Scaled=3, Loss: 0.0264 | Pulse: 1.9682e-04
-steps: 30%|▎| 122/400 [03:21<07:40, 1.66s/it, Average key norm=0.275, Keys Scaled=3, Loss: 0.0267 | Pulse: 2.0223e-04
-steps: 31%|▎| 123/400 [03:23<07:38, 1.65s/it, Average key norm=0.276, Keys Scaled=3, Loss: 0.0257 | Pulse: 1.9259e-04
-steps: 31%|▎| 124/400 [03:24<07:36, 1.65s/it, Average key norm=0.276, Keys Scaled=3, Loss: 0.0269 | Pulse: 2.0448e-04
-steps: 31%|▎| 125/400 [03:26<07:34, 1.65s/it, Average key norm=0.276, Keys Scaled=3, Loss: 0.0265 | Pulse: 2.0817e-04
-steps: 32%|▎| 126/400 [03:27<07:31, 1.65s/it, Average key norm=0.277, Keys Scaled=3, Loss: 0.0264 | Pulse: 2.1103e-04
-steps: 32%|▎| 127/400 [03:29<07:30, 1.65s/it, Average key norm=0.277, Keys Scaled=3, Loss: 0.0263 | Pulse: 2.1292e-04
-steps: 32%|▎| 128/400 [03:30<07:28, 1.65s/it, Average key norm=0.277, Keys Scaled=3, Loss: 0.0258 | Pulse: 8.8880e-06
-steps: 32%|▎| 129/400 [03:32<07:26, 1.65s/it, Average key norm=0.277, Keys Scaled=3, Loss: 0.0256 | Pulse: 2.3207e-04
-steps: 32%|▎| 130/400 [03:33<07:24, 1.65s/it, Average key norm=0.278, Keys Scaled=3, Loss: 0.0255 | Pulse: 2.2571e-04
-
-steps: 33%|▎| 131/400 [03:35<07:22, 1.64s/it, Average key norm=0.278, Keys Scaled=3, Loss: 0.0252 | Pulse: 2.1761e-04
-steps: 33%|▎| 132/400 [03:36<07:20, 1.64s/it, Average key norm=0.278, Keys Scaled=3, Loss: 0.0257 | Pulse: 2.2192e-04
-steps: 33%|▎| 133/400 [03:38<07:18, 1.64s/it, Average key norm=0.278, Keys Scaled=3, Loss: 0.0254 | Pulse: 2.2131e-04
-steps: 34%|▎| 134/400 [03:39<07:16, 1.64s/it, Average key norm=0.279, Keys Scaled=3, Loss: 0.0265 | Pulse: 2.4510e-04
-steps: 34%|▎| 135/400 [03:41<07:14, 1.64s/it, Average key norm=0.279, Keys Scaled=3, Loss: 0.0253 | Pulse: 2.3626e-04
-steps: 34%|▎| 136/400 [03:42<07:12, 1.64s/it, Average key norm=0.279, Keys Scaled=2, Loss: 0.0246 | Pulse: 2.1777e-04
-steps: 34%|▎| 137/400 [03:44<07:11, 1.64s/it, Average key norm=0.279, Keys Scaled=3, Loss: 0.0259 | Pulse: 2.3436e-04
-steps: 34%|▎| 138/400 [03:46<07:09, 1.64s/it, Average key norm=0.28, Keys Scaled=34, Loss: 0.0244 | Pulse: 2.1617e-04
-steps: 35%|▎| 139/400 [03:47<07:07, 1.64s/it, Average key norm=0.28, Keys Scaled=34, Loss: 0.0256 | Pulse: 2.2947e-04
-steps: 35%|▎| 140/400 [03:49<07:05, 1.64s/it, Average key norm=0.28, Keys Scaled=3, Loss: 0.0257 | Pulse: 2.4538e-04
-
-steps: 35%|▎| 141/400 [03:50<07:03, 1.64s/it, Average key norm=0.281, Keys Scaled=3, Loss: 0.0252 | Pulse: 2.4652e-04
-steps: 36%|▎| 142/400 [03:52<07:01, 1.63s/it, Average key norm=0.281, Keys Scaled=3, Loss: 0.0242 | Pulse: 2.2303e-04
-steps: 36%|▎| 143/400 [03:53<06:59, 1.63s/it, Average key norm=0.281, Keys Scaled=3, Loss: 0.0250 | Pulse: 2.2845e-04
-steps: 36%|▎| 144/400 [03:55<06:57, 1.63s/it, Average key norm=0.281, Keys Scaled=3, Loss: 0.0252 | Pulse: 2.4006e-04
-steps: 36%|▎| 145/400 [03:56<06:56, 1.63s/it, Average key norm=0.282, Keys Scaled=3, Loss: 0.0248 | Pulse: 2.3979e-04
-steps: 36%|▎| 146/400 [03:58<06:54, 1.63s/it, Average key norm=0.282, Keys Scaled=3, Loss: 0.0248 | Pulse: 2.4194e-04
-steps: 37%|▎| 147/400 [03:59<06:52, 1.63s/it, Average key norm=0.282, Keys Scaled=3, Loss: 0.0255 | Pulse: 2.6838e-04
-steps: 37%|▎| 148/400 [04:00<06:50, 1.63s/it, Average key norm=0.283, Keys Scaled=3, Loss: 0.0242 | Pulse: 2.4817e-04
-steps: 37%|▎| 149/400 [04:02<06:48, 1.63s/it, Average key norm=0.283, Keys Scaled=3, Loss: 0.0246 | Pulse: 2.4791e-04
-steps: 38%|▍| 150/400 [04:03<06:46, 1.63s/it, Average key norm=0.283, Keys Scaled=3, Loss: 0.0242 | Pulse: 2.3854e-04
-
-steps: 38%|▍| 151/400 [04:05<06:44, 1.62s/it, Average key norm=0.284, Keys Scaled=3, Loss: 0.0236 | Pulse: 2.1744e-04
-steps: 38%|▍| 152/400 [04:06<06:42, 1.62s/it, Average key norm=0.284, Keys Scaled=3, Loss: 0.0234 | Pulse: 2.0242e-04
-steps: 38%|▍| 153/400 [04:08<06:40, 1.62s/it, Average key norm=0.284, Keys Scaled=3, Loss: 0.0232 | Pulse: 1.8985e-04
-steps: 38%|▍| 154/400 [04:09<06:38, 1.62s/it, Average key norm=0.284, Keys Scaled=3, Loss: 0.0233 | Pulse: 1.8665e-04
-steps: 39%|▍| 155/400 [04:11<06:36, 1.62s/it, Average key norm=0.284, Keys Scaled=3, Loss: 0.0235 | Pulse: 6.2770e-06
-steps: 39%|▍| 156/400 [04:12<06:34, 1.62s/it, Average key norm=0.284, Keys Scaled=3, Loss: 0.0240 | Pulse: 2.4857e-04
-steps: 39%|▍| 157/400 [04:13<06:33, 1.62s/it, Average key norm=0.285, Keys Scaled=2, Loss: 0.0220 | Pulse: 2.0782e-04
-steps: 40%|▍| 158/400 [04:15<06:31, 1.62s/it, Average key norm=0.285, Keys Scaled=3, Loss: 0.0221 | Pulse: 1.8830e-04
-steps: 40%|▍| 159/400 [04:16<06:29, 1.62s/it, Average key norm=0.285, Keys Scaled=3, Loss: 0.0220 | Pulse: 1.7584e-04
-steps: 40%|▍| 160/400 [04:18<06:27, 1.61s/it, Average key norm=0.285, Keys Scaled=3, Loss: 0.0226 | Pulse: 1.8139e-04
-
-steps: 40%|▍| 161/400 [04:19<06:25, 1.61s/it, Average key norm=0.286, Keys Scaled=3, Loss: 0.0223 | Pulse: 1.7922e-04
-steps: 40%|▍| 162/400 [04:21<06:23, 1.61s/it, Average key norm=0.286, Keys Scaled=3, Loss: 0.0227 | Pulse: 1.8971e-04
-steps: 41%|▍| 163/400 [04:22<06:21, 1.61s/it, Average key norm=0.286, Keys Scaled=3, Loss: 0.0221 | Pulse: 6.3559e-06
-steps: 41%|▍| 164/400 [04:24<06:20, 1.61s/it, Average key norm=0.286, Keys Scaled=3, Loss: 0.0231 | Pulse: 2.5067e-04
-steps: 41%|▍| 165/400 [04:25<06:18, 1.61s/it, Average key norm=0.286, Keys Scaled=3, Loss: 0.0216 | Pulse: 2.2528e-04
-steps: 42%|▍| 166/400 [04:26<06:16, 1.61s/it, Average key norm=0.287, Keys Scaled=3, Loss: 0.0221 | Pulse: 2.2431e-04
-steps: 42%|▍| 167/400 [04:28<06:14, 1.61s/it, Average key norm=0.287, Keys Scaled=3, Loss: 0.0224 | Pulse: 2.3731e-04
-steps: 42%|▍| 168/400 [04:29<06:12, 1.61s/it, Average key norm=0.287, Keys Scaled=3, Loss: 0.0227 | Pulse: 2.6001e-04
-steps: 42%|▍| 169/400 [04:31<06:11, 1.61s/it, Average key norm=0.288, Keys Scaled=3, Loss: 0.0234 | Pulse: 3.1669e-04
-steps: 42%|▍| 170/400 [04:33<06:09, 1.61s/it, Average key norm=0.288, Keys Scaled=3, Loss: 0.0228 | Pulse: 3.7212e-04
-
-steps: 43%|▍| 171/400 [04:34<06:07, 1.61s/it, Average key norm=0.288, Keys Scaled=3, Loss: 0.0230 | Pulse: 3.7212e-04
-steps: 43%|▍| 172/400 [04:36<06:05, 1.61s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0235 | Pulse: 7.0346e-06
-steps: 43%|▍| 173/400 [04:37<06:04, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0234 | Pulse: 1.0552e-05
-steps: 44%|▍| 174/400 [04:39<06:02, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0225 | Pulse: 1.5828e-05
-steps: 44%|▍| 175/400 [04:40<06:00, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0222 | Pulse: 7.6929e-06
-steps: 44%|▍| 176/400 [04:42<05:58, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0237 | Pulse: 1.1539e-05
-steps: 44%|▍| 177/400 [04:43<05:57, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0225 | Pulse: 1.7309e-05
-steps: 44%|▍| 178/400 [04:45<05:55, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0222 | Pulse: 2.5963e-05
-steps: 45%|▍| 179/400 [04:46<05:53, 1.60s/it, Average key norm=0.289, Keys Scaled=2, Loss: 0.0217 | Pulse: 3.8945e-05
-steps: 45%|▍| 180/400 [04:48<05:52, 1.60s/it, Average key norm=0.289, Keys Scaled=2, Loss: 0.0228 | Pulse: 8.0577e-06
-
-steps: 45%|▍| 181/400 [04:49<05:50, 1.60s/it, Average key norm=0.289, Keys Scaled=2, Loss: 0.0215 | Pulse: 1.2087e-05
-steps: 46%|▍| 182/400 [04:51<05:48, 1.60s/it, Average key norm=0.289, Keys Scaled=2, Loss: 0.0204 | Pulse: 1.8130e-05
-steps: 46%|▍| 183/400 [04:52<05:46, 1.60s/it, Average key norm=0.289, Keys Scaled=2, Loss: 0.0207 | Pulse: 2.7195e-05
-steps: 46%|▍| 184/400 [04:54<05:45, 1.60s/it, Average key norm=0.289, Keys Scaled=2, Loss: 0.0223 | Pulse: 4.0792e-05
-steps: 46%|▍| 185/400 [04:55<05:43, 1.60s/it, Average key norm=0.289, Keys Scaled=2, Loss: 0.0207 | Pulse: 6.1188e-05
-steps: 46%|▍| 186/400 [04:57<05:41, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0204 | Pulse: 9.1782e-05
-steps: 47%|▍| 187/400 [04:58<05:40, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0214 | Pulse: 1.3767e-04
-steps: 47%|▍| 188/400 [05:00<05:38, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0218 | Pulse: 2.0651e-04
-steps: 47%|▍| 189/400 [05:01<05:36, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0223 | Pulse: 2.0651e-04
-steps: 48%|▍| 190/400 [05:03<05:35, 1.60s/it, Average key norm=0.289, Keys Scaled=3, Loss: 0.0220 | Pulse: 2.0651e-04
-
-steps: 48%|▍| 191/400 [05:04<05:33, 1.60s/it, Average key norm=0.29, Keys Scaled=38, Loss: 0.0225 | Pulse: 2.0651e-04
-steps: 48%|▍| 192/400 [05:06<05:31, 1.59s/it, Average key norm=0.29, Keys Scaled=37, Loss: 0.0237 | Pulse: 2.0651e-04
-steps: 48%|▍| 193/400 [05:07<05:29, 1.59s/it, Average key norm=0.29, Keys Scaled=38, Loss: 0.0221 | Pulse: 2.0651e-04
-steps: 48%|▍| 194/400 [05:09<05:28, 1.59s/it, Average key norm=0.29, Keys Scaled=39, Loss: 0.0233 | Pulse: 2.0651e-04
-steps: 49%|▍| 195/400 [05:10<05:26, 1.59s/it, Average key norm=0.29, Keys Scaled=39, Loss: 0.0249 | Pulse: 2.0651e-04
-steps: 49%|▍| 196/400 [05:12<05:24, 1.59s/it, Average key norm=0.29, Keys Scaled=36, Loss: 0.0223 | Pulse: 2.0651e-04
-steps: 49%|▍| 197/400 [05:13<05:23, 1.59s/it, Average key norm=0.291, Keys Scaled=3, Loss: 0.0217 | Pulse: 2.0651e-04
-steps: 50%|▍| 198/400 [05:15<05:21, 1.59s/it, Average key norm=0.291, Keys Scaled=3, Loss: 0.0236 | Pulse: 2.0651e-04
-steps: 50%|▍| 199/400 [05:16<05:19, 1.59s/it, Average key norm=0.291, Keys Scaled=3, Loss: 0.0234 | Pulse: 2.0651e-04
-steps: 50%|▌| 200/400 [05:18<05:18, 1.59s/it, Average key norm=0.291, Keys Scaled=3, Loss: 0.0225 | Pulse: 2.0651e-04
-
-steps: 50%|▌| 201/400 [05:19<05:16, 1.59s/it, Average key norm=0.291, Keys Scaled=3, Loss: 0.0214 | Pulse: 2.0651e-04
-steps: 50%|▌| 202/400 [05:21<05:14, 1.59s/it, Average key norm=0.291, Keys Scaled=3, Loss: 0.0212 | Pulse: 2.0651e-04
-steps: 51%|▌| 203/400 [05:22<05:13, 1.59s/it, Average key norm=0.292, Keys Scaled=3, Loss: 0.0211 | Pulse: 2.0651e-04
-steps: 51%|▌| 204/400 [05:24<05:11, 1.59s/it, Average key norm=0.292, Keys Scaled=3, Loss: 0.0216 | Pulse: 2.0651e-04
-steps: 51%|▌| 205/400 [05:25<05:09, 1.59s/it, Average key norm=0.292, Keys Scaled=3, Loss: 0.0207 | Pulse: 2.0651e-04
-steps: 52%|▌| 206/400 [05:27<05:08, 1.59s/it, Average key norm=0.292, Keys Scaled=3, Loss: 0.0211 | Pulse: 2.0651e-04
-steps: 52%|▌| 207/400 [05:28<05:06, 1.59s/it, Average key norm=0.292, Keys Scaled=3, Loss: 0.0210 | Pulse: 2.0651e-04
-steps: 52%|▌| 208/400 [05:30<05:04, 1.59s/it, Average key norm=0.293, Keys Scaled=3, Loss: 0.0217 | Pulse: 2.0651e-04
-steps: 52%|▌| 209/400 [05:31<05:03, 1.59s/it, Average key norm=0.293, Keys Scaled=3, Loss: 0.0211 | Pulse: 2.0651e-04
-steps: 52%|▌| 210/400 [05:33<05:01, 1.59s/it, Average key norm=0.293, Keys Scaled=3, Loss: 0.0220 | Pulse: 2.0651e-04
-
-steps: 53%|▌| 211/400 [05:34<04:59, 1.59s/it, Average key norm=0.293, Keys Scaled=3, Loss: 0.0219 | Pulse: 2.0651e-04
-steps: 53%|▌| 212/400 [05:36<04:58, 1.59s/it, Average key norm=0.294, Keys Scaled=3, Loss: 0.0208 | Pulse: 2.0651e-04
-steps: 53%|▌| 213/400 [05:37<04:56, 1.58s/it, Average key norm=0.294, Keys Scaled=3, Loss: 0.0208 | Pulse: 2.0651e-04
-steps: 54%|▌| 214/400 [05:38<04:54, 1.58s/it, Average key norm=0.294, Keys Scaled=3, Loss: 0.0210 | Pulse: 2.0651e-04
-steps: 54%|▌| 215/400 [05:40<04:53, 1.58s/it, Average key norm=0.294, Keys Scaled=3, Loss: 0.0212 | Pulse: 2.0651e-04
-steps: 54%|▌| 216/400 [05:42<04:51, 1.58s/it, Average key norm=0.295, Keys Scaled=3, Loss: 0.0214 | Pulse: 2.0651e-04
-steps: 54%|▌| 217/400 [05:43<04:49, 1.58s/it, Average key norm=0.295, Keys Scaled=3, Loss: 0.0210 | Pulse: 2.0651e-04
-steps: 55%|▌| 218/400 [05:45<04:48, 1.58s/it, Average key norm=0.295, Keys Scaled=3, Loss: 0.0205 | Pulse: 2.0651e-04
-steps: 55%|▌| 219/400 [05:46<04:46, 1.58s/it, Average key norm=0.295, Keys Scaled=3, Loss: 0.0202 | Pulse: 2.0651e-04
-steps: 55%|▌| 220/400 [05:47<04:44, 1.58s/it, Average key norm=0.296, Keys Scaled=3, Loss: 0.0204 | Pulse: 2.0651e-04
-
-steps: 55%|▌| 221/400 [05:49<04:43, 1.58s/it, Average key norm=0.296, Keys Scaled=4, Loss: 0.0205 | Pulse: 2.0651e-04
-steps: 56%|▌| 222/400 [05:50<04:41, 1.58s/it, Average key norm=0.296, Keys Scaled=4, Loss: 0.0213 | Pulse: 2.0651e-04
-steps: 56%|▌| 223/400 [05:52<04:39, 1.58s/it, Average key norm=0.296, Keys Scaled=4, Loss: 0.0205 | Pulse: 2.0651e-04
-steps: 56%|▌| 224/400 [05:53<04:37, 1.58s/it, Average key norm=0.296, Keys Scaled=4, Loss: 0.0201 | Pulse: 2.0651e-04
-steps: 56%|▌| 225/400 [05:55<04:36, 1.58s/it, Average key norm=0.297, Keys Scaled=4, Loss: 0.0203 | Pulse: 2.0651e-04
-steps: 56%|▌| 226/400 [05:56<04:34, 1.58s/it, Average key norm=0.297, Keys Scaled=4, Loss: 0.0216 | Pulse: 2.0651e-04
-steps: 57%|▌| 227/400 [05:58<04:32, 1.58s/it, Average key norm=0.297, Keys Scaled=4, Loss: 0.0213 | Pulse: 2.0651e-04
-steps: 57%|▌| 228/400 [05:59<04:31, 1.58s/it, Average key norm=0.297, Keys Scaled=4, Loss: 0.0202 | Pulse: 2.0651e-04
-steps: 57%|▌| 229/400 [06:01<04:29, 1.58s/it, Average key norm=0.297, Keys Scaled=4, Loss: 0.0207 | Pulse: 2.0651e-04
-steps: 57%|▌| 230/400 [06:02<04:27, 1.58s/it, Average key norm=0.297, Keys Scaled=3, Loss: 0.0191 | Pulse: 2.0651e-04
-
-steps: 58%|▌| 231/400 [06:03<04:26, 1.58s/it, Average key norm=0.298, Keys Scaled=3, Loss: 0.0196 | Pulse: 2.0651e-04
-steps: 58%|▌| 232/400 [06:05<04:24, 1.57s/it, Average key norm=0.298, Keys Scaled=3, Loss: 0.0205 | Pulse: 2.0651e-04
-steps: 58%|▌| 233/400 [06:06<04:22, 1.57s/it, Average key norm=0.298, Keys Scaled=3, Loss: 0.0203 | Pulse: 2.0651e-04
-steps: 58%|▌| 234/400 [06:08<04:21, 1.57s/it, Average key norm=0.298, Keys Scaled=3, Loss: 0.0213 | Pulse: 2.0651e-04
-steps: 59%|▌| 235/400 [06:09<04:19, 1.57s/it, Average key norm=0.298, Keys Scaled=3, Loss: 0.0195 | Pulse: 2.0651e-04
-steps: 59%|▌| 236/400 [06:11<04:17, 1.57s/it, Average key norm=0.298, Keys Scaled=3, Loss: 0.0193 | Pulse: 2.0651e-04
-steps: 59%|▌| 237/400 [06:12<04:16, 1.57s/it, Average key norm=0.298, Keys Scaled=3, Loss: 0.0194 | Pulse: 2.0651e-04
-steps: 60%|▌| 238/400 [06:13<04:14, 1.57s/it, Average key norm=0.298, Keys Scaled=4, Loss: 0.0194 | Pulse: 2.0651e-04
-steps: 60%|▌| 239/400 [06:15<04:12, 1.57s/it, Average key norm=0.299, Keys Scaled=4, Loss: 0.0188 | Pulse: 2.0651e-04
-steps: 60%|▌| 240/400 [06:16<04:11, 1.57s/it, Average key norm=0.299, Keys Scaled=4, Loss: 0.0192 | Pulse: 2.0651e-04
-
-steps: 60%|▌| 241/400 [06:18<04:09, 1.57s/it, Average key norm=0.299, Keys Scaled=4, Loss: 0.0204 | Pulse: 2.0651e-04
-steps: 60%|▌| 242/400 [06:19<04:08, 1.57s/it, Average key norm=0.299, Keys Scaled=4, Loss: 0.0196 | Pulse: 1.7786e-05
-steps: 61%|▌| 243/400 [06:21<04:06, 1.57s/it, Average key norm=0.299, Keys Scaled=4, Loss: 0.0198 | Pulse: 2.6679e-05
-steps: 61%|▌| 244/400 [06:22<04:04, 1.57s/it, Average key norm=0.299, Keys Scaled=3, Loss: 0.0214 | Pulse: 3.7742e-05
-steps: 61%|▌| 245/400 [06:24<04:03, 1.57s/it, Average key norm=0.299, Keys Scaled=3, Loss: 0.0195 | Pulse: 4.0589e-05
-steps: 62%|▌| 246/400 [06:26<04:01, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0200 | Pulse: 4.0870e-05
-steps: 62%|▌| 247/400 [06:27<04:00, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0192 | Pulse: 4.4422e-05
-steps: 62%|▌| 248/400 [06:29<03:58, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0189 | Pulse: 4.8433e-05
-steps: 62%|▌| 249/400 [06:30<03:56, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0186 | Pulse: 5.3003e-05
-steps: 62%|▋| 250/400 [06:32<03:55, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0182 | Pulse: 5.8079e-05
-
-steps: 63%|▋| 251/400 [06:33<03:53, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0197 | Pulse: 5.8079e-05
-steps: 63%|▋| 252/400 [06:35<03:52, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0180 | Pulse: 5.9097e-05
-steps: 63%|▋| 253/400 [06:36<03:50, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0200 | Pulse: 2.7995e-05
-steps: 64%|▋| 254/400 [06:38<03:49, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0195 | Pulse: 4.1993e-05
-steps: 64%|▋| 255/400 [06:40<03:47, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0186 | Pulse: 4.7574e-05
-steps: 64%|▋| 256/400 [06:41<03:45, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0191 | Pulse: 4.7598e-05
-steps: 64%|▋| 257/400 [06:43<03:44, 1.57s/it, Average key norm=0.299, Keys Scaled=2, Loss: 0.0186 | Pulse: 4.9615e-05
-steps: 64%|▋| 258/400 [06:44<03:42, 1.57s/it, Average key norm=0.3, Keys Scaled=31, Loss: 0.0191 | Pulse: 4.9615e-05
-steps: 65%|▋| 259/400 [06:46<03:41, 1.57s/it, Average key norm=0.3, Keys Scaled=32, Loss: 0.0191 | Pulse: 4.9615e-05
-steps: 65%|▋| 260/400 [06:47<03:39, 1.57s/it, Average key norm=0.3, Keys Scaled=34, Loss: 0.0190 | Pulse: 4.9615e-05
-
-steps: 65%|▋| 261/400 [06:49<03:37, 1.57s/it, Average key norm=0.3, Keys Scaled=35, Loss: 0.0189 | Pulse: 4.9615e-05
-steps: 66%|▋| 262/400 [06:50<03:36, 1.57s/it, Average key norm=0.3, Keys Scaled=35, Loss: 0.0184 | Pulse: 5.1794e-05
-steps: 66%|▋| 263/400 [06:52<03:34, 1.57s/it, Average key norm=0.3, Keys Scaled=38, Loss: 0.0196 | Pulse: 5.1794e-05
-steps: 66%|▋| 264/400 [06:53<03:33, 1.57s/it, Average key norm=0.3, Keys Scaled=38, Loss: 0.0186 | Pulse: 5.1794e-05
-steps: 66%|▋| 265/400 [06:55<03:31, 1.57s/it, Average key norm=0.3, Keys Scaled=42, Loss: 0.0175 | Pulse: 5.7518e-05
-steps: 66%|▋| 266/400 [06:56<03:29, 1.57s/it, Average key norm=0.3, Keys Scaled=42, Loss: 0.0176 | Pulse: 6.2256e-05
-steps: 67%|▋| 267/400 [06:58<03:28, 1.57s/it, Average key norm=0.3, Keys Scaled=42, Loss: 0.0185 | Pulse: 6.2256e-05
-steps: 67%|▋| 268/400 [06:59<03:26, 1.57s/it, Average key norm=0.3, Keys Scaled=42, Loss: 0.0194 | Pulse: 5.8092e-05
-steps: 67%|▋| 269/400 [07:00<03:25, 1.56s/it, Average key norm=0.3, Keys Scaled=43, Loss: 0.0191 | Pulse: 5.8092e-05
-steps: 68%|▋| 270/400 [07:02<03:23, 1.56s/it, Average key norm=0.3, Keys Scaled=44, Loss: 0.0196 | Pulse: 5.8092e-05
-
-steps: 68%|▋| 271/400 [07:04<03:21, 1.56s/it, Average key norm=0.3, Keys Scaled=44, Loss: 0.0184 | Pulse: 5.8092e-05
-steps: 68%|▋| 272/400 [07:05<03:20, 1.56s/it, Average key norm=0.3, Keys Scaled=44, Loss: 0.0181 | Pulse: 5.8092e-05
-steps: 68%|▋| 273/400 [07:07<03:18, 1.56s/it, Average key norm=0.3, Keys Scaled=42, Loss: 0.0174 | Pulse: 5.8092e-05
-steps: 68%|▋| 274/400 [07:08<03:17, 1.56s/it, Average key norm=0.3, Keys Scaled=42, Loss: 0.0188 | Pulse: 5.8092e-05
-steps: 69%|▋| 275/400 [07:09<03:15, 1.56s/it, Average key norm=0.3, Keys Scaled=37, Loss: 0.0181 | Pulse: 5.8092e-05
-steps: 69%|▋| 276/400 [07:11<03:13, 1.56s/it, Average key norm=0.3, Keys Scaled=37, Loss: 0.0187 | Pulse: 5.8092e-05
-steps: 69%|▋| 277/400 [07:12<03:12, 1.56s/it, Average key norm=0.3, Keys Scaled=36, Loss: 0.0191 | Pulse: 5.8092e-05
-steps: 70%|▋| 278/400 [07:14<03:10, 1.56s/it, Average key norm=0.301, Keys Scaled=3, Loss: 0.0181 | Pulse: 5.8092e-05
-steps: 70%|▋| 279/400 [07:16<03:09, 1.56s/it, Average key norm=0.301, Keys Scaled=3, Loss: 0.0186 | Pulse: 5.8092e-05
-steps: 70%|▋| 280/400 [07:17<03:07, 1.56s/it, Average key norm=0.301, Keys Scaled=3, Loss: 0.0191 | Pulse: 5.8092e-05
-
-steps: 70%|▋| 281/400 [07:18<03:05, 1.56s/it, Average key norm=0.301, Keys Scaled=3, Loss: 0.0179 | Pulse: 5.8092e-05
-steps: 70%|▋| 282/400 [07:20<03:04, 1.56s/it, Average key norm=0.301, Keys Scaled=3, Loss: 0.0195 | Pulse: 5.8092e-05
-steps: 71%|▋| 283/400 [07:21<03:02, 1.56s/it, Average key norm=0.301, Keys Scaled=4, Loss: 0.0189 | Pulse: 2.9285e-04
-steps: 71%|▋| 284/400 [07:23<03:01, 1.56s/it, Average key norm=0.301, Keys Scaled=4, Loss: 0.0199 | Pulse: 2.9285e-04
-steps: 71%|▋| 285/400 [07:24<02:59, 1.56s/it, Average key norm=0.301, Keys Scaled=4, Loss: 0.0196 | Pulse: 2.9285e-04
-steps: 72%|▋| 286/400 [07:26<02:57, 1.56s/it, Average key norm=0.302, Keys Scaled=4, Loss: 0.0195 | Pulse: 2.9285e-04
-steps: 72%|▋| 287/400 [07:27<02:56, 1.56s/it, Average key norm=0.302, Keys Scaled=4, Loss: 0.0187 | Pulse: 2.9285e-04
-steps: 72%|▋| 288/400 [07:29<02:54, 1.56s/it, Average key norm=0.302, Keys Scaled=4, Loss: 0.0192 | Pulse: 2.9285e-04
-steps: 72%|▋| 289/400 [07:30<02:53, 1.56s/it, Average key norm=0.302, Keys Scaled=4, Loss: 0.0183 | Pulse: 2.9285e-04
-steps: 72%|▋| 290/400 [07:32<02:51, 1.56s/it, Average key norm=0.302, Keys Scaled=4, Loss: 0.0185 | Pulse: 2.9285e-04
-
-steps: 73%|▋| 291/400 [07:33<02:49, 1.56s/it, Average key norm=0.302, Keys Scaled=4, Loss: 0.0195 | Pulse: 2.9285e-04
-steps: 73%|▋| 292/400 [07:35<02:48, 1.56s/it, Average key norm=0.302, Keys Scaled=4, Loss: 0.0200 | Pulse: 2.9285e-04
-steps: 73%|▋| 293/400 [07:36<02:46, 1.56s/it, Average key norm=0.302, Keys Scaled=4, Loss: 0.0193 | Pulse: 2.9285e-04
-steps: 74%|▋| 294/400 [07:38<02:45, 1.56s/it, Average key norm=0.303, Keys Scaled=3, Loss: 0.0188 | Pulse: 2.9285e-04
-steps: 74%|▋| 295/400 [07:39<02:43, 1.56s/it, Average key norm=0.303, Keys Scaled=3, Loss: 0.0183 | Pulse: 2.9285e-04
-steps: 74%|▋| 296/400 [07:41<02:42, 1.56s/it, Average key norm=0.303, Keys Scaled=3, Loss: 0.0190 | Pulse: 2.9285e-04
-steps: 74%|▋| 297/400 [07:42<02:40, 1.56s/it, Average key norm=0.303, Keys Scaled=4, Loss: 0.0193 | Pulse: 2.9285e-04
-steps: 74%|▋| 298/400 [07:44<02:38, 1.56s/it, Average key norm=0.303, Keys Scaled=4, Loss: 0.0191 | Pulse: 2.9285e-04
-steps: 75%|▋| 299/400 [07:45<02:37, 1.56s/it, Average key norm=0.304, Keys Scaled=4, Loss: 0.0205 | Pulse: 2.9285e-04
-steps: 75%|▊| 300/400 [07:47<02:35, 1.56s/it, Average key norm=0.304, Keys Scaled=4, Loss: 0.0190 | Pulse: 2.9285e-04
-
-steps: 75%|▊| 301/400 [07:48<02:34, 1.56s/it, Average key norm=0.304, Keys Scaled=4, Loss: 0.0192 | Pulse: 2.9285e-04
-steps: 76%|▊| 302/400 [07:50<02:32, 1.56s/it, Average key norm=0.304, Keys Scaled=4, Loss: 0.0184 | Pulse: 2.9285e-04
-steps: 76%|▊| 303/400 [07:51<02:30, 1.56s/it, Average key norm=0.304, Keys Scaled=3, Loss: 0.0188 | Pulse: 2.9285e-04
-steps: 76%|▊| 304/400 [07:52<02:29, 1.56s/it, Average key norm=0.305, Keys Scaled=3, Loss: 0.0204 | Pulse: 2.9285e-04
-steps: 76%|▊| 305/400 [07:54<02:27, 1.56s/it, Average key norm=0.305, Keys Scaled=3, Loss: 0.0184 | Pulse: 2.9285e-04
-steps: 76%|▊| 306/400 [07:55<02:26, 1.56s/it, Average key norm=0.305, Keys Scaled=3, Loss: 0.0196 | Pulse: 2.9285e-04
-steps: 77%|▊| 307/400 [07:57<02:24, 1.56s/it, Average key norm=0.305, Keys Scaled=3, Loss: 0.0198 | Pulse: 2.9285e-04
-steps: 77%|▊| 308/400 [07:58<02:23, 1.55s/it, Average key norm=0.305, Keys Scaled=3, Loss: 0.0180 | Pulse: 2.9285e-04
-steps: 77%|▊| 309/400 [08:00<02:21, 1.55s/it, Average key norm=0.305, Keys Scaled=3, Loss: 0.0186 | Pulse: 2.9285e-04
-steps: 78%|▊| 310/400 [08:01<02:19, 1.55s/it, Average key norm=0.305, Keys Scaled=3, Loss: 0.0181 | Pulse: 2.9285e-04
-
-steps: 78%|▊| 311/400 [08:03<02:18, 1.55s/it, Average key norm=0.306, Keys Scaled=4, Loss: 0.0183 | Pulse: 2.9285e-04
-steps: 78%|▊| 312/400 [08:04<02:16, 1.55s/it, Average key norm=0.306, Keys Scaled=4, Loss: 0.0189 | Pulse: 2.9285e-04
-steps: 78%|▊| 313/400 [08:06<02:15, 1.55s/it, Average key norm=0.306, Keys Scaled=4, Loss: 0.0183 | Pulse: 2.9285e-04
-steps: 78%|▊| 314/400 [08:07<02:13, 1.55s/it, Average key norm=0.306, Keys Scaled=4, Loss: 0.0193 | Pulse: 2.9285e-04
-steps: 79%|▊| 315/400 [08:09<02:11, 1.55s/it, Average key norm=0.306, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0176 | Pulse: 2.9285e-04
-steps: 79%|▊| 316/400 [08:10<02:10, 1.55s/it, Average key norm=0.306, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0188 | Pulse: 2.9285e-04
-steps: 79%|▊| 317/400 [08:11<02:08, 1.55s/it, Average key norm=0.306, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0192 | Pulse: 2.9285e-04
-steps: 80%|▊| 318/400 [08:13<02:07, 1.55s/it, Average key norm=0.307, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0176 | Pulse: 2.9285e-04
-steps: 80%|▊| 319/400 [08:14<02:05, 1.55s/it, Average key norm=0.307, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0183 | Pulse: 2.9285e-04
-steps: 80%|▊| 320/400 [08:16<02:04, 1.55s/it, Average key norm=0.307, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0193 | Pulse: 2.9285e-04
-
-steps: 80%|▊| 321/400 [08:18<02:02, 1.55s/it, Average key norm=0.307, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0182 | Pulse: 2.9285e-04
-steps: 80%|▊| 322/400 [08:19<02:01, 1.55s/it, Average key norm=0.307, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0186 | Pulse: 2.9285e-04
-steps: 81%|▊| 323/400 [08:21<01:59, 1.55s/it, Average key norm=0.308, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0185 | Pulse: 2.9285e-04
-steps: 81%|▊| 324/400 [08:22<01:57, 1.55s/it, Average key norm=0.308, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0179 | Pulse: 2.9285e-04
-steps: 81%|▊| 325/400 [08:24<01:56, 1.55s/it, Average key norm=0.308, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0181 | Pulse: 2.9285e-04
-steps: 82%|▊| 326/400 [08:25<01:54, 1.55s/it, Average key norm=0.308, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0188 | Pulse: 2.9285e-04
-steps: 82%|▊| 327/400 [08:27<01:53, 1.55s/it, Average key norm=0.308, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0169 | Pulse: 2.9285e-04
-steps: 82%|▊| 328/400 [08:28<01:51, 1.55s/it, Average key norm=0.308, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0178 | Pulse: 2.9285e-04
-steps: 82%|▊| 329/400 [08:30<01:50, 1.55s/it, Average key norm=0.308, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0184 | Pulse: 2.9285e-04
-steps: 82%|▊| 330/400 [08:31<01:48, 1.55s/it, Average key norm=0.309, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0207 | Pulse: 2.9285e-04
-
-steps: 83%|▊| 331/400 [08:33<01:47, 1.55s/it, Average key norm=0.309, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0176 | Pulse: 2.9285e-04
-steps: 83%|▊| 332/400 [08:35<01:45, 1.55s/it, Average key norm=0.309, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0183 | Pulse: 2.9285e-04
-steps: 83%|▊| 333/400 [08:36<01:43, 1.55s/it, Average key norm=0.309, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0190 | Pulse: 2.9285e-04
-steps: 84%|▊| 334/400 [08:38<01:42, 1.55s/it, Average key norm=0.309, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0173 | Pulse: 2.9285e-04
-steps: 84%|▊| 335/400 [08:39<01:40, 1.55s/it, Average key norm=0.309, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0184 | Pulse: 2.9285e-04
-steps: 84%|▊| 336/400 [08:41<01:39, 1.55s/it, Average key norm=0.309, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0172 | Pulse: 2.9285e-04
-steps: 84%|▊| 337/400 [08:42<01:37, 1.55s/it, Average key norm=0.31, Keys Scaled=38✨[READY TO STOP]✨
-, Loss: 0.0185 | Pulse: 2.9285e-04
-steps: 84%|▊| 338/400 [08:44<01:36, 1.55s/it, Average key norm=0.31, Keys Scaled=41✨[READY TO STOP]✨
-, Loss: 0.0190 | Pulse: 2.9285e-04
-steps: 85%|▊| 339/400 [08:45<01:34, 1.55s/it, Average key norm=0.31, Keys Scaled=44✨[READY TO STOP]✨
-, Loss: 0.0187 | Pulse: 2.9285e-04
-steps: 85%|▊| 340/400 [08:47<01:33, 1.55s/it, Average key norm=0.31, Keys Scaled=46✨[READY TO STOP]✨
-, Loss: 0.0188 | Pulse: 2.9285e-04
-
-steps: 85%|▊| 341/400 [08:49<01:31, 1.55s/it, Average key norm=0.31, Keys Scaled=47✨[READY TO STOP]✨
-, Loss: 0.0188 | Pulse: 2.9285e-04
-steps: 86%|▊| 342/400 [08:50<01:29, 1.55s/it, Average key norm=0.311, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0186 | Pulse: 2.9285e-04
-steps: 86%|▊| 343/400 [08:52<01:28, 1.55s/it, Average key norm=0.311, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0172 | Pulse: 2.9285e-04
-steps: 86%|▊| 344/400 [08:53<01:26, 1.55s/it, Average key norm=0.311, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0167 | Pulse: 2.9285e-04
-steps: 86%|▊| 345/400 [08:55<01:25, 1.55s/it, Average key norm=0.311, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0175 | Pulse: 2.9285e-04
-steps: 86%|▊| 346/400 [08:56<01:23, 1.55s/it, Average key norm=0.311, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0187 | Pulse: 2.9285e-04
-steps: 87%|▊| 347/400 [08:58<01:22, 1.55s/it, Average key norm=0.311, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0186 | Pulse: 2.9285e-04
-steps: 87%|▊| 348/400 [08:59<01:20, 1.55s/it, Average key norm=0.311, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0184 | Pulse: 2.9285e-04
-steps: 87%|▊| 349/400 [09:01<01:19, 1.55s/it, Average key norm=0.311, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0182 | Pulse: 2.9285e-04
-steps: 88%|▉| 350/400 [09:02<01:17, 1.55s/it, Average key norm=0.312, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0173 | Pulse: 2.9285e-04
-
-steps: 88%|▉| 351/400 [09:04<01:15, 1.55s/it, Average key norm=0.312, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0191 | Pulse: 2.9285e-04
-steps: 88%|▉| 352/400 [09:05<01:14, 1.55s/it, Average key norm=0.312, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0168 | Pulse: 2.9285e-04
-steps: 88%|▉| 353/400 [09:07<01:12, 1.55s/it, Average key norm=0.312, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0171 | Pulse: 2.9285e-04
-steps: 88%|▉| 354/400 [09:08<01:11, 1.55s/it, Average key norm=0.312, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0182 | Pulse: 2.9285e-04
-steps: 89%|▉| 355/400 [09:10<01:09, 1.55s/it, Average key norm=0.312, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0188 | Pulse: 2.9285e-04
-steps: 89%|▉| 356/400 [09:11<01:08, 1.55s/it, Average key norm=0.312, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0198 | Pulse: 2.9285e-04
-steps: 89%|▉| 357/400 [09:13<01:06, 1.55s/it, Average key norm=0.313, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0187 | Pulse: 2.9285e-04
-steps: 90%|▉| 358/400 [09:14<01:05, 1.55s/it, Average key norm=0.313, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0190 | Pulse: 2.9285e-04
-steps: 90%|▉| 359/400 [09:16<01:03, 1.55s/it, Average key norm=0.313, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0181 | Pulse: 2.9285e-04
-steps: 90%|▉| 360/400 [09:17<01:01, 1.55s/it, Average key norm=0.313, Keys Scaled=3✨[READY TO STOP]✨
-, Loss: 0.0180 | Pulse: 2.9285e-04
-
-steps: 90%|▉| 361/400 [09:19<01:00, 1.55s/it, Average key norm=0.313, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0186 | Pulse: 2.9285e-04
-steps: 90%|▉| 362/400 [09:20<00:58, 1.55s/it, Average key norm=0.314, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0171 | Pulse: 2.9285e-04
-steps: 91%|▉| 363/400 [09:22<00:57, 1.55s/it, Average key norm=0.314, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0183 | Pulse: 2.9285e-04
-steps: 91%|▉| 364/400 [09:23<00:55, 1.55s/it, Average key norm=0.314, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0178 | Pulse: 2.9285e-04
-steps: 91%|▉| 365/400 [09:25<00:54, 1.55s/it, Average key norm=0.314, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0182 | Pulse: 2.9285e-04
-steps: 92%|▉| 366/400 [09:27<00:52, 1.55s/it, Average key norm=0.314, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0168 | Pulse: 2.9285e-04
-steps: 92%|▉| 367/400 [09:28<00:51, 1.55s/it, Average key norm=0.314, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0167 | Pulse: 2.9285e-04
-steps: 92%|▉| 368/400 [09:30<00:49, 1.55s/it, Average key norm=0.314, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0176 | Pulse: 2.9285e-04
-steps: 92%|▉| 369/400 [09:31<00:48, 1.55s/it, Average key norm=0.315, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0168 | Pulse: 2.9285e-04
-steps: 92%|▉| 370/400 [09:33<00:46, 1.55s/it, Average key norm=0.315, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0167 | Pulse: 2.9285e-04
-
-steps: 93%|▉| 371/400 [09:34<00:44, 1.55s/it, Average key norm=0.315, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0162 | Pulse: 2.9285e-04
-steps: 93%|▉| 372/400 [09:36<00:43, 1.55s/it, Average key norm=0.315, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0184 | Pulse: 2.9285e-04
-steps: 93%|▉| 373/400 [09:37<00:41, 1.55s/it, Average key norm=0.315, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0168 | Pulse: 2.9285e-04
-steps: 94%|▉| 374/400 [09:39<00:40, 1.55s/it, Average key norm=0.315, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0163 | Pulse: 2.9285e-04
-steps: 94%|▉| 375/400 [09:41<00:38, 1.55s/it, Average key norm=0.315, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0166 | Pulse: 2.9285e-04
-steps: 94%|▉| 376/400 [09:42<00:37, 1.55s/it, Average key norm=0.316, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0171 | Pulse: 2.9285e-04
-steps: 94%|▉| 377/400 [09:44<00:35, 1.55s/it, Average key norm=0.316, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0157 | Pulse: 2.9285e-04
-steps: 94%|▉| 378/400 [09:45<00:34, 1.55s/it, Average key norm=0.316, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0176 | Pulse: 2.9285e-04
-steps: 95%|▉| 379/400 [09:47<00:32, 1.55s/it, Average key norm=0.316, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0164 | Pulse: 2.9285e-04
-steps: 95%|▉| 380/400 [09:48<00:30, 1.55s/it, Average key norm=0.316, Keys Scaled=4✨[READY TO STOP]✨
-
-, Loss: 0.0162 | Pulse: 2.9285e-04
-steps: 95%|▉| 381/400 [09:49<00:29, 1.55s/it, Average key norm=0.316, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0172 | Pulse: 2.9285e-04
-steps: 96%|▉| 382/400 [09:51<00:27, 1.55s/it, Average key norm=0.317, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0184 | Pulse: 2.9285e-04
-steps: 96%|▉| 383/400 [09:52<00:26, 1.55s/it, Average key norm=0.317, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0170 | Pulse: 2.9285e-04
-steps: 96%|▉| 384/400 [09:54<00:24, 1.55s/it, Average key norm=0.317, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0181 | Pulse: 2.9285e-04
-steps: 96%|▉| 385/400 [09:55<00:23, 1.55s/it, Average key norm=0.317, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0174 | Pulse: 2.9285e-04
-steps: 96%|▉| 386/400 [09:57<00:21, 1.55s/it, Average key norm=0.317, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0167 | Pulse: 2.9285e-04
-steps: 97%|▉| 387/400 [09:58<00:20, 1.55s/it, Average key norm=0.317, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0158 | Pulse: 2.9285e-04
-steps: 97%|▉| 388/400 [10:00<00:18, 1.55s/it, Average key norm=0.317, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0181 | Pulse: 2.9285e-04
-steps: 97%|▉| 389/400 [10:01<00:17, 1.55s/it, Average key norm=0.317, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0181 | Pulse: 2.9285e-04
-steps: 98%|▉| 390/400 [10:02<00:15, 1.55s/it, Average key norm=0.318, Keys Scaled=4✨[READY TO STOP]✨
+steps:   8%| | 20/240 [01:02<11:31,  3.14s/it, Average key norm=0.0675, Keys Scaled=0 | Loss: 0.0972 | Pulse: 2.2643e-04
+steps:   9%| | 21/240 [01:04<11:15,  3.08s/it, Average key norm=0.0749, Keys Scaled=0 | Loss: 0.0884 | Pulse: 2.7002e-04
+steps:   9%| | 22/240 [01:06<11:00,  3.03s/it, Average key norm=0.084, Keys Scaled=0 | Loss: 0.0898 | Pulse: 3.1985e-04
+steps:  10%| | 23/240 [01:08<10:47,  2.98s/it, Average key norm=0.0951, Keys Scaled=0 | Loss: 0.1052 | Pulse: 3.5894e-04
+steps:  10%| | 24/240 [01:10<10:32,  2.93s/it, Average key norm=0.108, Keys Scaled=0 | Loss: 0.0984 | Pulse: 3.9382e-04
+steps:  10%| | 25/240 [01:11<10:17,  2.87s/it, Average key norm=0.121, Keys Scaled=0 | Loss: 0.0737 | Pulse: 4.4690e-04
+steps:  11%| | 26/240 [01:13<10:07,  2.84s/it, Average key norm=0.136, Keys Scaled=0 | Loss: 0.0852 | Pulse: 4.9650e-04
+steps:  11%| | 27/240 [01:15<09:57,  2.80s/it, Average key norm=0.152, Keys Scaled=0 | Loss: 0.0869 | Pulse: 5.3825e-04
+steps:  12%| | 28/240 [01:17<09:45,  2.76s/it, Average key norm=0.169, Keys Scaled=0 | Loss: 0.0641 | Pulse: 6.0010e-04
+steps:  12%| | 29/240 [01:19<09:36,  2.73s/it, Average key norm=0.188, Keys Scaled=0 | Loss: 0.0788 | Pulse: 6.5048e-04
+steps:  12%|▏| 30/240 [01:21<09:28,  2.71s/it, Average key norm=0.208, Keys Scaled=0 | Loss: 0.0691 | Pulse: 7.0382e-04
+steps:  13%|▏| 31/240 [01:23<09:20,  2.68s/it, Average key norm=0.23, Keys Scaled=6 | Loss: 0.0794 | Pulse: 7.3908e-04
+steps:  13%|▏| 32/240 [01:24<09:11,  2.65s/it, Average key norm=0.252, Keys Scaled=13 | Loss: 0.0673 | Pulse: 7.8005e-04
+steps:  14%|▏| 33/240 [01:26<09:04,  2.63s/it, Average key norm=0.273, Keys Scaled=17 | Loss: 0.0715 | Pulse: 8.1364e-04
+steps:  14%|▏| 34/240 [01:28<08:57,  2.61s/it, Average key norm=0.295, Keys Scaled=23 | Loss: 0.0555 | Pulse: 1.2457e-04
+steps:  15%|▏| 35/240 [01:30<08:48,  2.58s/it, Average key norm=0.298, Keys Scaled=25 | Loss: 0.0681 | Pulse: 1.4563e-03
+steps:  15%|▏| 36/240 [01:32<08:41,  2.56s/it, Average key norm=0.331, Keys Scaled=31 | Loss: 0.0597 | Pulse: 9.9652e-04
+steps:  15%|▏| 37/240 [01:34<08:36,  2.54s/it, Average key norm=0.354, Keys Scaled=39 | Loss: 0.0687 | Pulse: 1.2194e-03
+steps:  16%|▏| 38/240 [01:35<08:30,  2.52s/it, Average key norm=0.382, Keys Scaled=54 | Loss: 0.0732 | Pulse: 1.3501e-03
+steps:  16%|▏| 39/240 [01:37<08:22,  2.50s/it, Average key norm=0.409, Keys Scaled=74 | Loss: 0.0588 | Pulse: 1.1192e-03
+steps:  17%|▏| 40/240 [01:39<08:17,  2.49s/it, Average key norm=0.431, Keys Scaled=90 | Loss: 0.0558 | Pulse: 7.6133e-04
+steps:  17%|▏| 41/240 [01:40<08:10,  2.46s/it, Average key norm=0.445, Keys Scaled=98 | Loss: 0.0703 | Pulse: 1.1524e-03
+steps:  18%|▏| 42/240 [01:43<08:05,  2.45s/it, Average key norm=0.464, Keys Scaled=10 | Loss: 0.0617 | Pulse: 1.0286e-03
+steps:  18%|▏| 43/240 [01:45<08:01,  2.44s/it, Average key norm=0.48, Keys Scaled=113 | Loss: 0.0608 | Pulse: 9.3303e-04
+steps:  18%|▏| 44/240 [01:46<07:55,  2.43s/it, Average key norm=0.494, Keys Scaled=11 | Loss: 0.0584 | Pulse: 8.0347e-04
+steps:  19%|▏| 45/240 [01:48<07:52,  2.42s/it, Average key norm=0.506, Keys Scaled=12 | Loss: 0.0628 | Pulse: 8.9808e-04
+steps:  19%|▏| 46/240 [01:50<07:47,  2.41s/it, Average key norm=0.518, Keys Scaled=13 | Loss: 0.0511 | Pulse: 6.0983e-04
+steps:  20%|▏| 47/240 [01:52<07:44,  2.40s/it, Average key norm=0.526, Keys Scaled=13 | Loss: 0.0666 | Pulse: 8.9614e-04
+steps:  20%|▏| 48/240 [01:55<07:40,  2.40s/it, Average key norm=0.536, Keys Scaled=14 | Loss: 0.0481 | Pulse: 5.6743e-04
+steps:  20%|▏| 49/240 [01:57<07:37,  2.39s/it, Average key norm=0.543, Keys Scaled=15 | Loss: 0.0584 | Pulse: 7.3689e-05
+steps:  21%|▏| 50/240 [01:59<07:32,  2.38s/it, Average key norm=0.543, Keys Scaled=15 | Loss: 0.0668 | Pulse: 1.4502e-03
+steps:  21%|▏| 51/240 [02:01<07:28,  2.38s/it, Average key norm=0.557, Keys Scaled=16 | Loss: 0.0554 | Pulse: 1.1314e-03
+steps:  22%|▏| 52/240 [02:03<07:25,  2.37s/it, Average key norm=0.568, Keys Scaled=17 | Loss: 0.0593 | Pulse: 1.1563e-03
+steps:  22%|▏| 53/240 [02:05<07:22,  2.36s/it, Average key norm=0.578, Keys Scaled=18 | Loss: 0.0585 | Pulse: 1.1434e-03
+steps:  22%|▏| 54/240 [02:07<07:17,  2.35s/it, Average key norm=0.589, Keys Scaled=19 | Loss: 0.0518 | Pulse: 8.6399e-04
+steps:  23%|▏| 55/240 [02:09<07:14,  2.35s/it, Average key norm=0.596, Keys Scaled=20 | Loss: 0.0612 | Pulse: 1.0883e-03
+steps:  23%|▏| 56/240 [02:11<07:11,  2.34s/it, Average key norm=0.605, Keys Scaled=21 | Loss: 0.0576 | Pulse: 1.0984e-03
+steps:  24%|▏| 57/240 [02:13<07:08,  2.34s/it, Average key norm=0.613, Keys Scaled=23 | Loss: 0.0509 | Pulse: 8.3527e-04
+steps:  24%|▏| 58/240 [02:15<07:06,  2.34s/it, Average key norm=0.619, Keys Scaled=24 | Loss: 0.0608 | Pulse: 1.0921e-03
+steps:  25%|▏| 59/240 [02:18<07:03,  2.34s/it, Average key norm=0.627, Keys Scaled=24 | Loss: 0.0585 | Pulse: 1.2058e-03
+steps:  25%|▎| 60/240 [02:20<07:01,  2.34s/it, Average key norm=0.635, Keys Scaled=26 | Loss: 0.0452 | Pulse: 7.1841e-04
+steps:  25%|▎| 61/240 [02:22<06:58,  2.34s/it, Average key norm=0.64, Keys Scaled=268 | Loss: 0.0555 | Pulse: 7.1676e-05
+steps:  26%|▎| 62/240 [02:24<06:55,  2.33s/it, Average key norm=0.64, Keys Scaled=268 | Loss: 0.0563 | Pulse: 1.4515e-03
+steps:  26%|▎| 63/240 [02:26<06:51,  2.33s/it, Average key norm=0.649, Keys Scaled=28 | Loss: 0.0536 | Pulse: 1.3169e-03
+steps:  27%|▎| 64/240 [02:28<06:49,  2.33s/it, Average key norm=0.656, Keys Scaled=29 | Loss: 0.0417 | Pulse: 7.8884e-04
+steps:  27%|▎| 65/240 [02:30<06:45,  2.32s/it, Average key norm=0.661, Keys Scaled=30 | Loss: 0.0554 | Pulse: 9.5848e-04
+steps:  28%|▎| 66/240 [02:33<06:43,  2.32s/it, Average key norm=0.666, Keys Scaled=30 | Loss: 0.0488 | Pulse: 8.6210e-04
+steps:  28%|▎| 67/240 [02:35<06:40,  2.32s/it, Average key norm=0.671, Keys Scaled=31 | Loss: 0.0495 | Pulse: 8.3668e-04
+steps:  28%|▎| 68/240 [02:37<06:38,  2.32s/it, Average key norm=0.675, Keys Scaled=31 | Loss: 0.0645 | Pulse: 1.6251e-03
+steps:  29%|▎| 69/240 [02:39<06:35,  2.31s/it, Average key norm=0.682, Keys Scaled=32 | Loss: 0.0574 | Pulse: 1.9358e-03
+steps:  29%|▎| 70/240 [02:41<06:32,  2.31s/it, Average key norm=0.692, Keys Scaled=33 | Loss: 0.0585 | Pulse: 2.1356e-03
+steps:  30%|▎| 71/240 [02:43<06:29,  2.30s/it, Average key norm=0.703, Keys Scaled=36 | Loss: 0.0456 | Pulse: 1.2472e-03
+steps:  30%|▎| 72/240 [02:45<06:26,  2.30s/it, Average key norm=0.71, Keys Scaled=383 | Loss: 0.0511 | Pulse: 1.1678e-03
+steps:  30%|▎| 73/240 [02:47<06:23,  2.30s/it, Average key norm=0.716, Keys Scaled=39 | Loss: 0.0484 | Pulse: 9.9377e-04
+steps:  31%|▎| 74/240 [02:49<06:20,  2.29s/it, Average key norm=0.721, Keys Scaled=40 | Loss: 0.0638 | Pulse: 1.4500e-03
+steps:  31%|▎| 75/240 [02:51<06:16,  2.28s/it, Average key norm=0.728, Keys Scaled=41 | Loss: 0.0521 | Pulse: 2.1442e-03
+steps:  32%|▎| 76/240 [02:53<06:14,  2.28s/it, Average key norm=0.739, Keys Scaled=42 | Loss: 0.0492 | Pulse: 1.3759e-03
+steps:  32%|▎| 77/240 [02:55<06:11,  2.28s/it, Average key norm=0.746, Keys Scaled=43 | Loss: 0.0555 | Pulse: 1.7404e-03
+steps:  32%|▎| 78/240 [02:56<06:07,  2.27s/it, Average key norm=0.755, Keys Scaled=45 | Loss: 0.0386 | Pulse: 7.8443e-04
+steps:  33%|▎| 79/240 [02:58<06:03,  2.26s/it, Average key norm=0.758, Keys Scaled=47 | Loss: 0.0537 | Pulse: 1.0494e-03
+steps:  33%|▎| 80/240 [03:00<06:00,  2.26s/it, Average key norm=0.763, Keys Scaled=48 | Loss: 0.0521 | Pulse: 1.2134e-03
+steps:  34%|▎| 81/240 [03:02<05:58,  2.25s/it, Average key norm=0.767, Keys Scaled=49 | Loss: 0.0403 | Pulse: 7.4133e-04
+steps:  34%|▎| 82/240 [03:04<05:55,  2.25s/it, Average key norm=0.77, Keys Scaled=502 | Loss: 0.0539 | Pulse: 1.0614e-03
+steps:  35%|▎| 83/240 [03:05<05:51,  2.24s/it, Average key norm=0.774, Keys Scaled=51 | Loss: 0.0562 | Pulse: 1.6833e-03
+steps:  35%|▎| 84/240 [03:07<05:48,  2.24s/it, Average key norm=0.779, Keys Scaled=52 | Loss: 0.0469 | Pulse: 1.2679e-03
+steps:  35%|▎| 85/240 [03:09<05:46,  2.23s/it, Average key norm=0.783, Keys Scaled=54 | Loss: 0.0432 | Pulse: 8.9502e-04
+steps:  36%|▎| 86/240 [03:11<05:42,  2.22s/it, Average key norm=0.785, Keys Scaled=53 | Loss: 0.0544 | Pulse: 1.3678e-03
+steps:  36%|▎| 87/240 [03:13<05:39,  2.22s/it, Average key norm=0.789, Keys Scaled=54 | Loss: 0.0489 | Pulse: 1.3311e-03
+steps:  37%|▎| 88/240 [03:15<05:37,  2.22s/it, Average key norm=0.792, Keys Scaled=56 | Loss: 0.0469 | Pulse: 1.1627e-03
+steps:  37%|▎| 89/240 [03:17<05:34,  2.22s/it, Average key norm=0.795, Keys Scaled=57 | Loss: 0.0481 | Pulse: 6.1434e-05
+steps:  38%|▍| 90/240 [03:18<05:31,  2.21s/it, Average key norm=0.795, Keys Scaled=56 | Loss: 0.0425 | Pulse: 1.4469e-03
+steps:  38%|▍| 91/240 [03:20<05:28,  2.21s/it, Average key norm=0.798, Keys Scaled=57 | Loss: 0.0542 | Pulse: 9.4021e-05
+steps:  38%|▍| 92/240 [03:22<05:26,  2.21s/it, Average key norm=0.798, Keys Scaled=57 | Loss: 0.0420 | Pulse: 1.3279e-04
+steps:  39%|▍| 93/240 [03:24<05:23,  2.20s/it, Average key norm=0.798, Keys Scaled=57 | Loss: 0.0472 | Pulse: 3.0000e-03
+steps:  39%|▍| 94/240 [03:26<05:21,  2.20s/it, Average key norm=0.804, Keys Scaled=59 | Loss: 0.0475 | Pulse: 3.0000e-03
+steps:  40%|▍| 95/240 [03:29<05:19,  2.20s/it, Average key norm=0.809, Keys Scaled=59 | Loss: 0.0500 | Pulse: 3.0000e-03
+steps:  40%|▍| 96/240 [03:30<05:16,  2.20s/it, Average key norm=0.814, Keys Scaled=62 | Loss: 0.0478 | Pulse: 3.0000e-03
+steps:  40%|▍| 97/240 [03:33<05:14,  2.20s/it, Average key norm=0.82, Keys Scaled=636 | Loss: 0.0549 | Pulse: 2.9594e-03
+steps:  41%|▍| 98/240 [03:35<05:11,  2.20s/it, Average key norm=0.825, Keys Scaled=65 | Loss: 0.0403 | Pulse: 2.4600e-03
+steps:  41%|▍| 99/240 [03:37<05:09,  2.19s/it, Average key norm=0.83, Keys Scaled=669 | Loss: 0.0386 | Pulse: 1.4198e-03
+steps:  42%|▍| 100/240 [03:39<05:07,  2.20s/it, Average key norm=0.832, Keys Scaled=6 | Loss: 0.0521 | Pulse: 2.4461e-03
+steps:  42%|▍| 101/240 [03:41<05:05,  2.20s/it, Average key norm=0.836, Keys Scaled=6 | Loss: 0.0523 | Pulse: 2.3548e-03
+steps:  42%|▍| 102/240 [03:43<05:02,  2.20s/it, Average key norm=0.84, Keys Scaled=69 | Loss: 0.0461 | Pulse: 2.3031e-03
+steps:  43%|▍| 103/240 [03:46<05:00,  2.20s/it, Average key norm=0.843, Keys Scaled=7 | Loss: 0.0463 | Pulse: 2.2717e-03
+steps:  43%|▍| 104/240 [03:48<04:58,  2.20s/it, Average key norm=0.846, Keys Scaled=7 | Loss: 0.0621 | Pulse: 2.1432e-03
+steps:  44%|▍| 105/240 [03:50<04:56,  2.19s/it, Average key norm=0.849, Keys Scaled=7 | Loss: 0.0553 | Pulse: 2.0287e-03
+steps:  44%|▍| 106/240 [03:52<04:53,  2.19s/it, Average key norm=0.852, Keys Scaled=7 | Loss: 0.0391 | Pulse: 2.0335e-03
+steps:  45%|▍| 107/240 [03:54<04:51,  2.19s/it, Average key norm=0.854, Keys Scaled=7 | Loss: 0.0506 | Pulse: 2.0196e-03
+steps:  45%|▍| 108/240 [03:56<04:49,  2.19s/it, Average key norm=0.856, Keys Scaled=7 | Loss: 0.0500 | Pulse: 1.9995e-03
+steps:  45%|▍| 109/240 [03:58<04:46,  2.19s/it, Average key norm=0.859, Keys Scaled=7 | Loss: 0.0495 | Pulse: 1.9803e-03
+steps:  46%|▍| 110/240 [04:00<04:44,  2.19s/it, Average key norm=0.861, Keys Scaled=7 | Loss: 0.0450 | Pulse: 1.9902e-03
+steps:  46%|▍| 111/240 [04:02<04:41,  2.19s/it, Average key norm=0.862, Keys Scaled=7 | Loss: 0.0476 | Pulse: 1.9955e-03
+steps:  47%|▍| 112/240 [04:04<04:39,  2.19s/it, Average key norm=0.865, Keys Scaled=7 | Loss: 0.0480 | Pulse: 6.2102e-05
+steps:  47%|▍| 113/240 [04:06<04:37,  2.18s/it, Average key norm=0.865, Keys Scaled=7 | Loss: 0.0444 | Pulse: 8.3431e-05
+steps:  48%|▍| 114/240 [04:08<04:34,  2.18s/it, Average key norm=0.865, Keys Scaled=7 | Loss: 0.0452 | Pulse: 8.3963e-05
+steps:  48%|▍| 115/240 [04:10<04:32,  2.18s/it, Average key norm=0.865, Keys Scaled=7 | Loss: 0.0481 | Pulse: 1.0528e-04
+steps:  48%|▍| 116/240 [04:12<04:30,  2.18s/it, Average key norm=0.865, Keys Scaled=6 | Loss: 0.0464 | Pulse: 1.3919e-04
+steps:  49%|▍| 117/240 [04:14<04:27,  2.18s/it, Average key norm=0.865, Keys Scaled=6 | Loss: 0.0424 | Pulse: 1.9338e-04
+steps:  49%|▍| 118/240 [04:17<04:25,  2.18s/it, Average key norm=0.865, Keys Scaled=6 | Loss: 0.0424 | Pulse: 2.7696e-04
+steps:  50%|▍| 119/240 [04:19<04:23,  2.18s/it, Average key norm=0.865, Keys Scaled=6 | Loss: 0.0549 | Pulse: 3.8734e-04
+steps:  50%|▌| 120/240 [04:21<04:21,  2.18s/it, Average key norm=0.865, Keys Scaled=6 | Loss: 0.0491 | Pulse: 4.8350e-04
+steps:  50%|▌| 121/240 [04:23<04:18,  2.18s/it, Average key norm=0.865, Keys Scaled=6 | Loss: 0.0425 | Pulse: 5.8657e-04
+steps:  51%|▌| 122/240 [04:25<04:16,  2.17s/it, Average key norm=0.865, Keys Scaled=6 | Loss: 0.0337 | Pulse: 9.0114e-04
+steps:  51%|▌| 123/240 [04:26<04:13,  2.17s/it, Average key norm=0.865, Keys Scaled=6 | Loss: 0.0422 | Pulse: 1.3016e-03
+steps:  52%|▌| 124/240 [04:28<04:11,  2.17s/it, Average key norm=0.866, Keys Scaled=7 | Loss: 0.0348 | Pulse: 9.8096e-04
+steps:  52%|▌| 125/240 [04:30<04:08,  2.16s/it, Average key norm=0.867, Keys Scaled=7 | Loss: 0.0486 | Pulse: 1.0672e-03
+steps:  52%|▌| 126/240 [04:32<04:06,  2.16s/it, Average key norm=0.867, Keys Scaled=7 | Loss: 0.0409 | Pulse: 1.1356e-03
+steps:  53%|▌| 127/240 [04:34<04:04,  2.16s/it, Average key norm=0.868, Keys Scaled=7 | Loss: 0.0352 | Pulse: 1.0915e-03
+steps:  53%|▌| 128/240 [04:36<04:01,  2.16s/it, Average key norm=0.869, Keys Scaled=7 | Loss: 0.0479 | Pulse: 1.0749e-03
+steps:  54%|▌| 129/240 [04:38<03:59,  2.16s/it, Average key norm=0.869, Keys Scaled=7 | Loss: 0.0389 | Pulse: 1.1047e-03
+steps:  54%|▌| 130/240 [04:40<03:56,  2.15s/it, Average key norm=0.87, Keys Scaled=71 | Loss: 0.0388 | Pulse: 1.2829e-03
+steps:  55%|▌| 131/240 [04:42<03:54,  2.15s/it, Average key norm=0.871, Keys Scaled=7 | Loss: 0.0533 | Pulse: 1.2275e-03
+steps:  55%|▌| 132/240 [04:43<03:52,  2.15s/it, Average key norm=0.871, Keys Scaled=7 | Loss: 0.0386 | Pulse: 1.2121e-03
+steps:  55%|▌| 133/240 [04:45<03:49,  2.15s/it, Average key norm=0.872, Keys Scaled=7 | Loss: 0.0431 | Pulse: 1.1963e-03
+steps:  56%|▌| 134/240 [04:47<03:47,  2.14s/it, Average key norm=0.873, Keys Scaled=7 | Loss: 0.0440 | Pulse: 1.1770e-03
+steps:  56%|▌| 135/240 [04:49<03:45,  2.14s/it, Average key norm=0.873, Keys Scaled=7 | Loss: 0.0435 | Pulse: 1.1590e-03
+steps:  57%|▌| 136/240 [04:51<03:42,  2.14s/it, Average key norm=0.874, Keys Scaled=7 | Loss: 0.0425 | Pulse: 1.1466e-03
+steps:  57%|▌| 137/240 [04:52<03:40,  2.14s/it, Average key norm=0.875, Keys Scaled=7 | Loss: 0.0379 | Pulse: 1.1566e-03
+steps:  57%|▌| 138/240 [04:55<03:38,  2.14s/it, Average key norm=0.875, Keys Scaled=7 | Loss: 0.0379 | Pulse: 1.1761e-03
+steps:  58%|▌| 139/240 [04:57<03:35,  2.14s/it, Average key norm=0.876, Keys Scaled=7 | Loss: 0.0419 | Pulse: 1.1804e-03
+steps:  58%|▌| 140/240 [04:59<03:33,  2.14s/it, Average key norm=0.877, Keys Scaled=7 | Loss: 0.0426 | Pulse: 1.1726e-03
+steps:  59%|▌| 141/240 [05:00<03:31,  2.13s/it, Average key norm=0.877, Keys Scaled=7 | Loss: 0.0360 | Pulse: 1.1876e-03
+steps:  59%|▌| 142/240 [05:02<03:28,  2.13s/it, Average key norm=0.877, Keys Scaled=7 | Loss: 0.0361 | Pulse: 1.2116e-03
+steps:  60%|▌| 143/240 [05:04<03:26,  2.13s/it, Average key norm=0.878, Keys Scaled=7 | Loss: 0.0473 | Pulse: 1.1861e-03
+steps:  60%|▌| 144/240 [05:06<03:24,  2.13s/it, Average key norm=0.878, Keys Scaled=7 | Loss: 0.0388 | Pulse: 1.1765e-03
+steps:  60%|▌| 145/240 [05:08<03:22,  2.13s/it, Average key norm=0.878, Keys Scaled=7 | Loss: 0.0379 | Pulse: 1.1784e-03
+steps:  61%|▌| 146/240 [05:10<03:19,  2.13s/it, Average key norm=0.879, Keys Scaled=7 | Loss: 0.0513 | Pulse: 1.1244e-03
+steps:  61%|▌| 147/240 [05:11<03:17,  2.12s/it, Average key norm=0.879, Keys Scaled=7 | Loss: 0.0340 | Pulse: 1.1257e-03
+steps:  62%|▌| 148/240 [05:13<03:15,  2.12s/it, Average key norm=0.879, Keys Scaled=7 | Loss: 0.0413 | Pulse: 1.1196e-03
+steps:  62%|▌| 149/240 [05:15<03:12,  2.12s/it, Average key norm=0.88, Keys Scaled=69 | Loss: 0.0450 | Pulse: 1.0932e-03
+steps:  62%|▋| 150/240 [05:17<03:10,  2.12s/it, Average key norm=0.88, Keys Scaled=71 | Loss: 0.0339 | Pulse: 1.1074e-03
+steps:  63%|▋| 151/240 [05:18<03:07,  2.11s/it, Average key norm=0.881, Keys Scaled=7 | Loss: 0.0356 | Pulse: 1.1320e-03
+steps:  63%|▋| 152/240 [05:20<03:05,  2.11s/it, Average key norm=0.881, Keys Scaled=7 | Loss: 0.0471 | Pulse: 1.1069e-03
+steps:  64%|▋| 153/240 [05:22<03:03,  2.11s/it, Average key norm=0.881, Keys Scaled=7 | Loss: 0.0396 | Pulse: 1.0929e-03
+steps:  64%|▋| 154/240 [05:24<03:01,  2.11s/it, Average key norm=0.882, Keys Scaled=7 | Loss: 0.0383 | Pulse: 1.0902e-03
+steps:  65%|▋| 155/240 [05:26<02:59,  2.11s/it, Average key norm=0.882, Keys Scaled=7 | Loss: 0.0393 | Pulse: 1.0880e-03
+steps:  65%|▋| 156/240 [05:28<02:56,  2.10s/it, Average key norm=0.882, Keys Scaled=7 | Loss: 0.0366 | Pulse: 1.0977e-03
+steps:  65%|▋| 157/240 [05:29<02:54,  2.10s/it, Average key norm=0.882, Keys Scaled=7 | Loss: 0.0489 | Pulse: 1.0558e-03
+steps:  66%|▋| 158/240 [05:31<02:52,  2.10s/it, Average key norm=0.883, Keys Scaled=7 | Loss: 0.0361 | Pulse: 1.0500e-03
+steps:  66%|▋| 159/240 [05:33<02:49,  2.10s/it, Average key norm=0.883, Keys Scaled=7 | Loss: 0.0384 | Pulse: 1.0508e-03
+steps:  67%|▋| 160/240 [05:35<02:47,  2.10s/it, Average key norm=0.883, Keys Scaled=7 | Loss: 0.0323 | Pulse: 1.0808e-03
+steps:  67%|▋| 161/240 [05:36<02:45,  2.09s/it, Average key norm=0.884, Keys Scaled=7 | Loss: 0.0402 | Pulse: 1.0863e-03
+steps:  68%|▋| 162/240 [05:38<02:43,  2.09s/it, Average key norm=0.884, Keys Scaled=7 | Loss: 0.0374 | Pulse: 1.0913e-03
+steps:  68%|▋| 163/240 [05:40<02:40,  2.09s/it, Average key norm=0.884, Keys Scaled=7 | Loss: 0.0304 | Pulse: 1.1273e-03
+steps:  68%|▋| 164/240 [05:42<02:38,  2.09s/it, Average key norm=0.885, Keys Scaled=7 | Loss: 0.0454 | Pulse: 1.1035e-03
+steps:  69%|▋| 165/240 [05:44<02:36,  2.09s/it, Average key norm=0.885, Keys Scaled=7 | Loss: 0.0316 | Pulse: 1.1178e-03
+steps:  69%|▋| 166/240 [05:45<02:34,  2.08s/it, Average key norm=0.885, Keys Scaled=7 | Loss: 0.0355 | Pulse: 1.1295e-03
+steps:  70%|▋| 167/240 [05:47<02:31,  2.08s/it, Average key norm=0.886, Keys Scaled=7 | Loss: 0.0438 | Pulse: 1.0977e-03
+steps:  70%|▋| 168/240 [05:49<02:29,  2.08s/it, Average key norm=0.886, Keys Scaled=7 | Loss: 0.0372 | Pulse: 1.0793e-03
+steps:  70%|▋| 169/240 [05:51<02:27,  2.08s/it, Average key norm=0.886, Keys Scaled=6 | Loss: 0.0347 | Pulse: 1.0800e-03
+steps:  71%|▋| 170/240 [05:53<02:25,  2.08s/it, Average key norm=0.886, Keys Scaled=6 | Loss: 0.0386 | Pulse: 1.0700e-03
+steps:  71%|▋| 171/240 [05:55<02:23,  2.08s/it, Average key norm=0.887, Keys Scaled=7 | Loss: 0.0468 | Pulse: 1.0159e-03
+steps:  72%|▋| 172/240 [05:56<02:21,  2.07s/it, Average key norm=0.887, Keys Scaled=6 | Loss: 0.0347 | Pulse: 1.0027e-03
+steps:  72%|▋| 173/240 [05:58<02:18,  2.07s/it, Average key norm=0.887, Keys Scaled=7 | Loss: 0.0345 | Pulse: 1.0095e-03
+steps:  72%|▋| 174/240 [06:00<02:16,  2.07s/it, Average key norm=0.887, Keys Scaled=6 | Loss: 0.0478 | Pulse: 9.6331e-04
+steps:  73%|▋| 175/240 [06:02<02:14,  2.07s/it, Average key norm=0.887, Keys Scaled=7 | Loss: 0.0373 | Pulse: 9.4412e-04
+steps:  73%|▋| 176/240 [06:04<02:12,  2.07s/it, Average key norm=0.887, Keys Scaled=7 | Loss: 0.0305 | Pulse: 9.6863e-04
+steps:  74%|▋| 177/240 [06:06<02:10,  2.07s/it, Average key norm=0.887, Keys Scaled=7 | Loss: 0.0352 | Pulse: 9.9101e-04
+steps:  74%|▋| 178/240 [06:08<02:08,  2.07s/it, Average key norm=0.887, Keys Scaled=6 | Loss: 0.0296 | Pulse: 1.0358e-03
+steps:  75%|▋| 179/240 [06:10<02:06,  2.07s/it, Average key norm=0.887, Keys Scaled=6 | Loss: 0.0431 | Pulse: 1.0229e-03
+steps:  75%|▊| 180/240 [06:13<02:04,  2.07s/it, Average key norm=0.887, Keys Scaled=6 | Loss: 0.0295 | Pulse: 1.0474e-03
+steps:  75%|▊| 181/240 [06:15<02:02,  2.07s/it, Average key norm=0.888, Keys Scaled=6 | Loss: 0.0353 | Pulse: 1.0589e-03
+steps:  76%|▊| 182/240 [06:17<02:00,  2.07s/it, Average key norm=0.888, Keys Scaled=6 | Loss: 0.0448 | Pulse: 1.0148e-03
+steps:  76%|▊| 183/240 [06:19<01:58,  2.07s/it, Average key norm=0.888, Keys Scaled=6 | Loss: 0.0313 | Pulse: 1.0140e-03
+steps:  77%|▊| 184/240 [06:20<01:55,  2.07s/it, Average key norm=0.888, Keys Scaled=6 | Loss: 0.0395 | Pulse: 9.9302e-04
+steps:  77%|▊| 185/240 [06:22<01:53,  2.07s/it, Average key norm=0.888, Keys Scaled=6 | Loss: 0.0323 | Pulse: 9.9848e-04
+steps:  78%|▊| 186/240 [06:25<01:51,  2.07s/it, Average key norm=0.888, Keys Scaled=6 | Loss: 0.0324 | Pulse: 1.0148e-03
+steps:  78%|▊| 187/240 [06:27<01:49,  2.07s/it, Average key norm=0.888, Keys Scaled=6 | Loss: 0.0331 | Pulse: 1.0310e-03
+steps:  78%|▊| 188/240 [06:29<01:47,  2.07s/it, Average key norm=0.888, Keys Scaled=6 | Loss: 0.0376 | Pulse: 1.0226e-03
+steps:  79%|▊| 189/240 [06:31<01:45,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0472 | Pulse: 9.5409e-04
+steps:  79%|▊| 190/240 [06:33<01:43,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0338 | Pulse: 9.3014e-04
+steps:  80%|▊| 191/240 [06:35<01:41,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0323 | Pulse: 9.3473e-04
+steps:  80%|▊| 192/240 [06:37<01:39,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0346 | Pulse: 9.4072e-04
+steps:  80%|▊| 193/240 [06:40<01:37,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0288 | Pulse: 9.7428e-04
+steps:  81%|▊| 194/240 [06:42<01:35,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0447 | Pulse: 1.8021e-04
+steps:  81%|▊| 195/240 [06:44<01:33,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0302 | Pulse: 2.4756e-04
+steps:  82%|▊| 196/240 [06:46<01:31,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0334 | Pulse: 3.5074e-04
+steps:  82%|▊| 197/240 [06:48<01:29,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0366 | Pulse: 4.1741e-04
+steps:  82%|▊| 198/240 [06:50<01:27,  2.07s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0350 | Pulse: 4.0088e-04
+steps:  83%|▊| 199/240 [06:53<01:25,  2.08s/it, Average key norm=0.889, Keys Scaled=6 | Loss: 0.0291 | Pulse: 1.2180e-04
+steps:  83%|▊| 200/240 [06:55<01:23,  2.08s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0334 | Pulse: 1.6500e-04
+steps:  84%|▊| 201/240 [06:57<01:21,  2.08s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0342 | Pulse: 1.3615e-04
+steps:  84%|▊| 202/240 [06:59<01:18,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0269 | Pulse: 1.8108e-04
+steps:  85%|▊| 203/240 [07:01<01:16,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0382 | Pulse: 2.4045e-04
+steps:  85%|▊| 204/240 [07:03<01:14,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0343 | Pulse: 3.2899e-04
+steps:  85%|▊| 205/240 [07:04<01:12,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0276 | Pulse: 4.7702e-04
+steps:  86%|▊| 206/240 [07:06<01:10,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0367 | Pulse: 4.5283e-04
+steps:  86%|▊| 207/240 [07:08<01:08,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0369 | Pulse: 4.2706e-04
+steps:  87%|▊| 208/240 [07:10<01:06,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0264 | Pulse: 4.8553e-04
+steps:  87%|▊| 209/240 [07:12<01:04,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0294 | Pulse: 5.7935e-04
+steps:  88%|▉| 210/240 [07:14<01:02,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0295 | Pulse: 6.4994e-04
+steps:  88%|▉| 211/240 [07:16<00:59,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0302 | Pulse: 6.5958e-04
+steps:  88%|▉| 212/240 [07:18<00:57,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0396 | Pulse: 6.3001e-04
+steps:  89%|▉| 213/240 [07:20<00:55,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0377 | Pulse: 5.9290e-04
+steps:  89%|▉| 214/240 [07:21<00:53,  2.07s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0299 | Pulse: 5.8227e-04
+steps:  90%|▉| 215/240 [07:23<00:51,  2.06s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0296 | Pulse: 5.8522e-04
+steps:  90%|▉| 216/240 [07:25<00:49,  2.06s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0296 | Pulse: 5.9420e-04
+steps:  90%|▉| 217/240 [07:27<00:47,  2.06s/it, Average key norm=0.889, Keys Scaled=5 | Loss: 0.0338 | Pulse: 5.9061e-04
+steps:  91%|▉| 218/240 [07:29<00:45,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0310 | Pulse: 5.8996e-04
+steps:  91%|▉| 219/240 [07:31<00:43,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0360 | Pulse: 5.7338e-04
 
 ```
 
 </details>
 
 ```prompt
-, Loss: 0.0167 | Pulse: 2.9285e-04
-steps: 98%|▉| 391/400 [10:04<00:13, 1.55s/it, Average key norm=0.318, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0180 | Pulse: 2.9285e-04
-steps: 98%|▉| 392/400 [10:05<00:12, 1.55s/it, Average key norm=0.318, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0164 | Pulse: 2.9285e-04
-steps: 98%|▉| 393/400 [10:07<00:10, 1.55s/it, Average key norm=0.318, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0162 | Pulse: 2.9285e-04
-steps: 98%|▉| 394/400 [10:08<00:09, 1.55s/it, Average key norm=0.318, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0167 | Pulse: 2.9285e-04
-steps: 99%|▉| 395/400 [10:10<00:07, 1.54s/it, Average key norm=0.318, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0178 | Pulse: 2.9285e-04
-steps: 99%|▉| 396/400 [10:11<00:06, 1.54s/it, Average key norm=0.318, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0160 | Pulse: 2.9285e-04
-steps: 99%|▉| 397/400 [10:13<00:04, 1.54s/it, Average key norm=0.318, Keys Scaled=4✨[READY TO STOP]✨
-, Loss: 0.0168 | Pulse: 2.9285e-04
-steps: 100%|▉| 398/400 [10:14<00:03, 1.54s/it, Average key norm=0.319, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0186 | Pulse: 2.9285e-04
-steps: 100%|▉| 399/400 [10:16<00:01, 1.54s/it, Average key norm=0.319, Keys Scaled=5✨[READY TO STOP]✨
-, Loss: 0.0171 | Pulse: 2.9285e-04
-steps: 100%|█| 400/400 [10:17<00:00, 1.54s/it, Average key norm=0.319, Keys Scaled=5,
+steps:  92%|▉| 220/240 [07:33<00:41,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0282 | Pulse: 5.7678e-04
+steps:  92%|▉| 221/240 [07:35<00:39,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0257 | Pulse: 6.3375e-04
+steps:  92%|▉| 222/240 [07:36<00:37,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0293 | Pulse: 6.5310e-04
+steps:  93%|▉| 223/240 [07:39<00:34,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0270 | Pulse: 8.0220e-04
+steps:  93%|▉| 224/240 [07:40<00:32,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0358 | Pulse: 7.8447e-04
+steps:  94%|▉| 225/240 [07:43<00:30,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0265 | Pulse: 7.9048e-04
+steps:  94%|▉| 226/240 [07:45<00:28,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0311 | Pulse: 7.8554e-04
+steps:  95%|▉| 227/240 [07:47<00:26,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0337 | Pulse: 7.6315e-04
+steps:  95%|▉| 228/240 [07:49<00:24,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0355 | Pulse: 7.2582e-04
+steps:  95%|▉| 229/240 [07:51<00:22,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0290 | Pulse: 7.1396e-04
+steps:  96%|▉| 230/240 [07:53<00:20,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0270 | Pulse: 7.2321e-04
+steps:  96%|▉| 231/240 [07:55<00:18,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0346 | Pulse: 7.0759e-04
+steps:  97%|▉| 232/240 [07:57<00:16,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0269 | Pulse: 7.1505e-04
+steps:  97%|▉| 233/240 [07:59<00:14,  2.06s/it, Average key norm=0.888, Keys Scaled=4 | Loss: 0.0299 | Pulse: 7.1921e-04
+steps:  98%|▉| 234/240 [08:01<00:12,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0289 | Pulse: 7.2497e-04
+steps:  98%|▉| 235/240 [08:03<00:10,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0300 | Pulse: 7.2554e-04
+steps:  98%|▉| 236/240 [08:05<00:08,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0330 | Pulse: 7.0941e-04
+steps:  99%|▉| 237/240 [08:07<00:06,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0255 | Pulse: 7.1996e-04
+steps:  99%|▉| 238/240 [08:09<00:04,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0315 | Pulse: 7.1460e-04
+steps: 100%|▉| 239/240 [08:11<00:02,  2.06s/it, Average key norm=0.888, Keys Scaled=5 | Loss: 0.0336 | Pulse: 6.9194e-04
+steps: 100%|█| 240/240 [08:13<00:00,  2.06s/it, Average key norm=0.888, Keys Scaled=5
 
 ```
 

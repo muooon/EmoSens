@@ -19,7 +19,7 @@ if not hasattr(torch.optim.Optimizer, "_manual_loss"):
 
 class EmoPulseScheduler:
     """
-    EmoPulseScheduler v1.0.0 (260516)
+    EmoPulseScheduler v3.9.1 (260520)
     An emotion-driven dynamic scheduler that feels loss and navigates learning rates.
     |学習率推奨値| LoRA:1.0 |FFT/Full-Fine-Tuneing| Transformer:0.01, UNET:0.1, etc...
     """
@@ -120,12 +120,12 @@ class EmoPulseScheduler:
         elif -0.5 <= trust <= 0.5:
             self.dNR_hist = dNR_now_val * 0.80
 
-        # ベースLRダイナミックレンジ伸縮 (100.0 ^ c_est)
-        emoChain = self.emoScope * max((100.0 ** self.c_est), 1e-2)
+        # 基礎倍率 (100.0 ^ c_est)
+        emoChain = self.emoScope * max((100.0 ** self.c_est), 1e-3)
 
         # 最終学習率の実効値決定
         emoPulse = float(max(min(self.dNR_hist * (emoChain * self.base_scale),
-                                 self.max_lim), self.min_lim))
+                                 self.emoScope * self.max_lim), self.min_lim))
         # --- End emoPulse 機構 ---
 
         # 紐付けられたオプティマイザの学習率をすべて上書き更新
@@ -137,7 +137,7 @@ class EmoPulseScheduler:
         if self.stop_base >= 0.3 and scale_base_m <= self.stopcoef:
             self.should_stop = True
             if self.notify:
-                print(f"✨[READY TO STOP]✨ (Pulse: {emoPulse:.4e})")
+                print(f"✨[READY TO STOP]✨")
         else:
             self.should_stop = False
 
