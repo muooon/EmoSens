@@ -11,7 +11,7 @@ readme：[English](README.md) | [日本語](README_JA.md)
 
 Transformer系(DiT含む)の学習率は(LoRA：0.1、微調整：0.01)を推奨します  
 これは学習率のスケールとモデルの感度を合わせることで安定かつ安全に進めるための調整です  
-(ご注意ください：EmoCats/Tionは、微調整でつかうのは難しいだろうと思います)  
+(ご注意ください：EmoCats/Tion TF系の微調整でつかうのは難しいだろうと思います)  
 
 ---
 
@@ -311,6 +311,12 @@ steps: 100%|█| 240/240 [08:13<00:00,  2.06s/it, Average key norm=0.888, Keys S
 
 ---
 
+#### 共鳴収縮法によるアーキテクチャの進化  
+こちらにて Transformer の進化型を紹介しています  
+https://github.com/muooon/DRNA  
+
+---
+
 以下、v3.8 以前 について  
 
 ---
@@ -334,6 +340,12 @@ steps: 100%|█| 240/240 [08:13<00:00,  2.06s/it, Average key norm=0.888, Keys S
 ※ 信頼できるエビデンスとは言えません  
 
 --- 
+
+<details>
+
+<summary> 以下 v3.8 以前 </summary>
+
+---
 
 - ###### 共鳴収縮法(共鳴投影場)をする新世代optimizer群です／勾配降下法ではない   
 - ###### EmoSens / 2ndGen (v3.8 / Standard)  
@@ -634,6 +646,25 @@ EmoTion は、LR：1.0 を少し下げると良いだろうと思います 橙�
 経過時間にも注目してください <br>  
 ※ 収束通知判定によるLR減衰をしない場合は停滞せず下降しつづけます <br> 
 
+
+### 引用について / About citations  
+
+---
+
+このオプテイマイザについて引用をなさる場合は、以下をご紹介ください  
+
+Official Code:  
+https://github.com/muooon/EmoSens  
+
+paper:  
+https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(JPN).txt  
+DOI取得版/DOI-Acquired Version  
+https://huggingface.co/muooon/EmoTion-Optimizer  
+
+---
+
+</details>
+
 ---
 
 emo系 は 生物的反応で進化し続けます  
@@ -652,21 +683,6 @@ emoシリーズは、Adam、Adafactor、Lion、Tiger、等から多くを学び�
 
 ---
 
-### 引用について / About citations  
-
----
-
-このオプテイマイザについて引用をなさる場合は、以下をご紹介ください  
-
-Official Code:  
-https://github.com/muooon/EmoSens  
-
-paper:  
-https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(JPN).txt  
-DOI取得版/DOI-Acquired Version  
-https://huggingface.co/muooon/EmoTion-Optimizer  
-
----
 
 emo系は既存のオプティマイザにはない｢感情駆動型｣です。multi-emaを差分化し非線形変換(tanh)でscalar化した｢感情機構｣を中心に、各センサーを構築することで学習全体の安定性を向上させ正確性を確保しました、これらは生物の中枢神経系のように｢観察、判断、決定、行動、記憶、反省｣という自律サイクルを行います(論文をぜひご覧ください)  
 

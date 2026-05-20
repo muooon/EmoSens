@@ -11,7 +11,7 @@ readme：[English](README.md) | [日本語](README_JA.md)
 
 For Transformer‑based models (including DiT), we recommend starting with a learning rate of 0.1 for LoRA and 0.01 for full fine‑tuning.  
 This adjustment helps stabilize training by aligning the learning‑rate scale with the model’s optimization dynamics.  
-(Please note: I do not expect EmoCats/Tion to be easy to use for fine‑tuning.)  
+(Please note: I think it will likely be difficult to use the EmoCats/Tion Transformer-based models for fine‑tuning.))  
 
 ---
 
@@ -313,6 +313,12 @@ steps: 100%|█| 240/240 [08:13<00:00,  2.06s/it, Average key norm=0.888, Keys S
 
 ---
 
+#### Architectural Evolution via Resonant Contraction  
+We introduce an evolved version of the Transformer here  
+https://github.com/muooon/DRNA  
+
+---
+
 Regarding versions prior to v3.8  
 
 ---
@@ -335,6 +341,12 @@ I deeply apologize for having caused misunderstandings.
 ##### The following content is entirely "hypothesis", "unverified", and "draft"  
 ※ The theoretical interpretation may have been incorrect  
 ※ It cannot be considered reliable evidence  
+
+--- 
+
+<details>
+
+<summary> 以下 v3.8 以前 </summary>
 
 ---  
 
@@ -638,22 +650,6 @@ Please also note the elapsed time <br>
 
 ---
 
-The emo series continues to evolve through biological reactions.  
-The sensory nervous system (multi-EMA), endocrine system (tanh(scalar)), immune system (shadow-system), circulatory system (emoPulse), and vestibular system (W-Ref-Geo) integrate to form the central nervous system and the autonomic nervous system, functioning as a naturally self-regulating mechanism capable of advanced judgment and decision-making.  
-
----  
-
-The emo series has learned much from Adam, Adafactor, Lion, and Tiger.  
-Rather than being their successors, it is built upon a unique philosophy and design approach centered on "emotional mechanisms".  
-It prioritizes generality, autonomy, and adaptability in pursuit of new paths for optimization, efficiency, and simplicity.  
-In its development, we deeply appreciate the insights of those who came before us—and continue to explore new possibilities beyond them. 
-
----
-
-### License Apache License 2.0 — see LICENSE for details.  
-
----
-
 ### About citations  
 
 ---
@@ -667,6 +663,26 @@ paper:
 https://huggingface.co/muooon/EmoNAVI/raw/main/emo-v386plus-paper(ENG).txt  
 DOI-Acquired Version:  
 https://huggingface.co/muooon/EmoTion-Optimizer  
+
+---
+
+</details>
+
+---
+
+The emo series continues to evolve through biological reactions.  
+The sensory nervous system (multi-EMA), endocrine system (tanh(scalar)), immune system (shadow-system), circulatory system (emoPulse), and vestibular system (W-Ref-Geo) integrate to form the central nervous system and the autonomic nervous system, functioning as a naturally self-regulating mechanism capable of advanced judgment and decision-making.  
+
+---  
+
+The emo series has learned much from Adam, Adafactor, Lion, and Tiger.  
+Rather than being their successors, it is built upon a unique philosophy and design approach centered on "emotional mechanisms".  
+It prioritizes generality, autonomy, and adaptability in pursuit of new paths for optimization, efficiency, and simplicity.  
+In its development, we deeply appreciate the insights of those who came before us—and continue to explore new possibilities beyond them. 
+
+---
+
+### License Apache License 2.0 — see LICENSE for details.  
 
 ---
 
