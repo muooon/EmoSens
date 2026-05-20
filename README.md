@@ -7,6 +7,14 @@
 
 readme：[English](README.md) | [日本語](README_JA.md)  
 
+---
+
+For Transformer‑based models (including DiT), we recommend starting with a learning rate of 0.1 for LoRA and 0.01 for full fine‑tuning.  
+This adjustment helps stabilize training by aligning the learning‑rate scale with the model’s optimization dynamics.  
+(Please note: I do not expect EmoCats/Tion to be easy to use for fine‑tuning.)  
+
+---
+
 <img width="800" height="600" alt="Screenshot 2026-05-19 at 18-57-11 TensorBoard" src="https://github.com/user-attachments/assets/8f3d16b5-8597-49d4-a529-4065435960bb" />  
 
 gray:Void, skyblue:Tion, red:Cats, orange:Airy, violet:Sens,  

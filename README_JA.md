@@ -7,6 +7,14 @@
 
 readme：[English](README.md) | [日本語](README_JA.md)  
 
+---
+
+Transformer系(DiT含む)の学習率は(LoRA：0.1、微調整：0.01)を推奨します  
+これは学習率のスケールとモデルの感度を合わせることで安定かつ安全に進めるための調整です  
+(ご注意ください：EmoCats/Tionは、微調整でつかうのは難しいだろうと思います)  
+
+---
+
 <img width="800" height="600" alt="Screenshot 2026-05-19 at 18-57-11 TensorBoard" src="https://github.com/user-attachments/assets/8f3d16b5-8597-49d4-a529-4065435960bb" />  
 
 gray:Void, skyblue:Tion, red:Cats, orange:Airy, violet:Sens,  
