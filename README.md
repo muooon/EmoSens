@@ -346,7 +346,7 @@ I deeply apologize for having caused misunderstandings.
 
 <details>
 
-<summary> 以下 v3.8 以前 </summary>
+<summary> Versions prior to v3.8 </summary>
 
 ---  
 

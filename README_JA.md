@@ -343,7 +343,7 @@ https://github.com/muooon/DRNA
 
 <details>
 
-<summary> 以下 v3.8 以前 </summary>
+<summary> 以下 v3.8 以前の紹介内容 </summary>
 
 ---
 
