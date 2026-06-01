@@ -1,6 +1,19 @@
 import math
 import torch
 
+"""
+EmoPulseScheduler v3.9.1 (260530)
+An emotion-driven dynamic scheduler that feels loss and navigates learning rates.
+
+Recommended Learning Rate(rLR) ／ 学習率推奨値 は以下です
+TF(Transformer), Unet(SD, SDXL, etc), FFT(Full-Fine-Tuneing)
+rLR |Type:LoRA/FFT| TF:0.1/0.01, Unet:1.0/0.1, etc...
+
+usage ／ 使い方
+--lr_scheduler_type=scheduler.emopulse_scheduler.EmoPulse
+--lr_scheduler_args "stopcoef=0.07"
+"""
+
 # ECC - emo closure capture (Loss-Bypass)
 if not hasattr(torch.optim.Optimizer, "_manual_loss"):
     torch.optim.Optimizer._manual_loss = 0.0
@@ -17,12 +30,8 @@ if not hasattr(torch.optim.Optimizer, "_manual_loss"):
     torch.Tensor.backward = _new_backward
     print("🚩 emo-optim success ecc system ...")
 
-class EmoPulseScheduler:
-    """
-    EmoPulseScheduler v3.9.1 (260520)
-    An emotion-driven dynamic scheduler that feels loss and navigates learning rates.
-    |学習率推奨値| LoRA:1.0 |FFT/Full-Fine-Tuneing| Transformer:0.01, UNET:0.1, etc...
-    """
+class EmoPulse:
+
     def __init__(self, optimizer,
                  base_lr=1.0,
                  stopcoef=0.04,
@@ -67,6 +76,10 @@ class EmoPulseScheduler:
             self.stopcoef = emo_internal.get('stopcoef', self.stopcoef)
         self.state = state_dict.get('scheduler_state', {})
 
+    def get_last_lr(self):
+        '''ログ出力用'''
+        return [group['lr'] for group in self.optimizer.param_groups]
+
     def _update_ema(self, loss_val):
         ema = self.state.setdefault('ema', {})
         ema['short'] = 0.3 * loss_val + 0.7 * ema.get('short', loss_val)
@@ -91,10 +104,10 @@ class EmoPulseScheduler:
         return res_scalar, scale_base_m
 
     def step(self, loss_val=None):
-        """
+        '''
         毎ステップ、生のLossの数値を注入して学習率(emoPulse)を自動更新する
         引数なし (None) で呼ばれても ECC で Loss を自動回収する
-        """
+        '''
 
         if loss_val is None:
             loss_val = getattr(torch.optim.Optimizer, '_manual_loss', 0.0)
