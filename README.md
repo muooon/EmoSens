@@ -13,6 +13,12 @@ For Transformer‑based models (including DiT), we recommend starting with a lea
 This adjustment helps stabilize training by aligning the learning‑rate scale with the model’s optimization dynamics.  
 (Please note: I think it will likely be difficult to use the EmoCats/Tion Transformer-based models for fine‑tuning.))  
 
+emoPulse Automatic LR  
+The emoPulse (Automatic LR Control) has been completed, and I have also isolated it as a Scheduler type.  
+Explaining this in detail is a hassle, so to simplify it: it's a damper. It's like a two-stage damper.  
+Think of dNR as the micro-adjustment and c-est as the macro-scaling—in short, it's a vibration damping mechanism, a damper.  
+Now! All that's left is to look forward to MLIR and make AI much simpler! iPEX, ROCm, CUDA—let's all get along !!  
+
 ---
 
 <img width="800" height="600" alt="Screenshot 2026-05-19 at 18-57-11 TensorBoard" src="https://github.com/user-attachments/assets/8f3d16b5-8597-49d4-a529-4065435960bb" />  

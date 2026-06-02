@@ -13,6 +13,12 @@ Transformer系(DiT含む)の学習率は(LoRA：0.1、微調整：0.01)を推奨
 これは学習率のスケールとモデルの感度を合わせることで安定かつ安全に進めるための調整です  
 (ご注意ください：EmoCats/Tion TF系の微調整でつかうのは難しいだろうと思います)  
 
+emoPulse 自動LRについて  
+emoPulse(自動LR制御)完成です、これを Scheduler型 として切り出しもしました  
+これの説明を細かくいうと面倒なので単純化するとダンパーです、２段階ダンパーみたいなものです  
+dNR：精密調整、c-est：スケール調整、みたいな、ようするに制振機構で、ダンパーです  
+さあ！あとは MLIR に期待してAIをもっと簡単にしましょう！ iPEX、ROCm、CUDA、仲良くしよう！  
+
 ---
 
 <img width="800" height="600" alt="Screenshot 2026-05-19 at 18-57-11 TensorBoard" src="https://github.com/user-attachments/assets/8f3d16b5-8597-49d4-a529-4065435960bb" />  
