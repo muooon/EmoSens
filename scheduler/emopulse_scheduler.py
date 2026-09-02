@@ -2,7 +2,7 @@ import math
 import torch
 
 """
-EmoPulseScheduler v3.9.3 (260830)
+EmoPulseScheduler v3.9.3+ (260901)
 An emotion-driven dynamic scheduler that feels loss and navigates learning rates.
 
 Recommended Learning Rate(rLR) ／ 学習率推奨値 は以下です
@@ -13,7 +13,7 @@ Basically, please use the learning rate (LR) expected by the optimizer you are c
 
 usage ／ 使い方
 --lr_scheduler_type=scheduler.emopulse_scheduler.EmoPulse
---lr_scheduler_args "stopcoef=0.07" "histwarmup=50"
+--lr_scheduler_args "stopcoef=0.07" "histwarmup=50" "boost=10.0"
 """
 
 # ECC - emo closure capture (Loss-Bypass)
@@ -37,6 +37,7 @@ class EmoPulse:
     def __init__(self, optimizer,
                  histwarmup=30,
                  stopcoef=0.04,
+                 boost: float = 1.0,
                  notify: bool = True):
         self.optimizer = optimizer
         # オプティマイザの param_groups から初期学習率を自動取得する
@@ -47,11 +48,13 @@ class EmoPulse:
         self.stopcoef = stopcoef     # 収束目標値(ユーザー指定可)
         self.base_scale = initial_lr # optimizer指定LR
         self.histwarmup = histwarmup # loss-ema 正確化のウォームアップ
+        self.boost = boost           # 拡張倍率(LoRA等は10.0倍化可)
 
         # 基準値と最低値
-        self.emoScope, self.min_lim = 1.0, 1e-8
+        self.emoScope, self.min_lim = 1.0, 1e-8        
         # 上限値スライド／小さい場合(例：1e-5以下など)でも上限を適切に設定
-        self.max_lim = max(min(initial_lr * 30.0, 3e-3), 3e-7)
+        lim_boost = boost * 3.0  # 拡張倍率(LoRA等は10.0倍化可)
+        self.max_lim = max(min(initial_lr * lim_boost, 3e-3), 3e-8)
         # 履歴初期化
         self.dNR_hist, self.noise_est, self.d_est, self.c_est = 1.0, 1.0, 0.02, 0.0
 
@@ -66,6 +69,7 @@ class EmoPulse:
                 'noise_est': self.noise_est,
                 'd_est': self.d_est,
                 'c_est': self.c_est,
+                'boost': self.boost,
                 'should_stop': self.should_stop,
                 'stopcoef': self.stopcoef,
             },
@@ -80,6 +84,7 @@ class EmoPulse:
             self.noise_est = emo_internal.get('noise_est', 1.0)
             self.d_est = emo_internal.get('d_est', 0.02)
             self.c_est = emo_internal.get('c_est', 0.0)
+            self.boost = emo_internal.get('boost', self.boost)
             self.should_stop = emo_internal.get('should_stop', False)
             self.stopcoef = emo_internal.get('stopcoef', self.stopcoef)
         self.state = state_dict.get('scheduler_state', {})
@@ -148,7 +153,8 @@ class EmoPulse:
             self.dNR_hist = dNR_now_val * 0.80
 
         # 基礎倍率 (100.0 ^ c_est)
-        emoChain = self.base_scale * max((100.0 ** self.c_est), 1e-3)
+        cest_boost = self.boost * 10.0 # 拡張倍率(LoRA等は10.0倍化可)
+        emoChain = self.base_scale * max((cest_boost ** self.c_est), 1e-3)
 
         # 最終学習率の実効値決定
         emoPulse = float(max(min(self.dNR_hist * (emoChain * self.emoScope),
