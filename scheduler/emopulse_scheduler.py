@@ -1,8 +1,9 @@
 import math
 import torch
+from torch.optim.lr_scheduler import _LRScheduler
 
 """
-EmoPulseScheduler v3.9.3+ (260901)
+EmoPulseScheduler v3.9.3+ (260930)
 An emotion-driven dynamic scheduler that feels loss and navigates learning rates.
 
 Recommended Learning Rate(rLR) ／ 学習率推奨値 は以下です
@@ -32,7 +33,7 @@ if not hasattr(torch.optim.Optimizer, "_manual_loss"):
     torch.Tensor.backward = _new_backward
     print("🚩 emo-optim success ecc system ...")
 
-class EmoPulse:
+class EmoPulse(_LRScheduler):
 
     def __init__(self, optimizer,
                  histwarmup=30,
