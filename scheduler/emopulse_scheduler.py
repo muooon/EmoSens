@@ -54,7 +54,7 @@ class EmoPulse(_LRScheduler):
         # 基準値と最低値
         self.emoScope, self.min_lim = 1.0, 1e-8        
         # 上限値スライド／小さい場合(例：1e-5以下など)でも上限を適切に設定
-        lim_boost = boost * 3.0  # 拡張倍率(LoRA等は10.0倍化可)
+        lim_boost = boost  # 拡張倍率(LoRA等は10.0倍化可) 固定３倍化ではなく任意値へ
         self.max_lim = max(min(initial_lr * lim_boost, 3e-3), 3e-8)
         # 履歴初期化
         self.dNR_hist, self.noise_est, self.d_est, self.c_est = 1.0, 1.0, 0.02, 0.0
