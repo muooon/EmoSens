@@ -3,7 +3,7 @@ import torch
 from torch.optim.lr_scheduler import _LRScheduler
 
 """
-EmoPulseScheduler v3.9.3+ (260930)
+EmoPulseScheduler v3.9.3+ (261001)
 An emotion-driven dynamic scheduler that feels loss and navigates learning rates.
 
 Recommended Learning Rate(rLR) ／ 学習率推奨値 は以下です
@@ -39,7 +39,8 @@ class EmoPulse(_LRScheduler):
                  histwarmup=30,
                  stopcoef=0.04,
                  boost: float = 1.0,
-                 notify: bool = True):
+                 notify: bool = True,
+                 last_epoch: int = -1):
         self.optimizer = optimizer
         # オプティマイザの param_groups から初期学習率を自動取得する
         initial_lr = optimizer.param_groups[0].get('lr', 1.0)
@@ -61,6 +62,8 @@ class EmoPulse(_LRScheduler):
 
         # スケジューラ独自の状態保持用辞書
         self.state = {}
+
+        super().__init__(optimizer, last_epoch)
 
     def state_dict(self):
         return {
