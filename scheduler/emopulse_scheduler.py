@@ -47,7 +47,7 @@ class EmoPulse(_LRScheduler):
                  num_cooldw_steps = 0.1,
                  num_training_steps: int = 0,
                  last_epoch: int = -1):
-        self.optimizer = optimizer
+ 
         # オプティマイザの param_groups から初期学習率を自動取得する
         initial_lr = optimizer.param_groups[0].get('lr', 1.0)
         self._init_lr = initial_lr
