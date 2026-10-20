@@ -3,7 +3,7 @@ import torch
 from torch.optim.lr_scheduler import _LRScheduler
 
 """
-EmoPulseScheduler v3.9.5+ (261018)
+EmoPulseScheduler v3.9.5+ (261020)
 An emotion-driven dynamic scheduler that feels loss and navigates learning rates.
 
 Recommended Learning Rate(rLR) ／ 学習率推奨値 は以下です
@@ -16,9 +16,8 @@ Basically, please use the learning rate (LR) expected by the optimizer you are c
 # usage ／ 使い方
 # --lr_scheduler_type=scheduler.emopulse_scheduler.EmoPulse
 # --lr_scheduler_args "stopcoef=0.07" "num_warmup_steps=50" "num_cooldw_steps=0.1" "boost=2.0"
-# Note：Specify cosine decay in cooldw_steps.
-# (0 disables it; values ≤ 1.0 are treated as a ratio; values > 1.0 = number of steps).
-# 備考： cooldw_steps で cos減衰指定 (0は無効、1.0以下は割合、1.0以上は開始step数指定)
+# Note：warmup / cooldw (0: Disabled, <= 1.0: Ratio, > 1.0: Step count).
+# 備考：warmup / cooldw (0は無効、1.0以下は割合、1.0以上はstep数指定)
 
 
 # ECC - emo closure capture (Loss-Bypass)
@@ -83,6 +82,11 @@ class EmoPulse(_LRScheduler):
         self.state = {}
 
         super().__init__(optimizer, last_epoch)
+
+        # 初回かつ｢ウォームアップ有効時｣のみ学習率ゼロ(最小値)にする
+        if self.last_epoch <= 0 and self.num_warmup_steps > 0:
+            for group in self.optimizer.param_groups:
+                group['lr'] = self.min_lim
 
         if self.last_epoch > 0:
             self.state['step'] = self.last_epoch
